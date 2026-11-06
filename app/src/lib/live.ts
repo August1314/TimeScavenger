@@ -57,18 +57,43 @@ export async function getLiveSource(photoId: string): Promise<LiveSource | null>
   if (cache.has(photoId)) return cache.get(photoId) ?? null;
   try {
     const asset = new Asset(photoId);
-    const [photoUri, filename] = await Promise.all([
+    const [currentUri, origUri, filename] = await Promise.all([
+      asset.getUri(),
       asset.getUri({ version: AssetUriVersion.ORIGINAL }),
       asset.getFilename(),
     ]);
+    const photoUri = currentUri ?? origUri;
     if (!photoUri) {
       cache.set(photoId, null);
       return null;
     }
-    const pairedVideoUri = strictCandidates(photoUri, filename).find(fileExists) ?? null;
-    const src = pairedVideoUri ? { photoUri, pairedVideoUri } : null;
-    cache.set(photoId, src);
-    return src;
+    // 配对原则：photo 与 video 必须来自同一存储位置/同一 stem。
+    // 若 ORIGINAL uri 仍在 DCIM 原始位（未被 Mutations 渲染路径污染），优先"原始照片+原始MOV"成对。
+    const album = (photoUri.match(/DCIM\/([^/]+)\//) ?? [])[1]
+      ?? ((origUri ?? '').match(/DCIM\/([^/]+)\//) ?? [])[1] ?? '';
+    const stem = (filename ?? '').split('.')[0];
+    let pair: LiveSource | null = null;
+    if (album && stem) {
+      const origPhoto = [
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.JPG`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.jpg`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.HEIC.JPG`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.HEIC`,
+      ].find(fileExists);
+      const origVideo = [
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.MOV`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.mov`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.HEIC.MOV`,
+        `file:///var/mobile/Media/DCIM/${album}/${stem}.HEIC.mov`,
+      ].find(fileExists);
+      if (origPhoto && origVideo) pair = { photoUri: origPhoto, pairedVideoUri: origVideo };
+    }
+    if (!pair) {
+      const v = strictCandidates(photoUri, filename).find(fileExists);
+      if (v) pair = { photoUri, pairedVideoUri: v };
+    }
+    cache.set(photoId, pair);
+    return pair;
   } catch {
     cache.set(photoId, null);
     return null;

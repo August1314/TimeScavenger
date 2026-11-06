@@ -239,8 +239,9 @@ export default function ReviewScreen() {
               const src = liveSrc?.src;
               setLiveSrc(null);
               if (reason) {
-                const tail = src ? `｜视频:${src.pairedVideoUri.split('/').slice(-2).join('/')}` : '';
-                showToast(`实况加载失败：${reason}${tail}`);
+                const p = src ? src.photoUri.split('/').slice(-2).join('/') : '?';
+                const v = src ? src.pairedVideoUri.split('/').slice(-2).join('/') : '?';
+                showToast(`实况加载失败：${reason}｜${p} + ${v}`);
               }
             }}
           />
