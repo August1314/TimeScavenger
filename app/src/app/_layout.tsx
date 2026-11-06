@@ -19,6 +19,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         {/* 全屏流程页：不在 tab 栏内（对齐原版：浏览/信息页无底部 tab） */}
         <Stack.Screen name="review" />
+        <Stack.Screen name="settings" />
         <Stack.Screen name="photo-info" />
         <Stack.Screen name="back-to-day" />
         {/* 回收站：底部滑出的卡片式 modal（对齐原版 IMG_1498） */}
