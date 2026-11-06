@@ -52,10 +52,12 @@ export default function BackToDayScreen() {
     [items, filter],
   );
 
-  const columns: MediaRow[][] = useMemo(() => {
-    const out: MediaRow[][] = [];
-    for (let i = 0; i < filtered.length; i += 2) out.push(filtered.slice(i, i + 2));
-    return out;
+  // 原版为"行式"：奇偶分两行、每行顶边对齐、行内保留各自宽高比（IMG_1516 对比裁决）
+  const rows: MediaRow[][] = useMemo(() => {
+    const r1: MediaRow[] = [];
+    const r2: MediaRow[] = [];
+    filtered.forEach((it, i) => (i % 2 === 0 ? r1 : r2).push(it));
+    return [r1, r2];
   }, [filtered]);
 
   const anchorCol = Math.max(0, Math.floor(filtered.findIndex((r) => r.localIdentifier === id) / 2));
@@ -118,9 +120,9 @@ export default function BackToDayScreen() {
         }}
         scrollEventThrottle={32}
       >
-        {columns.map((col, ci) => (
-          <View key={ci} style={styles.column}>
-            {col.map((it) => (
+        {rows.map((row, ri) => (
+          <View key={ri} style={styles.row}>
+            {row.map((it) => (
               <TouchableOpacity
                 key={it.localIdentifier}
                 activeOpacity={0.9}
@@ -193,8 +195,8 @@ const styles = StyleSheet.create({
   titleSub: { color: C.textDim, fontSize: 13 },
   titleMain: { color: '#fff', fontSize: 22, fontWeight: '800' },
 
-  wall: { gap: GAP, paddingHorizontal: 12, paddingVertical: 8 },
-  column: { gap: GAP },
+  wall: { gap: GAP, paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'column' },
+  row: { flexDirection: 'row', gap: GAP, alignItems: 'flex-start' },
   cell: { width: COL_W, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
   liveBadge: {
     position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(20,20,28,0.6)',
