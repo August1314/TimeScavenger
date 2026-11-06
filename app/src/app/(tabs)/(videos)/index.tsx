@@ -66,7 +66,11 @@ export default function VideosHome() {
           setUri(null);
           return;
         }
-        const u = await asset.getUri();
+        // expo-video 官方文档：相册视频要用 legacy getAssetInfoAsync 的 uri（带 PHAsset 权限上下文），
+        // 新 API getUri() 的导出路径 AVPlayer 打不开（实机 "The file couldn't be opened"）
+        const { getAssetInfoAsync } = require('expo-media-library/legacy');
+        const info = await getAssetInfoAsync(current.localIdentifier);
+        const u: string | null = info?.uri ?? null;
         if (!alive) return;
         if (!u) {
           showToast('无法获取视频文件地址');
