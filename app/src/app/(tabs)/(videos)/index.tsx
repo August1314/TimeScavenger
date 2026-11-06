@@ -25,6 +25,9 @@ export default function VideosHome() {
   const [toast, setToast] = useState<string | null>(null);
   const [lastDeleted, setLastDeleted] = useState<MediaRow | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idxRef = useRef(0);
+  const rowsRef = useRef<MediaRow[]>([]);
+  const busyRef = useRef(false);
 
   const current = rows[idx];
   const player = useVideoPlayer(uri ?? '', (p) => {
@@ -41,6 +44,8 @@ export default function VideosHome() {
     let alive = true;
     void nextGroup('video').then((g) => {
       if (!alive) return;
+      rowsRef.current = g.items;
+      idxRef.current = 0;
       setRows(g.items);
       setIdx(0);
     });
@@ -122,19 +127,42 @@ export default function VideosHome() {
     return () => clearInterval(t);
   }, [player]);
 
-  const go = (next: number) => {
-    if (!current) return;
-    void markSeen(current);
-    setIdx(Math.max(0, Math.min(rows.length - 1, next)));
+  // 下标以 ref 为权威源：手势经 runOnJS 派发时 React 可能尚未重渲染，闭包 idx 会过期
+  const advance = async (d: number) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    try {
+      const rowsNow = rowsRef.current;
+      const i = idxRef.current;
+      const cur = rowsNow[i];
+      if (!cur) return;
+      await markSeen(cur);
+      const next = i + d;
+      if (next < 0) return;
+      if (next >= rowsNow.length) {
+        // 组尾上滑 → 自动拉下一组；拉空则进入"已全部回顾"空态（修复滑到底卡死）
+        const g = await nextGroup('video');
+        rowsRef.current = g.items;
+        idxRef.current = 0;
+        setRows(g.items);
+        setIdx(0);
+        return;
+      }
+      idxRef.current = next;
+      setIdx(next);
+    } finally {
+      busyRef.current = false;
+    }
   };
 
-  const doStep = (d: number) => go(idx + d);
+  const doStep = (d: number) => void advance(d);
   const doFast = (v: boolean) => {
     setFast(v);
     player.playbackRate = v ? 2 : 1;
   };
 
-  // 上下滑切换 + 长按 2x（原版 IMG_1494 / 文案"2x 速率播放中"）；手势随渲染重建，闭包始终最新
+  // 上下滑切换 + 长按 2x（原版 IMG_1494 / 文案"2x 速率播放中"）
+  // maxDistance：手指一旦移动就放弃长按，否则慢速滑动(>350ms)会被长按抢掉导致"滑不动"
   const composed = Gesture.Race(
     Gesture.Pan().onEnd((e) => {
       'worklet';
@@ -145,6 +173,7 @@ export default function VideosHome() {
     }),
     Gesture.LongPress()
       .minDuration(350)
+      .maxDistance(12)
       .onStart(() => {
         'worklet';
         runOnJS(doFast)(true);
@@ -173,7 +202,10 @@ export default function VideosHome() {
     setLastDeleted(current);
     hapticWarn();
     showToast('已加入待删除 · 回收站确认');
-    if (idx < rows.length - 1) setIdx(idx + 1);
+    if (idxRef.current < rowsRef.current.length - 1) {
+      idxRef.current += 1;
+      setIdx(idxRef.current);
+    }
   };
 
   const undo = async () => {
