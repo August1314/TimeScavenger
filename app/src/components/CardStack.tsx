@@ -17,8 +17,9 @@ interface CardData {
 }
 
 interface Props {
-  cards: CardData[]; // 当前组
+  cards: CardData[];
   index: number;
+  badge?: React.ReactNode;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
@@ -28,31 +29,30 @@ const SWIPE_UP_THRESHOLD = -110;
 const SWIPE_DOWN_THRESHOLD = 110;
 const SWIPE_SIDE_THRESHOLD = 90;
 
-/** 当前卡手势层 */
-function TopCard({ card, onSwipe, onDoubleTap, onPinchOut }: {
+function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
   card: CardData;
+  badge?: React.ReactNode;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
 }) {
   const x = useSharedValue(0);
   const y = useSharedValue(0);
-  const rot = useSharedValue(0);
   const scale = useSharedValue(1);
-  const flying = useSharedValue(0); // 0 无 1 飞出
+  const gone = useSharedValue(0);
 
   useEffect(() => {
-    x.value = 0; y.value = 0; rot.value = 0; scale.value = 1; flying.value = 0;
-  }, [card.id, x, y, rot, scale, flying]);
+    x.value = 0; y.value = 0; scale.value = 1; gone.value = 0;
+  }, [card.id, x, y, scale, gone]);
 
   const style = useAnimatedStyle(() => ({
     transform: [
       { translateX: x.value },
       { translateY: y.value },
-      { rotate: `${rot.value + x.value * 0.03}deg` },
+      { rotate: `${x.value * 0.02}deg` },
       { scale: scale.value },
     ],
-    opacity: withTiming(flying.value === 1 ? 0 : 1, { duration: 220 }),
+    opacity: withTiming(gone.value === 1 ? 0 : 1, { duration: 200 }),
   }));
 
   const pan = Gesture.Pan()
@@ -70,7 +70,7 @@ function TopCard({ card, onSwipe, onDoubleTap, onPinchOut }: {
       else if (dx > SWIPE_SIDE_THRESHOLD) dir = 'right';
 
       if (dir) {
-        flying.value = 1;
+        gone.value = 1;
         const target =
           dir === 'up' ? { x: 0, y: -900 }
           : dir === 'down' ? { x: 0, y: 900 }
@@ -89,7 +89,7 @@ function TopCard({ card, onSwipe, onDoubleTap, onPinchOut }: {
 
   const pinch = Gesture.Pinch()
     .onUpdate((e) => {
-      if (e.scale < 1) scale.value = Math.max(0.7, e.scale);
+      if (e.scale < 1) scale.value = Math.max(0.75, e.scale);
     })
     .onEnd((e) => {
       if (e.scale < 0.85) runOnJS(onPinchOut)();
@@ -101,55 +101,33 @@ function TopCard({ card, onSwipe, onDoubleTap, onPinchOut }: {
   return (
     <GestureDetector gesture={composed}>
       <Animated.View style={[styles.card, style]}>
-        <View style={styles.polaroid}>
-          <Image
-            source={{ uri: card.uri }}
-            style={styles.photo}
-            contentFit="cover"
-            transition={150}
-            recyclingKey={card.id}
-          />
-        </View>
+        <Image
+          source={{ uri: card.uri }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={150}
+          recyclingKey={card.id}
+        />
+        {badge}
       </Animated.View>
     </GestureDetector>
   );
 }
 
-export function CardStack({ cards, index, onSwipe, onDoubleTap, onPinchOut }: Props) {
-  const visible = cards.slice(index, index + 3);
+export function CardStack({ cards, index, badge, onSwipe, onDoubleTap, onPinchOut }: Props) {
+  const visible = cards.slice(index, index + 2);
+  const top = visible[0];
+  const behind = visible[1];
   return (
     <View style={styles.stack} pointerEvents="box-none">
-      {visible.map((c, i) => {
-        const depth = visible.length - 1 - i; // 0 = top
-        if (depth === 0) {
-          return (
-            <View key={c.id} style={StyleSheet.absoluteFill} pointerEvents="box-none">
-              <TopCard card={c} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} />
-            </View>
-          );
-        }
-        return (
-          <Animated.View
-            key={c.id}
-            style={[
-              styles.card,
-              styles.behind,
-              {
-                transform: [
-                  { translateY: depth * 14 },
-                  { translateX: depth === 1 ? (i % 2 ? 26 : -26) : 0 },
-                  { rotate: `${depth === 1 ? (i % 2 ? 5 : -5) : depth * 2}deg` },
-                  { scale: 1 - depth * 0.05 },
-                ],
-              },
-            ]}
-          >
-            <View style={styles.polaroid}>
-              <Image source={{ uri: c.uri }} style={styles.photo} contentFit="cover" recyclingKey={c.id} />
-            </View>
-          </Animated.View>
-        );
-      })}
+      {behind && (
+        <View style={[styles.card, styles.behind]}>
+          <Image source={{ uri: behind.uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={behind.id} />
+        </View>
+      )}
+      {top && (
+        <TopCard card={top} badge={badge} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} />
+      )}
     </View>
   );
 }
@@ -157,18 +135,20 @@ export function CardStack({ cards, index, onSwipe, onDoubleTap, onPinchOut }: Pr
 const styles = StyleSheet.create({
   stack: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   card: {
-    width: '82%',
-    aspectRatio: 0.82,
-    backgroundColor: '#fff',
-    borderRadius: 22,
-    padding: 14,
+    flex: 1,
+    width: '100%',
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: '#222',
     shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
   },
-  behind: { position: 'absolute' },
-  polaroid: { flex: 1, backgroundColor: '#5b5fb0', borderRadius: 10, padding: 10 },
-  photo: { flex: 1, borderRadius: 4 },
+  behind: {
+    position: 'absolute',
+    transform: [{ scale: 0.94 }, { translateY: 18 }],
+    opacity: 0.55,
+  },
 });

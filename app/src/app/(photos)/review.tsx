@@ -8,7 +8,8 @@ import { CardStack } from '../../components/CardStack';
 import { createDeck, deckReducer, type DeckAction, type DeckState } from '../../lib/deckMachine';
 import { nextGroup, markSeen } from '../../lib/session';
 import { pendingQueue } from '../../lib/deletion';
-import { setFavorite } from '../../lib/assets';
+import { setFavorite, getAssetLocation } from '../../lib/assets';
+import { placeName } from '../../lib/place';
 import { formatTime } from '../../lib/time';
 import { getSetting } from '../../db/repo';
 import type { Category, MediaRow } from '../../db/repo';
@@ -19,7 +20,25 @@ export default function ReviewScreen() {
   const [rows, setRows] = useState<MediaRow[]>([]);
   const [deck, setDeck] = useState<DeckState | null>(null);
   const [timeFormat, setTimeFormat] = useState<'relative' | 'date'>('relative');
+  const [place, setPlace] = useState<string | null>(null);
   const [, force] = useState(0);
+
+  const currentId = deck?.items[deck.index]?.id;
+  useEffect(() => {
+    setPlace(null);
+    if (!currentId) return;
+    let alive = true;
+    (async () => {
+      const loc = await getAssetLocation(currentId);
+      if (loc && alive) {
+        const name = await placeName(loc.latitude, loc.longitude);
+        if (alive) setPlace(name);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [currentId]);
 
   useEffect(() => {
     (async () => {
@@ -130,6 +149,13 @@ export default function ReviewScreen() {
           <CardStack
             cards={deck.items}
             index={deck.index}
+            badge={
+              currentRow?.mediaType === 'live' ? (
+                <View style={styles.liveBadge}>
+                  <Text style={styles.liveBadgeText}>◉ 实况 ▾</Text>
+                </View>
+              ) : undefined
+            }
             onSwipe={(dir) => dispatch({ type: 'swipe', dir })}
             onDoubleTap={() => dispatch({ type: 'doubleTap' })}
             onPinchOut={() => dispatch({ type: 'pinch' })}
@@ -148,9 +174,12 @@ export default function ReviewScreen() {
           }}
         />
         <View style={styles.timeCapsule}>
-          <Text style={styles.timeText}>
-            {currentRow ? formatTime(currentRow.creationDate, timeFormat) : '未知时间'}
-          </Text>
+          <View style={{ gap: 2 }}>
+            <Text style={styles.timeText}>
+              {currentRow ? formatTime(currentRow.creationDate, timeFormat) : '未知时间'}
+            </Text>
+            {place ? <Text style={styles.placeText}>{place}</Text> : null}
+          </View>
           <TouchableOpacity
             onPress={() => {
               const id = deck.items[deck.index]?.id;
@@ -184,7 +213,13 @@ const styles = StyleSheet.create({
   },
   progressTrack: { flex: 1, height: 3, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 2, marginHorizontal: 18 },
   progressFill: { height: 3, backgroundColor: '#fff', borderRadius: 2 },
-  deckArea: { flex: 1, paddingHorizontal: 8 },
+  deckArea: { flex: 1, paddingHorizontal: 14, paddingBottom: 6 },
+  liveBadge: {
+    position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(20,20,28,0.6)',
+    borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5,
+  },
+  liveBadgeText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  placeText: { color: C.textDim, fontSize: 13 },
   bottomBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 24, paddingBottom: 110, paddingTop: 10,
