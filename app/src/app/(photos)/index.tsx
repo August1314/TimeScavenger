@@ -5,15 +5,18 @@ import { GradientBackground } from '../../theme/GradientBackground';
 import { C } from '../../theme/colors';
 import { countUnreviewed } from '../../db/repo';
 import { groupSizeLabel } from '../../lib/session';
+import { pendingQueue } from '../../lib/deletion';
 
 export default function PhotosHome() {
   const [n, setN] = useState(0);
   const [size, setSize] = useState('15');
+  const [pendingN, setPendingN] = useState(0);
 
   useEffect(() => {
     const refresh = () => {
       void countUnreviewed('photo').then(setN);
       void groupSizeLabel('photo').then(setSize);
+      setPendingN(pendingQueue.list().length);
     };
     refresh();
     const t = setInterval(refresh, 3000);
@@ -39,6 +42,11 @@ export default function PhotosHome() {
         <TouchableOpacity style={styles.spikeLink} onPress={() => router.push('/spike')}>
           <Text style={styles.spikeText}>设备验证页</Text>
         </TouchableOpacity>
+        {pendingN > 0 && (
+          <TouchableOpacity style={styles.pendingPill} onPress={() => router.push('/pending')}>
+            <Text style={styles.pendingText}>有待删除的照片 · {pendingN}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -62,4 +70,6 @@ const styles = StyleSheet.create({
   startText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   spikeLink: { marginTop: 18, padding: 10 },
   spikeText: { color: C.textDim, fontSize: 13 },
+  pendingPill: { marginTop: 14, backgroundColor: 'rgba(224,90,90,0.25)', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 10 },
+  pendingText: { color: '#FFB3B3', fontSize: 14, fontWeight: '600' },
 });
