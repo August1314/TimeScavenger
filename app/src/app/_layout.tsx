@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { ColorValue } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { C } from '../theme/colors';
 
 const icon = (name: (f: boolean) => keyof typeof Ionicons.glyphMap) =>
@@ -10,6 +11,7 @@ const icon = (name: (f: boolean) => keyof typeof Ionicons.glyphMap) =>
 
 export default function RootLayout() {
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -52,5 +54,6 @@ export default function RootLayout() {
       />
       <Tabs.Screen name="spike" options={{ href: null }} />
     </Tabs>
+    </GestureHandlerRootView>
   );
 }
