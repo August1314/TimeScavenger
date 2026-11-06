@@ -95,6 +95,35 @@ export default function SpikeScreen() {
           .map((v: { id: string; filename?: string; mediaSubtypes?: string[] }) => `${v.id} ${v.filename} [${(v.mediaSubtypes ?? []).join('|')}]`);
         say(`视频总数=${vids.length} 同stem匹配=${hits.length ? hits.join(' ; ') : '无'}`);
       })} busy={busy} />
+      <Btn label="6. 配对MOV候选路径探测" onPress={() => run(async () => {
+        const { Asset } = require('expo-media-library');
+        const { File } = require('expo-file-system');
+        const one = (await fetchUnreviewedRandom('live', 1))[0];
+        if (!one) { say('库中没有实况照片'); return; }
+        const a = new Asset(one.localIdentifier);
+        const [uri, name] = await Promise.all([a.getUri(), a.getFilename()]);
+        say(`uri=${uri} name=${name}`);
+        const stem = String(name ?? '').split('.')[0];
+        const album = (uri.match(/DCIM\/([^/]+)\//) ?? [])[1] ?? '';
+        const base = uri.replace(/\/Adjustments\/[^/]+$/, '').replace(/\/[^/]*$/, '');
+        const cands = [
+          uri.replace(/\.jpg$/i, '.mov'),
+          uri.replace(/\.jpg$/i, '.MOV'),
+          `${base}/Adjustments/FullSizeRender.mov`,
+          `${base}/${stem}.MOV`,
+          `${base}/${stem}.mov`,
+          `file:///var/mobile/Media/DCIM/${album}/${stem}.MOV`,
+          `file:///var/mobile/Media/DCIM/${album}/${stem}.mov`,
+          `file:///var/mobile/Media/PhotoData/Mutations/DCIM/${album}/${stem}/Adjustments/FullSizeRender.mov`,
+        ];
+        for (const c of cands) {
+          try {
+            const f = new File(c);
+            const ex = f.exists();
+            say(`${ex ? '✅' : '✗'} ${ex ? f.size + 'B' : '-'} ${c}`);
+          } catch (e) { say(`❌ ${c} ${String(e).slice(0, 60)}`); }
+        }
+      })} busy={busy} />
     </View>
   );
 }
