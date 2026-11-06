@@ -155,8 +155,8 @@ export default function PhotoInfoScreen() {
               )}
             </View>
             <View style={styles.placeRow}>
-              <Text style={styles.placeText}>{parts?.street ?? (parts || loc ? '' : '定位中…')}</Text>
-              <Text style={styles.placeRegion}>{parts?.region ?? ''}</Text>
+              <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">{parts?.street ?? (parts || loc ? '' : '定位中…')}</Text>
+              <Text style={styles.placeRegion} numberOfLines={1} ellipsizeMode="tail">{parts?.region ?? ''}</Text>
             </View>
           </>
         ) : (
@@ -223,8 +223,8 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4,
   },
   placeRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  placeText: { color: '#fff', fontSize: 15, flexShrink: 1 },
-  placeRegion: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
+  placeText: { color: '#fff', fontSize: 15, flexShrink: 1, flexBasis: '45%' },
+  placeRegion: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right', flexShrink: 1, flexBasis: '45%' },
 
   bottomBar: { flexDirection: 'row', justifyContent: 'center', gap: 24, paddingBottom: 34, paddingTop: 8 },
   roundBtn: {

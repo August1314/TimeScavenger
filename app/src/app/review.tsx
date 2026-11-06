@@ -236,13 +236,8 @@ export default function ReviewScreen() {
             onPinchOut={() => dispatch({ type: 'pinch' })}
             onLongPress={() => void playLive()}
             onLiveEnd={(reason) => {
-              const src = liveSrc?.src;
               setLiveSrc(null);
-              if (reason) {
-                const p = src ? src.photoUri.split('/').slice(-2).join('/') : '?';
-                const v = src ? src.pairedVideoUri.split('/').slice(-2).join('/') : '?';
-                showToast(`实况加载失败：${reason}｜${p} + ${v}`);
-              }
+              if (reason) showToast('这张实况的配对信息在相册内部，需独立构建版才能播放');
             }}
           />
         )}
@@ -281,11 +276,11 @@ export default function ReviewScreen() {
           }}
         />
         <View style={styles.timeCapsule}>
-          <View style={{ gap: 2 }}>
-            <Text style={styles.timeText}>
+          <View style={{ gap: 2, flexShrink: 1 }}>
+            <Text style={styles.timeText} numberOfLines={1}>
               {currentRow ? formatTime(currentRow.creationDate, timeFormat) : '未知时间'}
             </Text>
-            {place ? <Text style={styles.placeText}>{place}</Text> : null}
+            {place ? <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">{place}</Text> : null}
           </View>
           <TouchableOpacity
             style={styles.infoBtn}
