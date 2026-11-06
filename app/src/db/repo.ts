@@ -187,6 +187,12 @@ export async function resetReviewed(scope: ResetScope): Promise<void> {
   }
 }
 
+export async function removeMedia(ids: string[]): Promise<void> {
+  if (ids.length === 0) return;
+  const d = await ensureDb();
+  await d.runAsync(`DELETE FROM media WHERE localIdentifier IN (${placeholders(ids.length)})`, ...ids);
+}
+
 export async function getSetting(key: string): Promise<string | null> {
   const d = await ensureDb();
   const rows = await d.getAllAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', key);

@@ -9,6 +9,7 @@ import {
   resetReviewed,
   getSetting,
   setSetting,
+  removeMedia,
   __testingDb,
   type MediaRow,
 } from '../repo';
@@ -130,5 +131,13 @@ describe('settings', () => {
     expect(await getSetting('photosPerGroup')).toBe('15');
     await setSetting('photosPerGroup', '20');
     expect(await getSetting('photosPerGroup')).toBe('20');
+  });
+});
+
+describe('removeMedia', () => {
+  it('deletes rows by id and leaves others', async () => {
+    await upsertMedia([row('A', 'photo'), row('B', 'photo')]);
+    await removeMedia(['A']);
+    expect((await fetchUnreviewedRandom('photo', 10)).map((r) => r.localIdentifier)).toEqual(['B']);
   });
 });
