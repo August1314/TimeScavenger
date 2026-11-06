@@ -66,16 +66,18 @@ export default function VideosHome() {
           setUri(null);
           return;
         }
-        // expo-video 官方文档：相册视频要用 legacy getAssetInfoAsync 的 uri（带 PHAsset 权限上下文），
-        // 新 API getUri() 的导出路径 AVPlayer 打不开（实机 "The file couldn't be opened"）
+        // expo-video 官方文档：相册视频要用 legacy getAssetInfoAsync 的 uri（ph://，带 PHAsset 权限上下文），
+        // 新 API getUri() 的导出路径 AVPlayer 打不开（实机 "The file couldn't be opened"）。
+        // 注意：库里的 localIdentifier 是新 API 的 id，iOS 上带 "ph://" 前缀
+        // （AssetMapper.swift: id = "ph://"+localIdentifier）；legacy 原生按原始
+        // PHAsset.localIdentifier 查找（fetchAssets(withLocalIdentifiers:)），必须剥掉前缀，
+        // 否则查不到、原生直接 resolve(nil)。legacy 返回的 uri 本身就是 "ph://"+localId，
+        // 所以查不到时可用拼接值兜底播放。
+        const rawId = current.localIdentifier.replace(/^ph:\/\//, '');
         const { getAssetInfoAsync } = require('expo-media-library/legacy');
-        const info = await getAssetInfoAsync(current.localIdentifier);
-        const u: string | null = info?.uri ?? null;
+        const info = await getAssetInfoAsync(rawId);
+        const u: string = info?.uri ?? `ph://${rawId}`;
         if (!alive) return;
-        if (!u) {
-          showToast('无法获取视频文件地址');
-          return;
-        }
         setUri(u);
         const loc = await getAssetLocation(current.localIdentifier);
         if (loc && alive) {
