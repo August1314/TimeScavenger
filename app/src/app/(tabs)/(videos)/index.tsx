@@ -59,19 +59,41 @@ export default function VideosHome() {
     setPlace(null);
     setProgress(0);
     (async () => {
-      const u = await new Asset(current.localIdentifier).getUri();
-      if (!alive) return;
-      setUri(u);
-      const loc = await getAssetLocation(current.localIdentifier);
-      if (loc && alive) {
-        const p = await placeParts(loc.latitude, loc.longitude);
-        if (alive) setPlace(p?.region ?? p?.street ?? null);
+      try {
+        const asset = new Asset(current.localIdentifier);
+        if (await asset.getIsInCloud()) {
+          if (alive) showToast('该视频存储在 iCloud 云端，无法本地播放');
+          setUri(null);
+          return;
+        }
+        const u = await asset.getUri();
+        if (!alive) return;
+        if (!u) {
+          showToast('无法获取视频文件地址');
+          return;
+        }
+        setUri(u);
+        const loc = await getAssetLocation(current.localIdentifier);
+        if (loc && alive) {
+          const p = await placeParts(loc.latitude, loc.longitude);
+          if (alive) setPlace(p?.region ?? p?.street ?? null);
+        }
+      } catch (e: any) {
+        if (alive) showToast(`视频加载失败：${String(e?.message ?? e).slice(0, 60)}`);
       }
     })();
     return () => {
       alive = false;
     };
   }, [current?.localIdentifier]);
+
+  // 播放器状态错误上报
+  useEffect(() => {
+    const sub = player.addListener('statusChange', ({ status, error }) => {
+      if (status === 'error') showToast(`播放失败：${String(error?.message ?? '未知').slice(0, 60)}`);
+    });
+    return () => sub.remove();
+  }, [player]);
 
   useEffect(() => {
     if (uri) {
