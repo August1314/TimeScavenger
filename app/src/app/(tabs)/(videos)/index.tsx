@@ -75,7 +75,7 @@ export default function VideosHome() {
 
   useEffect(() => {
     if (uri) {
-      player.source = uri;
+      player.replace(uri);
       player.play();
     }
   }, [uri, player]);
