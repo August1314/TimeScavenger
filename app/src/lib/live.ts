@@ -7,27 +7,39 @@ export interface LiveSource {
 }
 
 /**
- * REA 结论：原版是原生 app，用 PHLivePhoto.request(for: PHAsset) 直接播，无需文件路径。
- * expo-live-photo 需要两个 file URL，且 PHLivePhoto 校验"配对元数据完整"：
- * 编辑过照片的 Mutations/Adjustments 渲染件与 MOV 配对已破坏 → 必须取 ORIGINAL 原始件对。
- * 候选：原始照片路径同目录换扩展名(.mov/.MOV/.HEIC.MOV) + DCIM/<album>/<STEM>.MOV。
+ * REA 结论：原版原生用 PHLivePhoto.request(for: PHAsset)，从不碰路径；
+ * expo-live-photo 要求 photo/video 两个 file URL 且**配对元数据一致**（实机报错
+ * "Provided photo and video urls are not paired"）。
+ * 严格同 stem 配对：JPG/HEIC 照片 → 仅把"照片文件名末尾扩展名"换成 .mov/.MOV：
+ *   IMG_1.MOV       ← IMG_1.JPG / IMG_1.HEIC
+ *   IMG_1.HEIC.MOV  ← IMG_1.HEIC.JPG（HEIC 实况的视频轨命名）
+ * 禁止跨 stem（如 IMG_1.MOV 配 IMG_1.HEIC.JPG）——那必不配对。
  */
-function candidateVideoUris(photoUri: string, filename: string): string[] {
+function strictCandidates(photoUri: string, filename: string): string[] {
   const out: string[] = [];
-  const extMatch = photoUri.match(/\.(jpe?g|heic|heif|png)$/i);
-  if (extMatch) {
-    const base = photoUri.slice(0, photoUri.length - extMatch[0].length);
-    out.push(`${base}.mov`, `${base}.MOV`, `${base}.HEIC.MOV`);
-  }
+  const pushSwap = (base: string) => {
+    out.push(`${base}.mov`, `${base}.MOV`);
+  };
+  if (/\.(mov|mp4)$/i.test(photoUri)) return []; // 照片 URI 本身是视频 = 数据异常
+  const jpg = photoUri.match(/^(.*\.(?:heic|heif))\.jpe?g$/i); // IMG_1.HEIC.JPG → IMG_1.HEIC
+  if (jpg) pushSwap(jpg[1]);
+  const plain = photoUri.match(/^(.*)\.jpe?g$/i);
+  if (plain) pushSwap(plain[1]);
+  const heic = photoUri.match(/^(.*)\.(?:heic|heif)$/i);
+  if (heic) pushSwap(heic[1]);
+  // 兜底：按文件名 stem 猜原始 DCIM 位置（同 stem 直接 .MOV）
   const album = (photoUri.match(/DCIM\/([^/]+)\//) ?? [])[1] ?? '';
   const stem = (filename ?? '').split('.')[0];
   if (album && stem) {
-    out.push(
-      `file:///var/mobile/Media/DCIM/${album}/${stem}.MOV`,
-      `file:///var/mobile/Media/DCIM/${album}/${stem}.mov`,
-    );
+    out.push(`file:///var/mobile/Media/DCIM/${album}/${stem}.MOV`);
+    out.push(`file:///var/mobile/Media/DCIM/${album}/${stem}.mov`);
+    const stemHeic = stem.match(/^(.*)\.heic$/i);
+    if (stemHeic) {
+      out.push(`file:///var/mobile/Media/DCIM/${album}/${stemHeic[1]}.HEIC.MOV`);
+      out.push(`file:///var/mobile/Media/DCIM/${album}/${stem}.HEIC.MOV`);
+    }
   }
-  return out;
+  return Array.from(new Set(out));
 }
 
 function fileExists(uri: string): boolean {
@@ -40,7 +52,7 @@ function fileExists(uri: string): boolean {
 
 const cache = new Map<string, LiveSource | null>();
 
-/** 实况照片 → LivePhotoView 所需 {photoUri, pairedVideoUri}（ORIGINAL 原始件对）；失败返回 null */
+/** 实况照片 → LivePhotoView 所需 {photoUri, pairedVideoUri}；失败返回 null */
 export async function getLiveSource(photoId: string): Promise<LiveSource | null> {
   if (cache.has(photoId)) return cache.get(photoId) ?? null;
   try {
@@ -53,7 +65,7 @@ export async function getLiveSource(photoId: string): Promise<LiveSource | null>
       cache.set(photoId, null);
       return null;
     }
-    const pairedVideoUri = candidateVideoUris(photoUri, filename).find(fileExists) ?? null;
+    const pairedVideoUri = strictCandidates(photoUri, filename).find(fileExists) ?? null;
     const src = pairedVideoUri ? { photoUri, pairedVideoUri } : null;
     cache.set(photoId, src);
     return src;

@@ -236,8 +236,12 @@ export default function ReviewScreen() {
             onPinchOut={() => dispatch({ type: 'pinch' })}
             onLongPress={() => void playLive()}
             onLiveEnd={(reason) => {
+              const src = liveSrc?.src;
               setLiveSrc(null);
-              if (reason) showToast(`实况加载失败：${reason}`);
+              if (reason) {
+                const tail = src ? `｜视频:${src.pairedVideoUri.split('/').slice(-2).join('/')}` : '';
+                showToast(`实况加载失败：${reason}${tail}`);
+              }
             }}
           />
         )}
