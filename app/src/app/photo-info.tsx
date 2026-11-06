@@ -1,17 +1,164 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker } from 'react-native-maps';
 import { GradientBackground } from '../theme/GradientBackground';
 import { C } from '../theme/colors';
+import { formatTime } from '../lib/time';
+import { readExif, type ExifInfo } from '../lib/exif';
+import { getAssetLocation, type AssetLocation } from '../lib/assets';
+import { placeName } from '../lib/place';
+import { getMediaById, type MediaRow } from '../db/repo';
+import { nativeDeps } from '../lib/deletion';
+import { formatBytes } from '../lib/statsModel';
 
-export default function PhotoInfoPlaceholder() {
+function fullDate(ms: number): string {
+  const d = new Date(ms);
+  const week = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 星期${week} ${hh}:${mm}`;
+}
+
+export default function PhotoInfoScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [row, setRow] = useState<MediaRow | null>(null);
+  const [exif, setExif] = useState<ExifInfo | null>(null);
+  const [size, setSize] = useState<number | null>(null);
+  const [loc, setLoc] = useState<AssetLocation | null>(null);
+  const [place, setPlace] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let alive = true;
+    (async () => {
+      const r = await getMediaById(id);
+      const [e, s, l] = await Promise.all([readExif(id), nativeDeps().measureSize(id), getAssetLocation(id)]);
+      if (!alive) return;
+      setRow(r);
+      setExif(e);
+      setSize(s);
+      setLoc(l);
+      if (l) {
+        const p = await placeName(l.latitude, l.longitude);
+        if (alive) setPlace(p);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+
+  const params = exif
+    ? [
+        exif.aperture && { v: exif.aperture, k: '光圈' },
+        exif.shutter && { v: exif.shutter, k: '快门' },
+        exif.iso && { v: exif.iso, k: '感光度' },
+        exif.focal && { v: exif.focal, k: '焦距' },
+      ].filter(Boolean) as { v: string; k: string }[]
+    : [];
+  const hasExif = params.length > 0 || exif?.camera || exif?.fileName;
+
   return (
     <View style={styles.root}>
-      <GradientBackground />
-      <View style={styles.center}>
-        <Text style={styles.t}>照片信息（T12 落地）</Text>
-        <Text style={styles.id}>{id}</Text>
-        <Text style={styles.back} onPress={() => router.back()}>返回</Text>
+      <GradientBackground seed={id} />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {/* 时间标题（IMG_1499：相对时间大字 + 完整日期） */}
+        <View style={styles.spacerTop} />
+        {row && (
+          <>
+            <Text style={styles.bigTime}>{formatTime(row.creationDate, 'relative')}</Text>
+            <Text style={styles.fullDate}>{fullDate(row.creationDate)}</Text>
+          </>
+        )}
+
+        {/* 相片信息 */}
+        <View style={styles.sectionHead}>
+          <Ionicons name="camera-outline" size={15} color={C.textDim} />
+          <Text style={styles.sectionTitle}>相片信息</Text>
+        </View>
+
+        {!hasExif ? (
+          <Text style={styles.noExif}>这张照片没有拍摄参数（截屏或编辑过的照片）</Text>
+        ) : (
+          <>
+            {!!exif?.camera && (
+              <View style={styles.deviceRow}>
+                <Text style={styles.deviceKey}>设备</Text>
+                <Text style={styles.deviceVal}>{exif.camera}</Text>
+              </View>
+            )}
+            {params.length > 0 && (
+              <View style={styles.paramRow}>
+                {params.map((p) => (
+                  <View key={p.k} style={styles.paramCard}>
+                    <Text style={styles.paramVal}>{p.v}</Text>
+                    <Text style={styles.paramKey}>{p.k}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+            <View style={styles.kvList}>
+              {!!exif?.fileName && (
+                <View style={styles.kv}>
+                  <Text style={styles.kvKey}>• 文件名</Text>
+                  <Text style={styles.kvVal}>{exif.fileName}</Text>
+                </View>
+              )}
+              {!!row && (
+                <View style={styles.kv}>
+                  <Text style={styles.kvKey}>• 分辨率</Text>
+                  <Text style={styles.kvVal}>{row.width} × {row.height}</Text>
+                </View>
+              )}
+              {size != null && (
+                <View style={styles.kv}>
+                  <Text style={styles.kvKey}>• 文件大小</Text>
+                  <Text style={styles.kvVal}>{formatBytes(size)}</Text>
+                </View>
+              )}
+            </View>
+          </>
+        )}
+
+        {/* 拍摄位置 */}
+        <View style={styles.sectionHead}>
+          <Ionicons name="navigate-outline" size={15} color={C.textDim} />
+          <Text style={styles.sectionTitle}>拍摄位置</Text>
+        </View>
+        {loc ? (
+          <>
+            <View style={styles.mapWrap}>
+              <MapView
+                style={styles.map}
+                initialRegion={{ latitude: loc.latitude, longitude: loc.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
+              >
+                <Marker coordinate={{ latitude: loc.latitude, longitude: loc.longitude }} />
+              </MapView>
+            </View>
+            <View style={styles.placeRow}>
+              <Text style={styles.placeText}>{place ?? '定位中…'}</Text>
+            </View>
+          </>
+        ) : (
+          <Text style={styles.noExif}>这张照片没有位置信息</Text>
+        )}
+      </ScrollView>
+
+      {/* 底部：关闭 + 去相册 */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.roundBtn} onPress={() => router.back()}>
+          <Text style={styles.closeGlyph}>✕</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.roundBtn}
+          onPress={() => {
+            if (Platform.OS === 'ios') void Linking.openURL('photos-redirect://');
+          }}
+        >
+          <Ionicons name="images-outline" size={22} color="#fff" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -19,8 +166,39 @@ export default function PhotoInfoPlaceholder() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 80 },
-  t: { color: '#fff', fontSize: 18 },
-  id: { color: C.textDim, fontSize: 11, marginTop: 8 },
-  back: { color: C.accent, marginTop: 24, fontSize: 16 },
+  scroll: { paddingHorizontal: 22, paddingBottom: 24 },
+  spacerTop: { height: 180 },
+  bigTime: { color: '#fff', fontSize: 28, fontWeight: '800' },
+  fullDate: { color: 'rgba(255,255,255,0.75)', fontSize: 16, fontWeight: '600', marginTop: 4 },
+
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 26, marginBottom: 10 },
+  sectionTitle: { color: C.textDim, fontSize: 14, fontWeight: '600' },
+  noExif: { color: 'rgba(255,255,255,0.45)', fontSize: 14 },
+
+  deviceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  deviceKey: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  deviceVal: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  paramRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  paramCard: {
+    flex: 1, backgroundColor: 'rgba(20,20,28,0.55)', borderRadius: 12,
+    paddingVertical: 10, alignItems: 'center', gap: 3,
+  },
+  paramVal: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  paramKey: { color: 'rgba(255,255,255,0.45)', fontSize: 11 },
+  kvList: { gap: 10 },
+  kv: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  kvKey: { color: '#fff', fontSize: 15 },
+  kvVal: { color: '#fff', fontSize: 15, fontWeight: '700' },
+
+  mapWrap: { height: 170, borderRadius: 16, overflow: 'hidden', marginBottom: 10 },
+  map: { flex: 1 },
+  placeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  placeText: { color: '#fff', fontSize: 15 },
+
+  bottomBar: { flexDirection: 'row', justifyContent: 'center', gap: 24, paddingBottom: 34, paddingTop: 8 },
+  roundBtn: {
+    width: 56, height: 56, borderRadius: 28, backgroundColor: C.capsuleDark,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  closeGlyph: { color: '#fff', fontSize: 20, fontWeight: '700' },
 });
