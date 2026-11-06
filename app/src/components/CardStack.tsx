@@ -20,21 +20,25 @@ interface Props {
   cards: CardData[];
   index: number;
   badge?: React.ReactNode;
+  live?: boolean;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
+  onLongPress: () => void;
 }
 
 const SWIPE_UP_THRESHOLD = -110;
 const SWIPE_DOWN_THRESHOLD = 110;
 const SWIPE_SIDE_THRESHOLD = 90;
 
-function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
+function TopCard({ card, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPress }: {
   card: CardData;
   badge?: React.ReactNode;
+  live?: boolean;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
+  onLongPress: () => void;
 }) {
   const x = useSharedValue(0);
   const y = useSharedValue(0);
@@ -104,7 +108,15 @@ function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
       scale.value = withSpring(1, { damping: 14 });
     });
 
-  const composed = Gesture.Race(pan, doubleTap, pinch);
+  // 实况照片长按播放一次（用户裁决 2026-11-06）
+  const longPress = Gesture.LongPress()
+    .minDuration(350)
+    .maxDistance(12)
+    .onEnd(() => {
+      if (live) runOnJS(onLongPress)();
+    });
+
+  const composed = Gesture.Race(pan, doubleTap, pinch, longPress);
 
   return (
     <GestureDetector gesture={composed}>
@@ -128,13 +140,13 @@ function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
   );
 }
 
-export function CardStack({ cards, index, badge, onSwipe, onDoubleTap, onPinchOut }: Props) {
+export function CardStack({ cards, index, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPress }: Props) {
   const top = cards[index];
   // 原版浏览页为单张全出血卡（live_current 采样：无后层卡边）
   return (
     <View style={styles.stack} pointerEvents="box-none">
       {top && (
-        <TopCard card={top} badge={badge} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} />
+        <TopCard card={top} badge={badge} live={live} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} />
       )}
     </View>
   );

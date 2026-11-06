@@ -9,7 +9,9 @@ import { Confetti } from '../components/Confetti';
 import { createDeck, deckReducer, type DeckAction, type DeckState } from '../lib/deckMachine';
 import { nextGroup, markSeen } from '../lib/session';
 import { pendingQueue } from '../lib/deletion';
-import { setFavorite, getAssetLocation } from '../lib/assets';
+import { setFavoriteSafe, getAssetLocation } from '../lib/assets';
+import { getLiveVideoUri } from '../lib/live';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
 import { getSetting } from '../db/repo';
@@ -104,13 +106,20 @@ export default function ReviewScreen() {
         setHintVisible(false);
         showToast('已加入待删除 · 点 ↩ 撤回');
         break;
-      case 'favorite':
+      case 'favorite': {
         if (row) await markSeen(row);
-        await setFavorite(a.id, true);
-        hapticSuccess();
-        setHintVisible(false);
-        showToast('已收藏 · 同步到系统个人收藏');
+        const next = !row?.favorite;
+        const res = await setFavoriteSafe(a.id, next);
+        if (res.ok) {
+          setRows((rs) => rs.map((x) => (x.localIdentifier === a.id ? { ...x, favorite: next } : x)));
+          hapticSuccess();
+          setHintVisible(false);
+          showToast(next ? '已收藏 · 可在系统相册"个人收藏"查看' : '已取消收藏');
+        } else {
+          showToast(res.limited ? '相册为受限访问，无法修改收藏，请到系统设置开启完全访问' : '收藏失败，请重试');
+        }
         break;
+      }
       case 'seen':
         if (row) await markSeen(row);
         hapticLight();
@@ -152,6 +161,20 @@ export default function ReviewScreen() {
   const goHome = () => {
     // R2 由首页焦点逻辑统一处理（队列>抑制水位则自动弹确认页）
     router.back();
+  };
+
+  // 实况长按播放一次
+  const [liveUri, setLiveUri] = useState<string | null>(null);
+  const playLive = async () => {
+    const id = deckRef.current?.items[deckRef.current.index]?.id;
+    if (!id) return;
+    const uri = await getLiveVideoUri(id);
+    if (uri) {
+      hapticLight();
+      setLiveUri(uri);
+    } else {
+      showToast('未找到该实况的配对视频');
+    }
   };
 
   return (
@@ -200,16 +223,18 @@ export default function ReviewScreen() {
           <CardStack
             cards={deck.items}
             index={deck.index}
+            live={currentRow?.mediaType === 'live'}
             badge={
               currentRow?.mediaType === 'live' ? (
-                <View style={styles.liveBadge}>
-                  <Text style={styles.liveBadgeText}>◉ 实况 ▾</Text>
+                <View style={styles.liveBadge} pointerEvents="none">
+                  <Text style={styles.liveBadgeText}>◉ 实况</Text>
                 </View>
               ) : undefined
             }
             onSwipe={(dir) => dispatch({ type: 'swipe', dir })}
             onDoubleTap={() => dispatch({ type: 'doubleTap' })}
             onPinchOut={() => dispatch({ type: 'pinch' })}
+            onLongPress={() => void playLive()}
           />
         )}
       </View>
@@ -221,18 +246,29 @@ export default function ReviewScreen() {
             <Text style={styles.toastText}>{toast}</Text>
           </View>
         ) : hintVisible && !deck.done ? (
-          <Text style={styles.hint}>上滑待删除 · 下滑收藏 · 左右切换 · 捏合回到那天</Text>
+          <Text style={styles.hint}>上滑待删除 · 下滑收藏 · 左右切换 · 捏合回到那天 · 实况长按播放</Text>
         ) : null}
       </View>
 
       {/* 底栏：深色圆钮 + 时间胶囊（原版 live_current 采样） */}
       <View style={styles.bottomBar}>
         <RoundBtn
-          icon="heart-outline"
+          icon={currentRow?.favorite ? 'heart' : 'heart-outline'}
           onPress={() => {
             const id = deck.items[deck.index]?.id;
-            if (!id) return;
-            void setFavorite(id, true).then(() => hapticSelect());
+            const r = rowById.get(id ?? '');
+            if (!id || !r) return;
+            void (async () => {
+              const next = !r.favorite;
+              const res = await setFavoriteSafe(id, next);
+              if (res.ok) {
+                setRows((rs) => rs.map((x) => (x.localIdentifier === id ? { ...x, favorite: next } : x)));
+                hapticSelect();
+                showToast(next ? '已收藏 · 可在系统相册"个人收藏"查看' : '已取消收藏');
+              } else {
+                showToast(res.limited ? '相册为受限访问，无法修改收藏，请到系统设置开启完全访问' : '收藏失败，请重试');
+              }
+            })();
           }}
         />
         <View style={styles.timeCapsule}>
@@ -254,7 +290,33 @@ export default function ReviewScreen() {
         </View>
         <RoundBtn icon="arrow-undo-outline" onPress={() => dispatch({ type: 'undo' })} />
       </View>
+
+      {/* 实况播放叠加层：播完自动关闭，点任意处也可关闭 */}
+      {!!liveUri && <LiveOverlay uri={liveUri} onClose={() => setLiveUri(null)} />}
     </View>
+  );
+}
+
+function LiveOverlay({ uri, onClose }: { uri: string; onClose: () => void }) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = false;
+  });
+  useEffect(() => {
+    player.play();
+    const sub = player.addListener('playToEnd', onClose);
+    const timer = setTimeout(onClose, 8000); // 兜底：事件丢失也自动关
+    return () => {
+      sub.remove();
+      clearTimeout(timer);
+    };
+  }, [player, onClose]);
+  return (
+    <TouchableOpacity style={styles.liveOverlay} activeOpacity={1} onPress={onClose}>
+      <VideoView player={player} style={styles.liveVideo} contentFit="contain" />
+      <View style={styles.livePlayingBadge} pointerEvents="none">
+        <Text style={styles.liveBadgeText}>◉ 实况播放中</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -307,6 +369,15 @@ const styles = StyleSheet.create({
   },
   infoGlyph: { color: C.textDim, fontSize: 13, fontWeight: '700', fontStyle: 'italic' },
   doneTitle: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28 },
+  liveOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(8,8,12,0.92)', alignItems: 'center', justifyContent: 'center',
+  },
+  liveVideo: { width: '100%', height: '70%' },
+  livePlayingBadge: {
+    position: 'absolute', top: 62, left: 22, backgroundColor: 'rgba(20,20,28,0.6)',
+    borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5,
+  },
   primaryBtn: { backgroundColor: C.accent, borderRadius: 26, paddingHorizontal: 40, paddingVertical: 15, marginBottom: 14 },
   primaryBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   ghostBtn: { padding: 12 },
