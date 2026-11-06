@@ -28,7 +28,7 @@ interface Props {
   onDoubleTap: () => void;
   onPinchOut: () => void;
   onLongPress: () => void;
-  onLiveEnd: () => void;
+  onLiveEnd: (reason?: string) => void;
 }
 
 const SWIPE_UP_THRESHOLD = -110;
@@ -44,7 +44,7 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
   onDoubleTap: () => void;
   onPinchOut: () => void;
   onLongPress: () => void;
-  onLiveEnd: () => void;
+  onLiveEnd: (reason?: string) => void;
 }) {
   const liveRef = React.useRef<LivePhotoViewType>(null);
   const x = useSharedValue(0);
@@ -143,8 +143,8 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
             contentFit="cover"
             useDefaultGestureRecognizer={false}
             onLoadComplete={() => liveRef.current?.startPlayback('full')}
-            onPlaybackStop={onLiveEnd}
-            onLoadError={onLiveEnd}
+            onPlaybackStop={() => onLiveEnd()}
+            onLoadError={(e) => onLiveEnd(e?.message)}
           />
         )}
         <Animated.View pointerEvents="none" style={[styles.upGlow, upOverlay]}>

@@ -235,7 +235,10 @@ export default function ReviewScreen() {
             onDoubleTap={() => dispatch({ type: 'doubleTap' })}
             onPinchOut={() => dispatch({ type: 'pinch' })}
             onLongPress={() => void playLive()}
-            onLiveEnd={() => setLiveSrc(null)}
+            onLiveEnd={(reason) => {
+              setLiveSrc(null);
+              if (reason) showToast(`实况加载失败：${reason}`);
+            }}
           />
         )}
       </View>
