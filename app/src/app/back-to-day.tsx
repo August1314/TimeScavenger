@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { GradientBackground } from '../../theme/GradientBackground';
-import { C } from '../../theme/colors';
+import { GradientBackground } from '../theme/GradientBackground';
+import { C } from '../theme/colors';
 
 export default function BackToDayPlaceholder() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Alert, Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { GradientBackground } from '../../theme/GradientBackground';
-import { C } from '../../theme/colors';
-import { CardStack } from '../../components/CardStack';
-import { createDeck, deckReducer, type DeckAction, type DeckState } from '../../lib/deckMachine';
-import { nextGroup, markSeen } from '../../lib/session';
-import { pendingQueue } from '../../lib/deletion';
-import { setFavorite, getAssetLocation } from '../../lib/assets';
-import { placeName } from '../../lib/place';
-import { formatTime } from '../../lib/time';
-import { getSetting } from '../../db/repo';
-import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticLight, hapticSelect } from '../../lib/haptics';
-import type { Category, MediaRow } from '../../db/repo';
+import { Ionicons } from '@expo/vector-icons';
+import { GradientBackground } from '../theme/GradientBackground';
+import { C } from '../theme/colors';
+import { CardStack } from '../components/CardStack';
+import { createDeck, deckReducer, type DeckAction, type DeckState } from '../lib/deckMachine';
+import { nextGroup, markSeen } from '../lib/session';
+import { pendingQueue } from '../lib/deletion';
+import { setFavorite, getAssetLocation } from '../lib/assets';
+import { placeName } from '../lib/place';
+import { formatTime } from '../lib/time';
+import { getSetting } from '../db/repo';
+import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticLight, hapticSelect } from '../lib/haptics';
+import type { Category, MediaRow } from '../db/repo';
 
 export default function ReviewScreen() {
   const params = useLocalSearchParams<{ category?: string }>();
@@ -156,14 +157,15 @@ export default function ReviewScreen() {
     <View style={styles.root}>
       <GradientBackground seed={deck.items[deck.index]?.id} />
 
-      {/* 顶栏 */}
+      {/* 顶栏：左右圆钮 + 中央短横线进度条（原版 IMG_1492/live_current 采样） */}
       <View style={styles.topBar}>
-        <RoundBtn label="‹" onPress={goHome} />
+        <RoundBtn light icon="chevron-back" onPress={goHome} />
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
         </View>
         <RoundBtn
-          label="↑"
+          light
+          icon="share-outline"
           onPress={() =>
             Share.share({ message: '像刷短视频一样刷自己的照片 —— 去留复刻' }).catch(() => {})
           }
@@ -211,10 +213,10 @@ export default function ReviewScreen() {
         ) : null}
       </View>
 
-      {/* 底栏 */}
+      {/* 底栏：深色圆钮 + 时间胶囊（原版 live_current 采样） */}
       <View style={styles.bottomBar}>
         <RoundBtn
-          label="♡"
+          icon="heart-outline"
           onPress={() => {
             const id = deck.items[deck.index]?.id;
             if (!id) return;
@@ -229,24 +231,25 @@ export default function ReviewScreen() {
             {place ? <Text style={styles.placeText}>{place}</Text> : null}
           </View>
           <TouchableOpacity
+            style={styles.infoBtn}
             onPress={() => {
               const id = deck.items[deck.index]?.id;
               if (id) router.push({ pathname: '/photo-info', params: { id } });
             }}
           >
-            <Text style={styles.infoGlyph}>ⓘ</Text>
+            <Text style={styles.infoGlyph}>i</Text>
           </TouchableOpacity>
         </View>
-        <RoundBtn label="↩" onPress={() => dispatch({ type: 'undo' })} />
+        <RoundBtn icon="arrow-undo-outline" onPress={() => dispatch({ type: 'undo' })} />
       </View>
     </View>
   );
 }
 
-function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
+function RoundBtn({ icon, light, onPress }: { icon: keyof typeof Ionicons.glyphMap; light?: boolean; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.roundBtn} onPress={onPress}>
-      <Text style={styles.roundBtnText}>{label}</Text>
+    <TouchableOpacity style={[styles.roundBtn, light && styles.roundBtnLight]} onPress={onPress}>
+      <Ionicons name={icon} size={24} color="#fff" />
     </TouchableOpacity>
   );
 }
@@ -257,11 +260,11 @@ const styles = StyleSheet.create({
   loading: { color: C.textDim, fontSize: 15 },
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingTop: 62, paddingBottom: 8,
+    paddingHorizontal: 20, paddingTop: 60, paddingBottom: 10,
   },
-  progressTrack: { flex: 1, height: 3, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 2, marginHorizontal: 18 },
-  progressFill: { height: 3, backgroundColor: '#fff', borderRadius: 2 },
-  deckArea: { flex: 1, paddingHorizontal: 14, paddingBottom: 6 },
+  progressTrack: { width: 110, height: 4, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 2, overflow: 'hidden' },
+  progressFill: { height: 4, backgroundColor: '#fff', borderRadius: 2 },
+  deckArea: { flex: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 6 },
   liveBadge: {
     position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(20,20,28,0.6)',
     borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5,
@@ -274,19 +277,23 @@ const styles = StyleSheet.create({
   toastText: { color: '#fff', fontSize: 14 },
   bottomBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 24, paddingBottom: 110, paddingTop: 10,
+    paddingHorizontal: 20, paddingBottom: 34, paddingTop: 8,
   },
   roundBtn: {
-    width: 52, height: 52, borderRadius: 26, backgroundColor: C.capsule,
+    width: 56, height: 56, borderRadius: 28, backgroundColor: C.capsuleDark,
     alignItems: 'center', justifyContent: 'center',
   },
-  roundBtnText: { color: '#fff', fontSize: 22 },
+  roundBtnLight: { backgroundColor: C.capsuleLight },
   timeCapsule: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(30,30,40,0.75)',
-    borderRadius: 24, paddingHorizontal: 20, paddingVertical: 12, gap: 12,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: C.capsuleDark,
+    borderRadius: 26, paddingHorizontal: 20, paddingVertical: 10, gap: 12,
   },
   timeText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  infoGlyph: { color: C.textDim, fontSize: 16 },
+  infoBtn: {
+    width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.14)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  infoGlyph: { color: C.textDim, fontSize: 13, fontWeight: '700', fontStyle: 'italic' },
   doneTitle: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28 },
   primaryBtn: { backgroundColor: C.accent, borderRadius: 26, paddingHorizontal: 40, paddingVertical: 15, marginBottom: 14 },
   primaryBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },

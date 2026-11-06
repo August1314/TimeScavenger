@@ -129,16 +129,10 @@ function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
 }
 
 export function CardStack({ cards, index, badge, onSwipe, onDoubleTap, onPinchOut }: Props) {
-  const visible = cards.slice(index, index + 2);
-  const top = visible[0];
-  const behind = visible[1];
+  const top = cards[index];
+  // 原版浏览页为单张全出血卡（live_current 采样：无后层卡边）
   return (
     <View style={styles.stack} pointerEvents="box-none">
-      {behind && (
-        <View style={[styles.card, styles.behind]}>
-          <Image source={{ uri: behind.uri }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={behind.id} />
-        </View>
-      )}
       {top && (
         <TopCard card={top} badge={badge} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} />
       )}
@@ -156,14 +150,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     shadowColor: '#000',
     shadowOpacity: 0.4,
-    shadowRadius: 20,
+    shadowRadius: 30,
     shadowOffset: { width: 0, height: 10 },
     elevation: 10,
-  },
-  behind: {
-    position: 'absolute',
-    transform: [{ scale: 0.94 }, { translateY: 18 }],
-    opacity: 0.55,
   },
   upGlow: {
     position: 'absolute', top: 0, left: 0, right: 0, height: 130,

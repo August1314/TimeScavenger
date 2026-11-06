@@ -4,5 +4,12 @@ import { paletteFor } from '../lib/palette';
 
 export function GradientBackground({ seed }: { seed?: string }) {
   const [top, bottom] = paletteFor(seed ?? '');
-  return <LinearGradient colors={[top, bottom, '#0d0d14']} style={StyleSheet.absoluteFill} />;
+  // 原版色带：上 1/3 照片主色暗化，中段迅速转暗，下 2/3 恒深蓝黑 #161627
+  return (
+    <LinearGradient
+      colors={[top, '#262636', bottom]}
+      locations={[0, 0.45, 1]}
+      style={StyleSheet.absoluteFill}
+    />
+  );
 }

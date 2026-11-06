@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
-import { C } from '../../theme/colors';
-import { pendingQueue, commitPending, nativeDeps } from '../../lib/deletion';
-import { toggleId, selectedIdsOf } from '../../lib/selection';
-import { setSuppressionLevel } from '../../lib/binSuppression';
-import type { MediaRow } from '../../db/repo';
+import { C } from '../theme/colors';
+import { pendingQueue, commitPending, nativeDeps } from '../lib/deletion';
+import { toggleId, selectedIdsOf } from '../lib/selection';
+import { setSuppressionLevel } from '../lib/binSuppression';
+import type { MediaRow } from '../db/repo';
 
 export default function PendingScreen() {
   const { from } = useLocalSearchParams<{ from?: string }>();
@@ -78,9 +78,9 @@ export default function PendingScreen() {
 
       <FlatList
         data={items}
-        numColumns={4}
+        numColumns={3}
         keyExtractor={(r) => r.localIdentifier}
-        contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}
+        contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}
         renderItem={({ item }) => {
           const on = sel.includes(item.localIdentifier);
           return (

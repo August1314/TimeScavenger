@@ -1,4 +1,4 @@
-import { paletteFor, isDarkHex } from '../palette';
+import { paletteFor } from '../palette';
 
 describe('paletteFor', () => {
   it('is deterministic per id', () => {
@@ -11,15 +11,15 @@ describe('paletteFor', () => {
     expect(a).not.toEqual(b);
   });
 
-  it('returns two dark hex colors, top lighter than bottom', () => {
+  it('top is a mid-brightness hex, bottom is fixed #161627 (UI设计规范 §1)', () => {
     for (let i = 0; i < 50; i++) {
       const [top, bottom] = paletteFor(`id-${i}`);
-      expect(isDarkHex(top)).toBe(true);
-      expect(isDarkHex(bottom)).toBe(true);
+      expect(top).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(bottom).toBe('#161627');
     }
   });
 
   it('falls back to default for empty id', () => {
-    expect(paletteFor('')).toEqual(['#2b2b35', '#151520']);
+    expect(paletteFor('')).toEqual(['#8a7a63', '#161627']);
   });
 });

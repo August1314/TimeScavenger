@@ -1,4 +1,4 @@
-const DEFAULT: [string, string] = ['#2b2b35', '#151520'];
+const DEFAULT: [string, string] = ['#8a7a63', '#161627'];
 
 /** FNV-1a 32bit */
 function hash(s: string): number {
@@ -27,25 +27,16 @@ function hslToHex(h: number, s: number, l: number): string {
 }
 
 /**
- * 确定性渐变（近似原 app"照片取样双色深色渐变"）：
- * 同一 assetId 恒定；top 亮、bottom 暗。M3 升级为 expo-gl 内容取样。
+ * 确定性渐变（近似原 app"照片主色暗化 → 深蓝黑"）：
+ * 同一 assetId 恒定；上段为照片主色（中亮暖调，采样基准 #92826D），
+ * 下段恒为 #161627（UI设计规范 §1 bgBottom）。M3 升级为 expo-gl 内容取样。
  */
 export function paletteFor(assetId: string): [string, string] {
   if (!assetId) return DEFAULT;
   const h = hash(assetId);
   const hue = h % 360;
-  const sat = 0.25 + ((h >>> 9) % 20) / 100; // 0.25–0.44
-  const topL = 0.18 + ((h >>> 17) % 6) / 100; // 0.18–0.23
-  const bottomL = 0.10 + ((h >>> 23) % 3) / 100; // 0.10–0.12
-  const hueBottom = (hue + 30) % 360;
-  return [hslToHex(hue, sat, topL), hslToHex(hueBottom, sat * 0.8, bottomL)];
+  const sat = 0.18 + ((h >>> 9) % 12) / 100; // 0.18–0.30 低饱和（采样基准 #92826D S≈0.24）
+  const topL = 0.3 + ((h >>> 17) % 12) / 100; // 0.30–0.42 更沉稳的"主色暗化"
+  return [hslToHex(hue, sat, topL), '#161627'];
 }
 
-export function isDarkHex(hex: string): boolean {
-  const m = /^#([0-9a-f]{6})$/i.exec(hex);
-  if (!m) return false;
-  const n = parseInt(m[1], 16);
-  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return lum < 90; // 暗调
-}

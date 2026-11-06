@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { C } from '../../theme/colors';
+import { C } from '../../../theme/colors';
 
 export default function PhotosLayout() {
   return (

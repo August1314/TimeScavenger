@@ -1,13 +1,13 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { GradientBackground } from '../../theme/GradientBackground';
-import { C } from '../../theme/colors';
+import { GradientBackground } from '../../../theme/GradientBackground';
+import { C } from '../../../theme/colors';
 
-export default function StatsHome() {
+export default function VideosHome() {
   return (
     <View style={styles.root}>
       <GradientBackground />
       <View style={styles.center}>
-        <Text style={styles.t}>使用统计（T13 落地）</Text>
+        <Text style={styles.t}>视频回顾（T11 落地）</Text>
       </View>
     </View>
   );
