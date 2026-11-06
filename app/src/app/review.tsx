@@ -172,7 +172,7 @@ export default function ReviewScreen() {
       hapticLight();
       setLiveSrc({ id, src });
     } else {
-      showToast('未找到该实况的配对视频');
+      showToast('未找到该实况的配对视频（可能存在 iCloud 云端）');
     }
   };
 
@@ -237,7 +237,7 @@ export default function ReviewScreen() {
             onLongPress={() => void playLive()}
             onLiveEnd={(reason) => {
               setLiveSrc(null);
-              if (reason) showToast('这张实况的配对信息在相册内部，需独立构建版才能播放');
+              if (reason) showToast('实况播放失败，已回到静态照片');
             }}
           />
         )}
