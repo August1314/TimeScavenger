@@ -9,6 +9,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Image } from 'expo-image';
+import { LivePhotoView, type LivePhotoViewType } from 'expo-live-photo';
+import type { LiveSource } from '../lib/live';
 import type { SwipeDir } from '../lib/deckMachine';
 
 interface CardData {
@@ -20,26 +22,29 @@ interface Props {
   cards: CardData[];
   index: number;
   badge?: React.ReactNode;
-  live?: boolean;
+  liveSource?: LiveSource | null;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
   onLongPress: () => void;
+  onLiveEnd: () => void;
 }
 
 const SWIPE_UP_THRESHOLD = -110;
 const SWIPE_DOWN_THRESHOLD = 110;
 const SWIPE_SIDE_THRESHOLD = 90;
 
-function TopCard({ card, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPress }: {
+function TopCard({ card, badge, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: {
   card: CardData;
   badge?: React.ReactNode;
-  live?: boolean;
+  liveSource?: LiveSource | null;
   onSwipe: (dir: SwipeDir) => void;
   onDoubleTap: () => void;
   onPinchOut: () => void;
   onLongPress: () => void;
+  onLiveEnd: () => void;
 }) {
+  const liveRef = React.useRef<LivePhotoViewType>(null);
   const x = useSharedValue(0);
   const y = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -108,12 +113,12 @@ function TopCard({ card, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPr
       scale.value = withSpring(1, { damping: 14 });
     });
 
-  // 实况照片长按播放一次（用户裁决 2026-11-06）
+  // 实况照片长按在当前卡内播放一次（expo-live-photo PHLivePhotoView，对齐原版）
   const longPress = Gesture.LongPress()
     .minDuration(350)
     .maxDistance(12)
     .onEnd(() => {
-      if (live) runOnJS(onLongPress)();
+      if (liveSource) runOnJS(onLongPress)();
     });
 
   const composed = Gesture.Race(pan, doubleTap, pinch, longPress);
@@ -128,6 +133,18 @@ function TopCard({ card, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPr
           transition={150}
           recyclingKey={card.id}
         />
+        {!!liveSource && (
+          <LivePhotoView
+            ref={liveRef}
+            source={liveSource}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            useDefaultGestureRecognizer={false}
+            onLoadComplete={() => liveRef.current?.startPlayback('full')}
+            onPlaybackStop={onLiveEnd}
+            onLoadError={onLiveEnd}
+          />
+        )}
         <Animated.View pointerEvents="none" style={[styles.upGlow, upOverlay]}>
           <Text style={styles.upLabel}>待删除</Text>
         </Animated.View>
@@ -140,13 +157,13 @@ function TopCard({ card, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPr
   );
 }
 
-export function CardStack({ cards, index, badge, live, onSwipe, onDoubleTap, onPinchOut, onLongPress }: Props) {
+export function CardStack({ cards, index, badge, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: Props) {
   const top = cards[index];
   // 原版浏览页为单张全出血卡（live_current 采样：无后层卡边）
   return (
     <View style={styles.stack} pointerEvents="box-none">
       {top && (
-        <TopCard card={top} badge={badge} live={live} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} />
+        <TopCard card={top} badge={badge} liveSource={liveSource} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} onLiveEnd={onLiveEnd} />
       )}
     </View>
   );

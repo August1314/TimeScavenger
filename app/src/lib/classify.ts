@@ -19,6 +19,7 @@ const LONG_RATIO = 2.5;
  */
 export function classifyAsset(meta: AssetMetaLite, selfieIds: Set<string>): MediaType | null {
   const s = new Set(meta.subtypes);
+  if (s.has('pairedLivePhotoVideo')) return null; // 实况配对 MOV 不作为独立视频出现
   if (s.has('screenshot') || s.has('screenRecording')) return 'screenshot';
   if (s.has('livePhoto')) return 'live';
   if (s.has('animation')) return 'gif';

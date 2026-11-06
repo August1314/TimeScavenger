@@ -10,8 +10,7 @@ import { createDeck, deckReducer, type DeckAction, type DeckState } from '../lib
 import { nextGroup, markSeen } from '../lib/session';
 import { pendingQueue } from '../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../lib/assets';
-import { getLiveVideoUri } from '../lib/live';
-import { VideoView, useVideoPlayer } from 'expo-video';
+import { getLiveSource, type LiveSource } from '../lib/live';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
 import { getSetting } from '../db/repo';
@@ -30,7 +29,7 @@ export default function ReviewScreen() {
   const currentId = deck?.items[deck.index]?.id;
   const [toast, setToast] = useState<string | null>(null);
   const [hintVisible, setHintVisible] = useState(true);
-  const [liveUri, setLiveUri] = useState<string | null>(null); // 必须在顶层：早期 return 前声明会破坏 Hooks 顺序
+  const [liveSrc, setLiveSrc] = useState<{ id: string; src: LiveSource } | null>(null); // 实况卡内播放源（按卡 id 键控）
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = (s: string) => {
     setToast(s);
@@ -164,14 +163,14 @@ export default function ReviewScreen() {
     router.back();
   };
 
-  // 实况长按播放一次
+  // 实况长按：在当前卡内播放一次
   const playLive = async () => {
     const id = deckRef.current?.items[deckRef.current.index]?.id;
     if (!id) return;
-    const uri = await getLiveVideoUri(id);
-    if (uri) {
+    const src = await getLiveSource(id);
+    if (src) {
       hapticLight();
-      setLiveUri(uri);
+      setLiveSrc({ id, src });
     } else {
       showToast('未找到该实况的配对视频');
     }
@@ -223,7 +222,7 @@ export default function ReviewScreen() {
           <CardStack
             cards={deck.items}
             index={deck.index}
-            live={currentRow?.mediaType === 'live'}
+            liveSource={liveSrc && currentId && liveSrc.id === currentId ? liveSrc.src : null}
             badge={
               currentRow?.mediaType === 'live' ? (
                 <View style={styles.liveBadge} pointerEvents="none">
@@ -235,6 +234,7 @@ export default function ReviewScreen() {
             onDoubleTap={() => dispatch({ type: 'doubleTap' })}
             onPinchOut={() => dispatch({ type: 'pinch' })}
             onLongPress={() => void playLive()}
+            onLiveEnd={() => setLiveSrc(null)}
           />
         )}
       </View>
@@ -290,33 +290,7 @@ export default function ReviewScreen() {
         </View>
         <RoundBtn icon="arrow-undo-outline" onPress={() => dispatch({ type: 'undo' })} />
       </View>
-
-      {/* 实况播放叠加层：播完自动关闭，点任意处也可关闭 */}
-      {!!liveUri && <LiveOverlay uri={liveUri} onClose={() => setLiveUri(null)} />}
     </View>
-  );
-}
-
-function LiveOverlay({ uri, onClose }: { uri: string; onClose: () => void }) {
-  const player = useVideoPlayer(uri, (p) => {
-    p.loop = false;
-  });
-  useEffect(() => {
-    player.play();
-    const sub = player.addListener('playToEnd', onClose);
-    const timer = setTimeout(onClose, 8000); // 兜底：事件丢失也自动关
-    return () => {
-      sub.remove();
-      clearTimeout(timer);
-    };
-  }, [player, onClose]);
-  return (
-    <TouchableOpacity style={styles.liveOverlay} activeOpacity={1} onPress={onClose}>
-      <VideoView player={player} style={styles.liveVideo} contentFit="contain" />
-      <View style={styles.livePlayingBadge} pointerEvents="none">
-        <Text style={styles.liveBadgeText}>◉ 实况播放中</Text>
-      </View>
-    </TouchableOpacity>
   );
 }
 
@@ -369,15 +343,6 @@ const styles = StyleSheet.create({
   },
   infoGlyph: { color: C.textDim, fontSize: 13, fontWeight: '700', fontStyle: 'italic' },
   doneTitle: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28 },
-  liveOverlay: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(8,8,12,0.92)', alignItems: 'center', justifyContent: 'center',
-  },
-  liveVideo: { width: '100%', height: '70%' },
-  livePlayingBadge: {
-    position: 'absolute', top: 62, left: 22, backgroundColor: 'rgba(20,20,28,0.6)',
-    borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5,
-  },
   primaryBtn: { backgroundColor: C.accent, borderRadius: 26, paddingHorizontal: 40, paddingVertical: 15, marginBottom: 14 },
   primaryBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   ghostBtn: { padding: 12 },

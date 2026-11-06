@@ -1,6 +1,12 @@
 import { Asset, AssetField, MediaType, Query } from 'expo-media-library';
 
-const stem = (name: string | null): string => (name ?? '').replace(/\.[^.]+$/, '');
+export interface LiveSource {
+  photoUri: string;
+  pairedVideoUri: string;
+}
+
+/** IMG_1234.HEIC.JPG / IMG_1234.JPG → IMG_1234（去掉全部扩展名，配对 MOV 同 stem） */
+const stem = (name: string | null): string => (name ?? '').split('.')[0];
 
 let videoList: { stem: string; id: string }[] | null = null;
 
@@ -12,20 +18,34 @@ async function ensureVideoList(): Promise<{ stem: string; id: string }[]> {
   return videoList;
 }
 
+const cache = new Map<string, LiveSource | null>();
+
 /**
- * iOS 实况照片的配对视频是独立 MOV 资产，文件名 stem 与 JPG 一致（IMG_1234.JPG ↔ IMG_1234.MOV）。
- * 返回配对视频 URI；找不到返回 null。
+ * 实况照片 → LivePhotoView 所需的 {photoUri, pairedVideoUri}。
+ * 配对视频按 iOS 存储规律匹配：IMG_1234.JPG ↔ IMG_1234.MOV（同文件名 stem）。
  */
-export async function getLiveVideoUri(photoId: string): Promise<string | null> {
+export async function getLiveSource(photoId: string): Promise<LiveSource | null> {
+  if (cache.has(photoId)) return cache.get(photoId) ?? null;
   try {
-    const name = await new Asset(photoId).getFilename();
+    const asset = new Asset(photoId);
+    const [photoUri, name] = await Promise.all([asset.getUri(), asset.getFilename()]);
     const s = stem(name);
-    if (!s) return null;
+    if (!photoUri || !s) {
+      cache.set(photoId, null);
+      return null;
+    }
     const list = await ensureVideoList();
     const hit = list.find((v) => v.stem === s);
-    if (!hit) return null;
-    return await new Asset(hit.id).getUri();
+    if (!hit) {
+      cache.set(photoId, null);
+      return null;
+    }
+    const pairedVideoUri = await new Asset(hit.id).getUri();
+    const src = pairedVideoUri ? { photoUri, pairedVideoUri } : null;
+    cache.set(photoId, src);
+    return src;
   } catch {
+    cache.set(photoId, null);
     return null;
   }
 }
