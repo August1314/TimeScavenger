@@ -75,6 +75,18 @@ export default function ReviewScreen() {
     [],
   );
 
+  // 一组刷完 → 有待删除项则自动进入确认页（原 app 闭环）
+  const doneRef = useRef(false);
+  useEffect(() => {
+    if (deck?.done && !doneRef.current) {
+      doneRef.current = true;
+      if (pendingQueue.list().length > 0) {
+        router.push({ pathname: '/pending', params: { from: 'done' } });
+      }
+    }
+    if (deck && !deck.done) doneRef.current = false;
+  }, [deck]);
+
   const run = async (a: DeckAction) => {
     const row = rowById.get(a.id);
     switch (a.kind) {
@@ -131,18 +143,6 @@ export default function ReviewScreen() {
     setDeck(createDeck(g.items.map((r) => ({ id: r.localIdentifier, uri: r.localIdentifier }))));
     setHintVisible(true);
   };
-
-  // 一组刷完 → 有待删除项则自动进入确认页（原 app 闭环）
-  const doneRef = useRef(false);
-  useEffect(() => {
-    if (deck?.done && !doneRef.current) {
-      doneRef.current = true;
-      if (pendingQueue.list().length > 0) {
-        router.push({ pathname: '/pending', params: { from: 'done' } });
-      }
-    }
-    if (deck && !deck.done) doneRef.current = false;
-  }, [deck]);
 
   const goHome = () => {
     if (pendingQueue.list().length > 0) {
