@@ -1,4 +1,3 @@
-import BetterSqlite3 from 'better-sqlite3';
 import {
   configureDbForTesting,
   initDb,
@@ -13,30 +12,7 @@ import {
   __testingDb,
   type MediaRow,
 } from '../repo';
-
-function fakeDb() {
-  const raw = new BetterSqlite3(':memory:');
-  return {
-    execAsync: async (sql: string) => { raw.exec(sql); },
-    runAsync: async (sql: string, ...params: unknown[]) => {
-      const r = raw.prepare(sql).run(...(params as never[]));
-      return { lastInsertRowId: Number(r.lastInsertRowid), changes: r.changes };
-    },
-    getAllAsync: async <T>(sql: string, ...params: unknown[]) =>
-      raw.prepare(sql).all(...(params as never[])) as T[],
-    withTransactionAsync: async <T>(fn: () => Promise<T>): Promise<T> => {
-      raw.exec('BEGIN');
-      try {
-        const r = await fn();
-        raw.exec('COMMIT');
-        return r;
-      } catch (e) {
-        raw.exec('ROLLBACK');
-        throw e;
-      }
-    },
-  };
-}
+import { fakeDb } from '../../testlib/fakeDb';
 
 function row(localIdentifier: string, mediaType: MediaRow['mediaType'], extra?: Partial<MediaRow>): MediaRow {
   return {
