@@ -63,17 +63,20 @@ export default function ReviewScreen() {
 
   const rowById = useMemo(() => new Map(rows.map((r) => [r.localIdentifier, r])), [rows]);
 
-  const dispatch = useCallback(
-    (e: Parameters<typeof deckReducer>[1]) => {
-      setDeck((prev) => {
-        if (!prev) return prev;
-        const { state, action } = deckReducer(prev, e);
-        if (action) void run(action);
-        return state;
-      });
-    },
-    [],
-  );
+  // 同步镜像：连续手势在两次渲染之间也能正确消费（Review Focus #4）
+  const deckRef = useRef<DeckState | null>(null);
+  useEffect(() => {
+    deckRef.current = deck;
+  }, [deck]);
+
+  const dispatch = (e: Parameters<typeof deckReducer>[1]) => {
+    const prev = deckRef.current;
+    if (!prev) return;
+    const { state, action } = deckReducer(prev, e);
+    deckRef.current = state;
+    setDeck(state);
+    if (action) void run(action);
+  };
 
   // 一组刷完 → 有待删除项则自动进入确认页（原 app 闭环）
   const doneRef = useRef(false);
