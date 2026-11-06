@@ -21,6 +21,12 @@ export async function ensurePhotoPermission(): Promise<PermState> {
   return res.accessPrivileges === 'limited' ? 'limited' : 'granted';
 }
 
+/** expo-media-library 文档为毫秒；若个别版本给秒（<1e11）则归一化为毫秒 */
+export function normalizeCreationTime(v: number | null): number {
+  const n = v ?? 0;
+  return n > 0 && n < 1e11 ? n * 1000 : n;
+}
+
 function toLite(m: AssetMetadata): AssetMetaLite {
   return {
     id: m.id,
@@ -83,7 +89,7 @@ export async function startImport(onProgress: (done: number, total: number) => v
         mediaType,
         width: m.width ?? 0,
         height: m.height ?? 0,
-        creationDate: (m.creationTime ?? 0) * 1000,
+        creationDate: normalizeCreationTime(m.creationTime),
         favorite: m.isFavorite,
         lastReviewedDate: null,
         lastLocallyReviewedDate: null,

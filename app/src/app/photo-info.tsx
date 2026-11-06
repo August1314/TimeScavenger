@@ -3,7 +3,8 @@ import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
-import { GradientBackground } from '../theme/GradientBackground';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { C } from '../theme/colors';
 import { formatTime } from '../lib/time';
 import { readExif, type ExifInfo } from '../lib/exif';
@@ -62,10 +63,13 @@ export default function PhotoInfoScreen() {
 
   return (
     <View style={styles.root}>
-      <GradientBackground seed={id} />
+      {/* 顶部：照片本体（modal 上方露出一截，原版 live_info 采样） */}
+      <View style={styles.photoBand}>
+        <Image source={{ uri: id }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={id} />
+        <LinearGradient colors={['rgba(10,10,14,0)', 'rgba(10,10,14,0.85)']} style={StyleSheet.absoluteFill} />
+      </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* 时间标题（IMG_1499：相对时间大字 + 完整日期） */}
-        <View style={styles.spacerTop} />
         {row && (
           <>
             <Text style={styles.bigTime}>{formatTime(row.creationDate, 'relative')}</Text>
@@ -165,10 +169,10 @@ export default function PhotoInfoScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  scroll: { paddingHorizontal: 22, paddingBottom: 24 },
-  spacerTop: { height: 180 },
-  bigTime: { color: '#fff', fontSize: 28, fontWeight: '800' },
+  root: { flex: 1, backgroundColor: '#0e0e12' },
+  photoBand: { height: 235, backgroundColor: '#1a1a20' },
+  scroll: { paddingHorizontal: 22, paddingTop: 4, paddingBottom: 24 },
+  bigTime: { color: '#fff', fontSize: 28, fontWeight: '800', marginTop: 18 },
   fullDate: { color: 'rgba(255,255,255,0.75)', fontSize: 16, fontWeight: '600', marginTop: 4 },
 
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 26, marginBottom: 10 },

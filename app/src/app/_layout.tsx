@@ -26,7 +26,8 @@ export default function RootLayout() {
         {/* 全屏流程页：不在 tab 栏内（对齐原版：浏览/信息页无底部 tab） */}
         <Stack.Screen name="review" />
         <Stack.Screen name="settings" />
-        <Stack.Screen name="photo-info" />
+        {/* 信息页：底部滑出 modal，顶部露出照片本体（原版 live_info 采样） */}
+        <Stack.Screen name="photo-info" options={{ presentation: 'modal' }} />
         <Stack.Screen name="back-to-day" />
         {/* 回收站：底部滑出的卡片式 modal（对齐原版 IMG_1498） */}
         <Stack.Screen name="pending" options={{ presentation: 'modal' }} />
