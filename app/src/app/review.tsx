@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GradientBackground } from '../theme/GradientBackground';
 import { C } from '../theme/colors';
 import { CardStack } from '../components/CardStack';
+import { Confetti } from '../components/Confetti';
 import { createDeck, deckReducer, type DeckAction, type DeckState } from '../lib/deckMachine';
 import { nextGroup, markSeen } from '../lib/session';
 import { pendingQueue } from '../lib/deletion';
@@ -174,7 +175,18 @@ export default function ReviewScreen() {
 
       {/* 卡组 */}
       <View style={styles.deckArea}>
-        {deck.done ? (
+        {deck.done && rows.length === 0 ? (
+          <View style={styles.center}>
+            <Confetti />
+            <Text style={styles.doneTitle}>你已经回顾完所有照片了！</Text>
+            <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push('/settings')}>
+              <Text style={styles.primaryBtnText}>重置浏览记录，再来一轮</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.ghostBtn} onPress={goHome}>
+              <Text style={styles.ghostBtnText}>返回首页</Text>
+            </TouchableOpacity>
+          </View>
+        ) : deck.done ? (
           <View style={styles.center}>
             <Text style={styles.doneTitle}>回顾完毕</Text>
             <TouchableOpacity style={styles.primaryBtn} onPress={nextSet}>

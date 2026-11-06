@@ -1,12 +1,17 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { initDb } from '../db/repo';
+import { initDb, getSetting } from '../db/repo';
 import { pendingQueue } from '../lib/deletion';
 
 export default function RootLayout() {
   useEffect(() => {
-    void initDb().then(() => pendingQueue.hydrate());
+    void initDb()
+      .then(() => pendingQueue.hydrate())
+      .then(async () => {
+        const done = await getSetting('onboarded');
+        if (done !== '1') router.replace('/onboarding');
+      });
   }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -17,6 +22,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="onboarding" options={{ fullScreenGestureEnabled: false }} />
         {/* 全屏流程页：不在 tab 栏内（对齐原版：浏览/信息页无底部 tab） */}
         <Stack.Screen name="review" />
         <Stack.Screen name="settings" />
