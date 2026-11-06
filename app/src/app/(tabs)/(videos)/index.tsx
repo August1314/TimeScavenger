@@ -103,8 +103,13 @@ export default function VideosHome() {
 
   useEffect(() => {
     if (uri) {
-      player.replace(uri);
-      player.play();
+      // 实机报错原文："The provided uri ph://... is a local PHAsset URL.
+      // This kind of URL can only be loaded asynchronously. Use replaceAsync"
+      // —— 同步 replace() 会直接抛 Render Error，必须走 replaceAsync
+      void player
+        .replaceAsync(uri)
+        .then(() => player.play())
+        .catch((e: any) => showToast(`播放失败：${String(e?.message ?? e).slice(0, 60)}`));
     }
   }, [uri, player]);
 
