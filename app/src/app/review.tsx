@@ -222,6 +222,7 @@ export default function ReviewScreen() {
           <CardStack
             cards={deck.items}
             index={deck.index}
+            live={currentRow?.mediaType === 'live'}
             liveSource={liveSrc && currentId && liveSrc.id === currentId ? liveSrc.src : null}
             badge={
               currentRow?.mediaType === 'live' ? (
