@@ -17,6 +17,20 @@ export default function SettingsScreen() {
   const [timeFormat, setTimeFormat] = useState<'relative' | 'date'>('relative');
   const [sizeOpen, setSizeOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanMsg, setScanMsg] = useState('');
+
+  const rescan = async () => {
+    setScanning(true);
+    setScanMsg('');
+    try {
+      const { startImport } = require('../lib/scan');
+      const res = await startImport(() => {});
+      setScanMsg(`已更新 ${res.imported} 项`);
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const reload = useCallback(async () => {
     const [pg, hp, dt, tf] = await Promise.all([
@@ -92,6 +106,10 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.row} onPress={() => setResetOpen(true)}>
             <Text style={styles.rowTitle}>重置浏览记录</Text>
             <Text style={styles.rowValue}>›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.row} disabled={scanning} onPress={() => void rescan()}>
+            <Text style={styles.rowTitle}>重新扫描照片库</Text>
+            <Text style={styles.rowValue}>{scanMsg || (scanning ? '扫描中…' : '›')}</Text>
           </TouchableOpacity>
         </View>
 

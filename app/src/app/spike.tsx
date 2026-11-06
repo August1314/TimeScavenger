@@ -63,6 +63,14 @@ export default function SpikeScreen() {
         const size = await nativeDeps().measureSize(one.localIdentifier);
         say(`size=${size} 用时 ${((Date.now() - t) / 1000).toFixed(1)}s`);
       })} busy={busy} />
+      <Btn label="4. EXIF 原始键值探查(校准信息页)" onPress={() => run(async () => {
+        const { Asset } = require('expo-media-library');
+        const one = (await fetchUnreviewedRandom('photo', 1))[0];
+        if (!one) { say('无图'); return; }
+        const exif = await new Asset(one.localIdentifier).getExif();
+        say(`keys: ${Object.keys(exif ?? {}).join(', ')}`);
+        say(JSON.stringify(exif).slice(0, 1200));
+      })} busy={busy} />
     </View>
   );
 }
