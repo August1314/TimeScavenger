@@ -1,0 +1,1657 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key></key>
+	<string></string>
+	<key> </key>
+	<string> </string>
+	<key>#去留</key>
+	<string>#linger</string>
+	<key>#去留App</key>
+	<string>#lingerApp</string>
+	<key>%@</key>
+	<string>%@</string>
+	<key>%@ 请稍后重试。</key>
+	<string>%@ Please try again later.</string>
+	<key>%@:</key>
+	<string>%@:</string>
+	<key>%d m</key>
+	<string>%d m</string>
+	<key>%d 分钟前</key>
+	<string>%d Minutes Ago</string>
+	<key>%d 天前</key>
+	<string>%d Days Ago</string>
+	<key>%d 小时前</key>
+	<string>%d Hours Ago</string>
+	<key>%d 年前</key>
+	<string>%d Years Ago</string>
+	<key>%d分%d秒</key>
+	<string>%1$d min %2$d sec</string>
+	<key>%d小时%d分</key>
+	<string>%1$d hr %2$d min</string>
+	<key>%d秒</key>
+	<string>%d sec</string>
+	<key>%lld</key>
+	<string>%lld</string>
+	<key>%lld / %lld</key>
+	<string>%lld / %lld</string>
+	<key>%lld 个已删除的项目</key>
+	<string>%lld Deleted Items</string>
+	<key>%lld%%</key>
+	<string>%lld%%</string>
+	<key>+ Size</key>
+	<string>+ Size</string>
+	<key>- Size</key>
+	<string>- Size</string>
+	<key>...</key>
+	<string>...</string>
+	<key>/周</key>
+	<string>/Week</string>
+	<key>/年</key>
+	<string>/Year</string>
+	<key>/月</key>
+	<string>/Month</string>
+	<key>0.00</key>
+	<string>0.00</string>
+	<key>1. 如发现点赞量异常，需要提供浏览量截图以防刷赞。</key>
+	<string>1. If you notice abnormal likes, provide a screenshot of the view count to prevent fake likes.</string>
+	<key>1. 如发现点赞量异常，需要提供浏览量截屏以防刷赞。</key>
+	<string>1. If you notice abnormal likes, provide a screenshot of the view count to prevent fake likes.</string>
+	<key>1. 开启飞行模式，并关闭 Wi‑Fi。</key>
+	<string>1. Turn on Airplane Mode and turn off Wi‑Fi.</string>
+	<key>12 秒超时，保留最佳已有回调图</key>
+	<string>Timed out after 12 seconds; keeping the best callback image received</string>
+	<key>12 秒超时，没有本地结果</key>
+	<string>Timed out after 12 seconds; no local result</string>
+	<key>18 天前</key>
+	<string>18 Days Ago</string>
+	<key>2 年前</key>
+	<string>2 Years Ago</string>
+	<key>2. 先在本页选择目标图、跑完并复制报告。</key>
+	<string>2. Select the target photo here, finish the run, and copy the report.</string>
+	<key>2. 活动与 Apple 公司无关。</key>
+	<string>2. This campaign is not affiliated with Apple.</string>
+	<key>2x 速率播放中</key>
+	<string>Playing at 2x speed</string>
+	<key>3</key>
+	<string>3</string>
+	<key>3 个工作日内发放奖励</key>
+	<string>3 business days of receiving it.</string>
+	<key>3 天免费试用</key>
+	<string>3 Days Free Trial</string>
+	<key>3. 再去系统相册和 Picnic 查看同一张图，避免它们先把共享缓存预热。</key>
+	<string>3. Then view the same photo in Photos and Picnic so they do not prewarm the shared cache first.</string>
+	<key>3. 由于 Apple 后台生成的终身兑换码有年上限，如达到上限，将改为赠送 3 份年度会员，你可以送给朋友。</key>
+	<string>3. Apple has an annual limit on lifetime redemption codes. If the limit is reached, we'll send 3 annual memberships instead, which you can share with friends.</string>
+	<key>4 年前</key>
+	<string>4 Years Ago</string>
+	<key>4. 素材轴先比“二级降级”；呈现轴再以 2x / 4x 比较高插值和 Lanczos。</key>
+	<string>4. First compare Secondary Degraded on the Source axis; then compare High Interpolation and Lanczos at 2x / 4x on the Rendering axis.</string>
+	<key>68 天前</key>
+	<string>68 Days Ago</string>
+	<key>79 天前</key>
+	<string>79 Days Ago</string>
+	<key>A 当前素材</key>
+	<string>A Current Source</string>
+	<key>A 生产 UIKit</key>
+	<string>A Production UIKit</string>
+	<key>B %@</key>
+	<string>B %@</string>
+	<key>Close</key>
+	<string>Close</string>
+	<key>Debug 工具</key>
+	<string>Debug Tools</string>
+	<key>Down</key>
+	<string>Down</string>
+	<key>HDR 照片测试</key>
+	<string>HDR Photo Test</string>
+	<key>Offset y:%.1f</key>
+	<string>Offset y:%.1f</string>
+	<key>OpenPhoto</key>
+	<string>Open Photo</string>
+	<key>PhotoKit 没有返回可显示的图片。</key>
+	<string>PhotoKit did not return a displayable image.</string>
+	<key>Photos 网络访问: false</key>
+	<string>Photos network access: false</string>
+	<key>Progress: %lld%%</key>
+	<string>Progress: %lld%%</string>
+	<key>Reset</key>
+	<string>Reset</string>
+	<key>Settings</key>
+	<string>Settings</string>
+	<key>Share</key>
+	<string>Share</string>
+	<key>Size %.1f</key>
+	<string>Size %.1f</string>
+	<key>Up</key>
+	<string>Up</string>
+	<key>Y 偏移</key>
+	<string>Y offset</string>
+	<key>adjusted width: %.1f pt</key>
+	<string>adjusted width: %.1f pt</string>
+	<key>allowSecondaryDegradedImage 需要 iOS 17+</key>
+	<string>allowSecondaryDegradedImage requires iOS 17+</string>
+	<key>backToDay.mediaBadge.video</key>
+	<string>Video</string>
+	<key>highQuality + exact；保留为已验证无改善的旧控制组</key>
+	<string>highQuality + exact; retained as a previous control already shown to offer no improvement</string>
+	<key>iCloud 同步已关闭</key>
+	<string>iCloud Sync is off</string>
+	<key>iCloud 照片浏览记录同步</key>
+	<string>iCloud Photo History Sync</string>
+	<key>largest represented data</key>
+	<string>Largest represented data</string>
+	<key>linger Pro</key>
+	<string>linger Pro</string>
+	<key>opportunistic + fast；与随机浏览页当前静态图请求等价</key>
+	<string>opportunistic + fast; equivalent to the current still-image request on the random browsing page</string>
+	<key>requestImageDataAndOrientation；只读取本机最大渲染数据</key>
+	<string>requestImageDataAndOrientation; read only the largest rendered data available locally</string>
+	<key>update.feature.1.title</key>
+	<string>iCloud Photo History Sync</string>
+	<key>update.list.1.desc</key>
+	<string>Added a screenshot reset toggle
+Added a Video HDR toggle
+Improved haptics for the “Back to That Day” gesture
+Refined photo corner radii
+Improved the long-image viewing experience</string>
+	<key>update.list.1.title</key>
+	<string>Other Updates</string>
+	<key>update.list.2.desc</key>
+	<string>Widgets</string>
+	<key>update.list.2.title</key>
+	<string>Coming Soon</string>
+	<key>wlb19@foxmail.com</key>
+	<string>wlb19@foxmail.com</string>
+	<key>yyyy年M月d日</key>
+	<string>MMMM d, yyyy</string>
+	<key>yyyy年M月d日 EEEE HH:mm</key>
+	<string>EEEE, MMMM d, yyyy HH:mm</string>
+	<key>“本地数据”失败但其余方案有图时，可判为本机只有 Photos 衍生预览、没有最大渲染数据。</key>
+	<string>If Local Data fails while other methods return images, infer that only Photos derivative previews are available locally, without the largest rendered data.</string>
+	<key>━━━ 系统资源 ━━━</key>
+	<string>━━━ System Resources ━━━</string>
+	<key>━━━ 视频信息 ━━━</key>
+	<string>━━━ Video Info ━━━</string>
+	<key>。</key>
+	<string>.</string>
+	<key>。我们将在收到后 </key>
+	<string>. We'll distribute the reward within </string>
+	<key>「回到那天」
+为会员功能
+你可以体验 3 次
+本次为第 %d 次</key>
+	<string>Back to That Day
+is a Pro feature
+You can try it 3 times
+This is attempt %d</string>
+	<key>「回到那天」操作方式</key>
+	<string>Back to That Day</string>
+	<key>一点心意</key>
+	<string>A Little Gift</string>
+	<key>上下滑动切换视频</key>
+	<string>Swipe to switch videos</string>
+	<key>上传到 iCloud</key>
+	<string>Upload to iCloud</string>
+	<key>上次读取</key>
+	<string>Last read</string>
+	<key>上滑删除</key>
+	<string>Swipe up to delete</string>
+	<key>上滑删除照片</key>
+	<string>Delete</string>
+	<key>上移 0.5 pt</key>
+	<string>Move Up 0.5 pt</string>
+	<key>下滑取消收藏</key>
+	<string>Unfavorite</string>
+	<key>下滑收藏</key>
+	<string>Swipe down to favorite</string>
+	<key>下滑收藏照片</key>
+	<string>Favorite</string>
+	<key>下移 0.5 pt</key>
+	<string>Move Down 0.5 pt</string>
+	<key>不再提示</key>
+	<string>Don't ask</string>
+	<key>不必担心隐私问题
+因为去留没有服务器
+网络权限
+仅用作 iCloud 加载照片</key>
+	<string>100% Private.
+linger has no servers.
+Internet access is strictly used to load your iCloud photos.</string>
+	<key>不知不觉间，省了多少空间</key>
+	<string>See how much space you saved</string>
+	<key>为了进行照片或视频回顾与清理，去留需要相应的相册访问权限，才可以进行呈现和本地处理。我们不会上传您的数据以及用作任何其它用途。</key>
+	<string>To review and manage your photos or videos, linger needs access to your photo library for local processing and display. We will not upload your data or use it for any other purposes.</string>
+	<key>为防止刷赞，浏览量需要至少是点赞量的 10 倍。</key>
+	<string>To prevent fake likes, views must be at least 10× the number of likes.</string>
+	<key>主题光晕</key>
+	<string>Theme Glow</string>
+	<key>二级</key>
+	<string>Secondary</string>
+	<key>二级降级</key>
+	<string>Secondary Degraded</string>
+	<key>产品未找到</key>
+	<string>Product not found</string>
+	<key>仅同步浏览、删除和重置记录；照片和视频仍由系统照片图库管理。同步由系统自动安排，无需手动刷新。</key>
+	<string>Only browsing, deletion, and reset records sync. Photos and videos remain managed by the system Photos library. Sync is scheduled automatically; no manual refresh is needed.</string>
+	<key>仅当前调试页生效，退出后不保存。</key>
+	<string>Applies only to this debug page and is not saved when you leave.</string>
+	<key>仅截屏</key>
+	<string>Reset Screenshots Only</string>
+	<key>仅支付 1 次</key>
+	<string>Pay only once</string>
+	<key>仅有本地衍生图（推断）</key>
+	<string>Only local derivative images are available (inferred)</string>
+	<key>仅测试离线可用内容</key>
+	<string>Test Only Offline Content</string>
+	<key>仅照片</key>
+	<string>Reset Photos Only</string>
+	<key>仅照片（不含截屏）</key>
+	<string>Reset Photos Only (Excluding Screenshots)</string>
+	<key>仅视频</key>
+	<string>Reset Videos Only</string>
+	<key>今天</key>
+	<string>Today</string>
+	<key>今日浏览已达上限</key>
+	<string>Daily viewing limit reached</string>
+	<key>从 iCloud 导入</key>
+	<string>Import from iCloud</string>
+	<key>从局部的大圆角逐渐收至标准卡片圆角，扩散中不再增大。关闭可对比原来的自然扩散。</key>
+	<string>Gradually reduce the crop’s large corner radius to the standard card radius, without increasing it during the spread. Turn this off to compare the original natural spread.</string>
+	<key>从随机局部展开完整照片。重播保留当前区域，点击“换个区域”重新随机；也可拖动进度检查展开边缘。</key>
+	<string>Reveal the full photo from a random crop. Replaying keeps the current crop; tap “Choose Another Crop” to pick a new one. Drag the progress slider to inspect the reveal edge.</string>
+	<key>价格会随产品更新逐步上调至原价</key>
+	<string>Price will rise to the regular price</string>
+	<key>价格会随功能更新上调
+持续订阅可锁定当前优惠价</key>
+	<string>Price may rise with updates
+Stay subscribed to keep the discount</string>
+	<key>位于 App 与小组件共享容器内，可直接在本页查看和复制，无需手动打开文件夹。</key>
+	<string>Stored in the container shared by the app and widget. View and copy it here without opening the folder manually.</string>
+	<key>位置切换只改变照片卡内部的取景对齐，不改变口袋方向。</key>
+	<string>Changing the position only adjusts the crop alignment inside the photo card; the pocket orientation stays the same.</string>
+	<key>位置参照 2×</key>
+	<string>Position reference 2×</string>
+	<key>你会获得</key>
+	<string>You'll get</string>
+	<key>你可以继续浏览其他分类，或者过段时间再来。</key>
+	<string>You can continue browsing other categories, or come back later.</string>
+	<key>你太厉害了！</key>
+	<string>You're amazing!</string>
+	<key>你已经回顾完所有照片了！</key>
+	<string>You've already reviewed all your photos!</string>
+	<key>你已经看完相册里所有视频了，可以重置浏览记录后重试。</key>
+	<string>You've viewed all videos in your library. You can reset viewing history and try again.</string>
+	<key>使用当前照片背景的原始渐变颜色 · 峰值不透明度 0.78。</key>
+	<string>Uses the current photo background’s original gradient colors · Peak opacity 0.78.</string>
+	<key>使用条款</key>
+	<string>Terms of Use</string>
+	<key>使用照片双色生成深色渐变背景</key>
+	<string>Uses two colors from the photo to create a dark gradient background</string>
+	<key>使用统计</key>
+	<string>Usage Statistics</string>
+	<key>保留照片色彩，口袋感更轻</key>
+	<string>Preserves the photo’s colors with a lighter pocket effect</string>
+	<key>偏理性，边缘更利落</key>
+	<string>A precise look with cleaner edges</string>
+	<key>像刷短视频一样，刷自己的视频</key>
+	<string>Swipe your videos</string>
+	<key>像素控制</key>
+	<string>Pixel Control</string>
+	<key>像缩小照片那样双指捏合</key>
+	<string>Pinch to zoom out on a photo.</string>
+	<key>先关闭光点观察弹开与补全的衔接，再开启光点比较。重播与切换方案都保留同一张照片和局部区域。</key>
+	<string>Turn highlights off to inspect the transition from the spring motion to the full reveal, then turn them on to compare. Replaying or switching effects keeps the same photo and crop.</string>
+	<key>光圈</key>
+	<string>Aperture</string>
+	<key>光晕展开模糊半径（从 0 增至）</key>
+	<string>Glow Reveal Blur Radius (Starting at 0)</string>
+	<key>光晕收尾开始时间</key>
+	<string>Glow Fade Start Time</string>
+	<key>光晕收尾时长（含重叠）</key>
+	<string>Glow Fade Duration (Including Overlap)</string>
+	<key>光晕结束模糊半径</key>
+	<string>Final Glow Blur Radius</string>
+	<key>光晕结束缩放</key>
+	<string>Final Glow Scale</string>
+	<key>光晕随边缘展开</key>
+	<string>Glow Follows the Reveal Edge</string>
+	<key>光晕颜色</key>
+	<string>Glow Color</string>
+	<key>光点大小</key>
+	<string>Light Dot Size</string>
+	<key>光点强度</key>
+	<string>Highlight Intensity</string>
+	<key>克制、柔和，接近参考图 A1</key>
+	<string>Restrained and soft, close to reference A1</string>
+	<key>免费</key>
+	<string>Free</string>
+	<key>免费体验会员 1 个月</key>
+	<string>1 Month of Pro</string>
+	<key>免费升级</key>
+	<string>Free Upgrade</string>
+	<key>免费升级到永久会员</key>
+	<string>Upgrade to lifetime for free</string>
+	<key>免费升级到终身会员</key>
+	<string>Upgrade to lifetime for free</string>
+	<key>免费试用</key>
+	<string>Free Trial</string>
+	<key>免费试用 3 天</key>
+	<string>3-Day Free Trial</string>
+	<key>免费试用流程</key>
+	<string>Free trial process</string>
+	<key>全屏观看</key>
+	<string>Full Screen</string>
+	<key>全部重置</key>
+	<string>Reset All</string>
+	<key>公测期间，可免费体验 Pro 功能，无需购买。</key>
+	<string>During the public beta, you can try Pro features for free—no purchase required.</string>
+	<key>公测权益</key>
+	<string>Public Beta Access</string>
+	<key>关闭</key>
+	<string>Close</string>
+	<key>关闭灵动岛位置测试</key>
+	<string>Close Dynamic Island position test</string>
+	<key>具体日期</key>
+	<string>Specific Date</string>
+	<key>内存:</key>
+	<string>Memory:</string>
+	<key>内容加载失败</key>
+	<string>Couldn't Load Content</string>
+	<key>再来一组</key>
+	<string>One More Set</string>
+	<key>再来一组：吸入旧卡，等待加载，再弹出新卡。</key>
+	<string>One more set: pull in old cards, wait to load, then pop new ones.</string>
+	<key>冬季</key>
+	<string>Winter</string>
+	<key>冷灰磨砂</key>
+	<string>Cool Gray Matte</string>
+	<key>准备 iCloud</key>
+	<string>Prepare iCloud</string>
+	<key>分享</key>
+	<string>Share</string>
+	<key>分享你的去留体验,
+送会员！</key>
+	<string>Share your linger experience,
+get membership!</string>
+	<key>分享你的去留体验，送会员！</key>
+	<string>Share your linger experience and get Pro!</string>
+	<key>分享使用体验送会员</key>
+	<string>Share Your Experience, Get Membership</string>
+	<key>分辨率</key>
+	<string>Resolution</string>
+	<key>刚刚</key>
+	<string>Just now</string>
+	<key>刚刚回顾了 %lld 张照片</key>
+	<string>Just reviewed %lld photos</string>
+	<key>删除</key>
+	<string>Delete</string>
+	<key>删除 %lld 个视频</key>
+	<string>Delete %lld videos</string>
+	<key>删除 %lld 张照片</key>
+	<string>Delete %lld photos</string>
+	<key>删除中</key>
+	<string>Deleting</string>
+	<key>删除失败</key>
+	<string>Delete Failed</string>
+	<key>删除失败，未知错误。</key>
+	<string>Delete failed due to an unknown error.</string>
+	<key>删除失败，请稍后重试。</key>
+	<string>Delete failed. Please try again later.</string>
+	<key>删除未完成</key>
+	<string>Deletion incomplete</string>
+	<key>刷新</key>
+	<string>Refresh</string>
+	<key>前往设置</key>
+	<string>Settings</string>
+	<key>剩余 %@</key>
+	<string>%@ left</string>
+	<key>功能建议</key>
+	<string>Feature Suggestions</string>
+	<key>加载视频失败: %@</key>
+	<string>Couldn't load videos: %@</string>
+	<key>动图</key>
+	<string>Gif</string>
+	<key>动态背景色</key>
+	<string>Dynamic Background Colors</string>
+	<key>升级会员</key>
+	<string>Upgrade Membership</string>
+	<key>升级会员，继续使用小组件</key>
+	<string>Upgrade to keep using widgets</string>
+	<key>升级到 Pro</key>
+	<string>Upgrade to Pro</string>
+	<key>升级到永久会员</key>
+	<string>Upgrade to lifetime</string>
+	<key>升级到终身会员</key>
+	<string>Upgrade to lifetime</string>
+	<key>卡片 #%lld</key>
+	<string>Card #%lld</string>
+	<key>压线提供档案与记录语义</key>
+	<string>Embossed lines evoke archives and records</string>
+	<key>原图 %lld × %lld</key>
+	<string>Original %lld × %lld</string>
+	<key>原图 %lld × %lld · 返回 %@</key>
+	<string>Original %lld × %lld · Returned %@</string>
+	<key>去开启</key>
+	<string>Enable</string>
+	<key>去留</key>
+	<string>linger</string>
+	<key>去留 Pro</key>
+	<string>linger Pro</string>
+	<key>去留 · v%@</key>
+	<string>linger · v%@</string>
+	<key>去留会员专属功能</key>
+	<string>Exclusive to linger members</string>
+	<key>去相册</key>
+	<string>View in Photos</string>
+	<key>去看看</key>
+	<string>Take a Look</string>
+	<key>去设置</key>
+	<string>Go to Settings</string>
+	<key>参与方式</key>
+	<string>How to participate</string>
+	<key>参数: %@</key>
+	<string>Parameters: %@</string>
+	<key>双击手势</key>
+	<string>Double-Tap</string>
+	<key>双击浏览该分类</key>
+	<string>Double-tap to browse this category</string>
+	<key>双指把照片缩小，可以回到那天</key>
+	<string>Pinch the photo smaller to go back to that day</string>
+	<key>双指缩放</key>
+	<string>Pinch to Zoom</string>
+	<key>发现了可继续浏览的照片</key>
+	<string>More Photos Are Ready to Browse</string>
+	<key>发现照片的另一面</key>
+	<string>Discover another side of your photos</string>
+	<key>取消</key>
+	<string>Cancel</string>
+	<key>取消收藏</key>
+	<string>Unfavorite</string>
+	<key>只使用 Shape、渐变、描边和透明度，不依赖位图素材。</key>
+	<string>Uses only Shape, gradients, strokes, and opacity, with no bitmap assets.</string>
+	<key>可以撤销</key>
+	<string>Undo available</string>
+	<key>可查看</key>
+	<string>Available</string>
+	<key>可继续</key>
+	<string>Continue</string>
+	<key>同一 UIImage，SwiftUI high interpolation</key>
+	<string>The same UIImage with SwiftUI high interpolation</string>
+	<key>同一 UIImage，先按显示像素做 Lanczos 重采样</key>
+	<string>The same UIImage, resampled with Lanczos at the display pixel size</string>
+	<key>同一 UIImage，关闭插值以显露真实像素网格</key>
+	<string>The same UIImage with interpolation disabled to reveal the actual pixel grid</string>
+	<key>同图对比</key>
+	<string>Compare the Same Photo</string>
+	<key>同步暂时遇到问题</key>
+	<string>Sync is temporarily unavailable</string>
+	<key>同步记录</key>
+	<string>Sync History</string>
+	<key>同步记录暂时无法读取</key>
+	<string>Sync history is temporarily unavailable</string>
+	<key>同色剪贴</key>
+	<string>Tonal Collage</string>
+	<key>后天</key>
+	<string>The day after tomorrow</string>
+	<key>呈现</key>
+	<string>Rendering</string>
+	<key>呈现方式</key>
+	<string>Rendering Method</string>
+	<key>周会员</key>
+	<string>Weekly</string>
+	<key>和</key>
+	<string>and</string>
+	<key>回到 Home</key>
+	<string>Back to Home</string>
+	<key>回到中心位置</key>
+	<string>Return to Center</string>
+	<key>回到局部</key>
+	<string>Return to Crop</string>
+	<key>回到那天</key>
+	<string>Back to That Day</string>
+	<key>回收站</key>
+	<string>Recycle Bin</string>
+	<key>回调 %lld</key>
+	<string>Callbacks %lld</string>
+	<key>回调: %lld</key>
+	<string>Callbacks: %lld</string>
+	<key>回调无图</key>
+	<string>Callback returned no image</string>
+	<key>回调轨迹 · %@</key>
+	<string>Callback Trace · %@</string>
+	<key>回顾完毕</key>
+	<string>Review Complete</string>
+	<key>回顾照片无限制</key>
+	<string>Unlimited photo reviews</string>
+	<key>固定颜色</key>
+	<string>Fixed Color</string>
+	<key>固定颜色 #85A9FF · 峰值不透明度 0.38。</key>
+	<string>Fixed color #85A9FF · Peak opacity 0.38.</string>
+	<key>图文要求：需包含 4 张「去留」界面和不少于 50 字的使用感受；
+视频要求：不低于 10 秒，需包含「去留」界面。</key>
+	<string>Post requirements: include 4 linger screenshots and at least 50 words of feedback;
+Video requirements: at least 10 seconds and show the linger interface.</string>
+	<key>图文要求：需包含 4 张去留界面和不少于 50 字的使用感受；
+视频要求：不低于 10 秒，需包含去留界面。</key>
+	<string>Post requirements: include 4 linger screenshots and at least 50 words of feedback;
+Video requirements: at least 10 seconds and show the linger interface.</string>
+	<key>圆角逐渐收小</key>
+	<string>Gradually Reduce Corner Radius</string>
+	<key>在小红书、抖音、哔哩哔哩等平台发布图文或视频内容。不要提及去留、去留 App、App 等关键词，不要带上去留相关的话题，因为可能被限流。可带上照片清理、照片整理等相关话题。如有用户在评论区问及名称，可以回复。</key>
+	<string>Post text or video content on Xiaohongshu, Douyin, Bilibili, or similar platforms. Do not mention linger, linger App, App, or use linger-related hashtags, as this may limit reach. You may use related hashtags such as photo cleanup or photo organization. If someone asks for the name in the comments, you may reply.</string>
+	<key>在小红书、抖音、哔哩哔哩等平台发布图文或视频内容，需带上话题#去留App。</key>
+	<string>Post on Xiaohongshu, Douyin, or Bilibili with the hashtag #lingerApp.</string>
+	<key>在小红书、抖音、哔哩哔哩等平台发布图文或视频内容，需带上话题#去留。</key>
+	<string>Post on Xiaohongshu, Douyin, or Bilibili with the hashtag #linger.</string>
+	<key>地图坐标安全测试</key>
+	<string>Map coordinate security test</string>
+	<key>基础兜底方案。局部留在原图位置，轻压后弹开；圆角从局部的大圆角逐渐收小到卡片圆角，显影沿同一边缘补全照片。</key>
+	<string>The basic fallback effect. The crop stays in its original position, compresses slightly, then springs out. Its large corner radius gradually shrinks to the card radius as the reveal completes the photo along the same edge.</string>
+	<key>复制</key>
+	<string>Copy</string>
+	<key>复制报告</key>
+	<string>Copy Report</string>
+	<key>复制诊断文本</key>
+	<string>Copy diagnostic text</string>
+	<key>夏季</key>
+	<string>Summer</string>
+	<key>大后天的此刻</key>
+	<string>This time three days from now</string>
+	<key>奖励</key>
+	<string>Reward</string>
+	<key>好</key>
+	<string>OK</string>
+	<key>好的</key>
+	<string>OK</string>
+	<key>如不需要，您可以在 3 天内随时取消。
+任何时候取消，您都可以免费试用 3 天。</key>
+	<string>If you don't need it, you can cancel anytime within 3 days.
+No matter when you cancel, you can still enjoy the 3-day free trial.</string>
+	<key>如果你用「去留」整理了照片、找回了回忆，那就把它分享给更多人吧！
+我们准备了会员资格作为感谢～</key>
+	<string>If linger helped you organize photos and rediscover memories, share it with more people!
+We prepared membership access as a thank-you~</string>
+	<key>如果你遇到了问题，可以先查看常见问题帮助列表，说不定可以帮助你快速解决问题。</key>
+	<string>If you run into issues, check the FAQ list first. It might help you resolve them quickly.</string>
+	<key>如果想再看一遍，你可以选择重置浏览记录。</key>
+	<string>If you’d like to view them again, you can reset your viewing history.</string>
+	<key>如果还是拿不准，送你3组畅滑额度，你再试试吧！</key>
+	<string>If you're still unsure, we'll give you 3 free batches so you can keep trying.</string>
+	<key>存储空间不足，系统未完成删除。请释放空间后重试。</key>
+	<string>Insufficient storage. System couldn’t complete the deletion. Please free up space and try again.</string>
+	<key>存在本地预览图</key>
+	<string>A local preview is available</string>
+	<key>完成</key>
+	<string>Done</string>
+	<key>完整照片</key>
+	<string>Full Photo</string>
+	<key>实况</key>
+	<string>Live</string>
+	<key>实际宽度 1×</key>
+	<string>Actual width 1×</string>
+	<key>实验取图请求强制 isNetworkAccessAllowed = false；系统选择器不做网络限制，请自行开启飞行模式。</key>
+	<string>Experimental image requests enforce isNetworkAccessAllowed = false. The system picker has no network restriction; turn on Airplane Mode yourself.</string>
+	<key>实验维度</key>
+	<string>Experiment Axis</string>
+	<key>容量诊断</key>
+	<string>Storage Diagnostics</string>
+	<key>宽度 · 0.5 pt</key>
+	<string>Width · 0.5 pt</string>
+	<key>宽度减少 0.5 pt</key>
+	<string>Decrease Width by 0.5 pt</string>
+	<key>宽度增加 0.5 pt</key>
+	<string>Increase Width by 0.5 pt</string>
+	<key>导出诊断日志</key>
+	<string>Export Diagnostic Logs</string>
+	<key>将内容链接和个人主页截图发送到邮箱 </key>
+	<string>Send the content link and a screenshot of your profile to </string>
+	<key>将内容链接和个人主页截屏发送到邮箱 </key>
+	<string>Send the content link and a screenshot of your profile to </string>
+	<key>将重置截屏的浏览记录，重置后，这些项目会重新出现在浏览过程中。</key>
+	<string>This will reset the viewing history for screenshots. These items will appear again while browsing.</string>
+	<key>将重置所有照片、截屏和视频的浏览记录，重置后，这些项目会重新出现在浏览过程中。</key>
+	<string>This will reset the viewing history for all photos, screenshots, and videos. These items will appear again while browsing.</string>
+	<key>将重置照片的浏览记录，重置后，这些项目会重新出现在浏览过程中。</key>
+	<string>This will reset the viewing history for photos. These items will appear again while browsing.</string>
+	<key>将重置照片（不含截屏）的浏览记录，重置后，这些项目会重新出现在浏览过程中。</key>
+	<string>This will reset the viewing history for photos, excluding screenshots. These items will appear again while browsing.</string>
+	<key>将重置视频的浏览记录，重置后，这些项目会重新出现在浏览过程中。</key>
+	<string>This will reset the viewing history for videos. These items will appear again while browsing.</string>
+	<key>小点排列固定，扩散边缘经过时逐渐亮起，再渐隐。调小间距可增加密度。</key>
+	<string>The dots stay in place, lighting up as the reveal edge passes and then fading out. Reduce spacing to increase their density.</string>
+	<key>小红书</key>
+	<string>Red</string>
+	<key>小组件</key>
+	<string>Widgets</string>
+	<key>小组件免费体验已结束</key>
+	<string>Your widget trial has ended</string>
+	<key>小组件到期测试</key>
+	<string>Widget Trial Expiration Test</string>
+	<key>小组件刷新诊断</key>
+	<string>Widget refresh diagnostics</string>
+	<key>小组件局部</key>
+	<string>Widget Crop</string>
+	<key>小组件是 linger Pro 会员功能。你可以免费体验 3 天。</key>
+	<string>Widgets are a linger Pro feature. Enjoy a free 3-day trial.</string>
+	<key>小组件照片展开测试</key>
+	<string>Widget Photo Reveal Test</string>
+	<key>小组件照片样式</key>
+	<string>Widget Photo Styles</string>
+	<key>小组件照片样式实验室</key>
+	<string>Widget Photo Style Lab</string>
+	<key>尚未应用</key>
+	<string>Not Applied</string>
+	<key>尚未载入照片</key>
+	<string>No photo loaded yet</string>
+	<key>尚未运行</key>
+	<string>Not run yet</string>
+	<key>尚未选择照片</key>
+	<string>No photo selected yet</string>
+	<key>尝鲜推荐，可随时取消</key>
+	<string>Try it out, cancel anytime.</string>
+	<key>局部留在原图位置，轻压后弹开，涟漪向四周展开照片；弹性回落后，余波继续扩散消退。</key>
+	<string>The crop stays in its original position, compresses slightly, then springs out as ripples reveal the photo in all directions. Once the spring settles, the remaining ripples continue to spread and fade.</string>
+	<key>局部蓄力</key>
+	<string>Crop Press</string>
+	<key>展开后余波时长</key>
+	<string>Post-Reveal Ripple Duration</string>
+	<key>展开完成 · 余波扩散</key>
+	<string>Reveal Complete · Ripples Spreading</string>
+	<key>展开并落位</key>
+	<string>Expand and Settle</string>
+	<key>展开效果</key>
+	<string>Reveal Effect</string>
+	<key>展开时长</key>
+	<string>Reveal Duration</string>
+	<key>展开时长以常见的 3:4 竖图为基准，当前照片会按实际显示尺寸和裁切位置的扩散距离轻微调整。收尾开始时间随照片完成时间一起平移，先变模糊、淡出；照片完成后，余光再单独放大。</key>
+	<string>Reveal duration is based on a typical 3:4 portrait photo and adjusts slightly for the displayed size and spread distance from the crop. The fade start shifts with the photo completion time: the glow blurs and fades, then expands on its own after the photo is complete.</string>
+	<key>展开进度</key>
+	<string>Reveal Progress</string>
+	<key>左侧固定“当前”素材；右侧使用下方选中的素材。两侧均走生产 UIKit 呈现。</key>
+	<string>The left side uses the Current source; the right uses the source selected below. Both use production UIKit rendering.</string>
+	<key>左右滑动切换照片</key>
+	<string>Swipe to switch</string>
+	<key>已取消删除。</key>
+	<string>Deletion canceled.</string>
+	<key>已同步至照片 App</key>
+	<string>Synced to Photos App</string>
+	<key>已复制</key>
+	<string>Copied</string>
+	<key>已复制诊断文本</key>
+	<string>Diagnostic text copied</string>
+	<key>已完成</key>
+	<string>Completed</string>
+	<key>已将 %@ 复制到剪贴板。</key>
+	<string>Copied %@ to clipboard.</string>
+	<key>已应用</key>
+	<string>Applied</string>
+	<key>已开启“减弱动态效果”，预览使用静止照片的淡入补全。</key>
+	<string>Reduce Motion is enabled. The preview fades in the full photo without motion.</string>
+	<key>已经完成</key>
+	<string>Completed</string>
+	<key>已落位 · 余波扩散</key>
+	<string>Settled · Ripples Spreading</string>
+	<key>已选择</key>
+	<string>Selected</string>
+	<key>已选照片：%@</key>
+	<string>Selected Photo: %@</string>
+	<key>已领取3组，共45张照片或视频的额度，请享用。</key>
+	<string>You've claimed 3 sets (45 photos or videos). Enjoy.</string>
+	<key>帧率</key>
+	<string>Frame Rate</string>
+	<key>常见问题</key>
+	<string>FAQ</string>
+	<key>年度会员</key>
+	<string>Annual</string>
+	<key>年度订阅</key>
+	<string>Annual</string>
+	<key>年订阅支持「3天免费试用」，你可以爽用3天再做决定，中途随时可取消。
+
+如果还是拿不准，那我们先送你3组畅滑额度，你再试试吧！</key>
+	<string>Annual subscription includes a 3-day free trial. Try it out and cancel anytime.
+
+Still on the fence? Here are 3 free batches on us so you can keep exploring.</string>
+	<key>年订阅用户专享升级价</key>
+	<string>Annual Subscriber Upgrade Price</string>
+	<key>应用到正式流程</key>
+	<string>Apply to Production</string>
+	<key>应用后，下次从小组件打开照片将使用当前方案和参数。调整预览不会自动应用。</key>
+	<string>Once applied, the next photo opened from a widget will use this effect and its parameters. Preview adjustments are not applied automatically.</string>
+	<key>建议与反馈 · 去留</key>
+	<string>Feedback · linger</string>
+	<key>建议实验顺序</key>
+	<string>Suggested Test Order</string>
+	<key>开启后，无视会员状态，点击桌面小组件进入“免费体验已结束”页面。关闭后恢复真实状态。</key>
+	<string>When enabled, tapping a Home Screen widget shows the “Free trial ended” screen regardless of membership status. Turn it off to restore the actual status.</string>
+	<key>开启后，系统会在合适的时机自动同步。</key>
+	<string>Once enabled, the system syncs automatically when conditions allow.</string>
+	<key>开始 3 天免费试用</key>
+	<string>Start the 3-day free trial</string>
+	<key>开始体验</key>
+	<string>Start</string>
+	<key>弹开并扩散</key>
+	<string>Spring Out and Spread</string>
+	<key>弹开并显影</key>
+	<string>Spring Out and Reveal</string>
+	<key>弹性幅度</key>
+	<string>Spring Amplitude</string>
+	<key>弹性显影</key>
+	<string>Elastic Reveal</string>
+	<key>弹性涟漪</key>
+	<string>Elastic Ripple</string>
+	<key>当前位置</key>
+	<string>Current Position</string>
+	<key>当前分类已浏览完毕</key>
+	<string>This Category Is Complete</string>
+	<key>当前参数 + allowSecondaryDegradedImage；测试更好的本地降级图</key>
+	<string>Current parameters + allowSecondaryDegradedImage; test a better local degraded image</string>
+	<key>当前可访问的照片中没有可用于测试的图片。</key>
+	<string>There are no images available for testing among the photos you can access.</string>
+	<key>当前无法访问共享容器，诊断记录不可用。</key>
+	<string>The shared container is currently unavailable. Diagnostic records cannot be accessed.</string>
+	<key>当前没有可继续浏览的照片。需要时可以重置浏览记录，再来一遍。</key>
+	<string>There are no more photos to browse. Reset your viewing history whenever you’d like to start over.</string>
+	<key>当前系统低于 iOS 17，UIImageReader 相关选项会退回到普通解码。</key>
+	<string>On iOS below 17, UIImageReader options fall back to standard decoding.</string>
+	<key>当前订阅有效期至 %@。</key>
+	<string>Your current subscription is valid until %@.</string>
+	<key>当前订阅有效期至 %@，可以通过优惠价格升级至永久会员。</key>
+	<string>Your current subscription is valid until %@. You can upgrade to lifetime membership at a discounted price.</string>
+	<key>当前订阅有效期至 %@，可以通过优惠价格升级至终身会员。</key>
+	<string>Your current subscription is valid until %@. You can upgrade to lifetime membership at a discounted price.</string>
+	<key>当前资源不支持删除，请在「照片」App 中处理。</key>
+	<string>This item can’t be deleted here. Please manage it in the Photos app.</string>
+	<key>录屏</key>
+	<string>Screen Recordings</string>
+	<key>往传统的照片整理
+加入「随机性」
+枯燥的电子家务
+会变成温暖的回忆时光</key>
+	<string>Add a touch of surprise to photo organizing.
+Turn a digital chore into warm memories.</string>
+	<key>微博</key>
+	<string>Weibo</string>
+	<key>快速删除和收藏</key>
+	<string>Quick Delete and Favorite</string>
+	<key>快速定位原图，方便管理</key>
+	<string>Find the original fast for easy management</string>
+	<key>快门</key>
+	<string>Shutter</string>
+	<key>恢复动画</key>
+	<string>Restore animation</string>
+	<key>恢复成功</key>
+	<string>Restore Successful</string>
+	<key>恢复购买</key>
+	<string>Restore</string>
+	<key>恢复购买失败: %@</key>
+	<string>Restore Failed: %@</string>
+	<key>恢复默认参数</key>
+	<string>Restore Default Parameters</string>
+	<key>您可以在「照片 - 个人收藏」中查看收藏的照片。</key>
+	<string>You can view favorited photos in 'Photos - Favorites'.</string>
+	<key>您已拥有去留 Pro 订阅。</key>
+	<string>You already have a linger Pro subscription.</string>
+	<key>您已拥有去留 Pro 订阅，可以升级至终身会员。</key>
+	<string>You already have a linger Pro subscription. You can upgrade to Lifetime.</string>
+	<key>您已拥有去留 Pro 订阅，可以通过优惠价格升级至永久会员。</key>
+	<string>You already have a linger Pro subscription and can upgrade to lifetime membership at a discounted price.</string>
+	<key>您已拥有去留 Pro 订阅，可以通过优惠价格升级至终身会员。</key>
+	<string>You already have a linger Pro subscription and can upgrade to lifetime membership at a discounted price.</string>
+	<key>您已经升级到了永久会员，为了避免之前的订阅持续扣费，请取消订阅。
+
+取消订阅路径：
+设置 - Apple ID - 订阅 - 去留，点击「取消订阅」，否则订阅会持续扣费。</key>
+	<string>You've upgraded to lifetime membership. To avoid charges from your previous subscription, please cancel it.
+
+How to cancel:
+Settings - Apple ID - Subscriptions - linger, then tap “Cancel Subscription” or it will keep charging.</string>
+	<key>您已经升级到了终身会员，为了避免之前的订阅持续扣费，请取消订阅。
+
+取消订阅路径：
+设置 - Apple ID - 订阅 - 去留，点击「取消订阅」，否则订阅会持续扣费。</key>
+	<string>You've upgraded to lifetime membership. To avoid charges from your previous subscription, please cancel it.
+
+How to cancel:
+Settings - Apple ID - Subscriptions - linger, then tap “Cancel Subscription” or it will keep charging.</string>
+	<key>您正在体验免费试用，可以选择升级至永久会员。</key>
+	<string>You're on a free trial and can upgrade to lifetime membership.</string>
+	<key>您正在体验免费试用，可以选择升级至终身会员。</key>
+	<string>You're on a free trial and can upgrade to lifetime membership.</string>
+	<key>感光度</key>
+	<string>ISO</string>
+	<key>感谢您的信任与支持，现在可以免费升级至永久会员。</key>
+	<string>Thanks for your trust and support—you can now upgrade to lifetime membership for free.</string>
+	<key>感谢您的信任与支持，现在可以免费升级至终身会员。</key>
+	<string>Thanks for your trust and support—you can now upgrade to lifetime membership for free.</string>
+	<key>感谢您的支持，之后在使用中遇到任何问题，都可以在设置里联系我们。</key>
+	<string>Thanks for your support. If you have any issues, contact us in Settings.</string>
+	<key>感谢支持</key>
+	<string>Thanks for the support</string>
+	<key>感谢订阅</key>
+	<string>Thank you for subscribing</string>
+	<key>我知道了</key>
+	<string>Got it</string>
+	<key>截图</key>
+	<string>Screenshots</string>
+	<key>截屏</key>
+	<string>Screenshots</string>
+	<key>截屏、录屏、拍摄，写下使用体验。</key>
+	<string>Take screenshots, screen recordings, or photos, and share your experience.</string>
+	<key>截屏、录屏、拍摄，写下使用体验。
+你可以在设置里选择「演示模式」，挑选你想要用来演示的照片或视频，这样可以确保每一张照片和视频，以及排列顺序，都是你想给大家展示的。</key>
+	<string>Take screenshots, screen recordings, or photos, and share your experience.
+You can turn on Demo Mode in Settings and choose the photos or videos you want to show, so every item and its order appear exactly as you want.</string>
+	<key>截屏和录屏</key>
+	<string>Screenshots and Screen Recordings</string>
+	<key>打开 %@</key>
+	<string>Opened %@</string>
+	<key>扩散边缘柔和度</key>
+	<string>Reveal Edge Softness</string>
+	<key>拍摄位置</key>
+	<string>Capture Location</string>
+	<key>拖拽进度 %lld%%</key>
+	<string>Drag progress %lld%%</string>
+	<key>按住向上拖动，越往上缩小 + 翻转的增量越小，松开超过阈值后飞向灵动岛。</key>
+	<string>Hold and drag up. The higher you go, the smaller the shrink + flip increment. Release past the threshold to fly to Dynamic Island.</string>
+	<key>按场景精细分类，查找更快</key>
+	<string>Categorize by scenario for faster search</string>
+	<key>捏合缩小，回到那天！</key>
+	<string>Pinch Smaller, Back to That Day!</string>
+	<key>换一张示例</key>
+	<string>Try Another Sample</string>
+	<key>换个区域</key>
+	<string>Choose Another Crop</string>
+	<key>换位置</key>
+	<string>Change Position</string>
+	<key>换照片</key>
+	<string>Change Photo</string>
+	<key>推荐您免费试用 3 天后，再决定订阅或买断。如果选择先订阅一年，订阅期内也可以补差价到买断。</key>
+	<string>We recommend finishing the 3-day free trial before deciding to subscribe or buy out. If you subscribe yearly first, you can pay the difference to buy out during the term.</string>
+	<key>提醒时间</key>
+	<string>Reminder Time</string>
+	<key>提高照片主色浓度，剪贴感更完整</key>
+	<string>Richer photo colors create a fuller collage effect</string>
+	<key>撤回</key>
+	<string>Undo</string>
+	<key>播放展开</key>
+	<string>Play Reveal</string>
+	<key>播放视频</key>
+	<string>Play Video</string>
+	<key>支持截屏、自拍、实况等分类</key>
+	<string>Supports Categories</string>
+	<key>收藏</key>
+	<string>Favorite</string>
+	<key>收藏功能在这里</key>
+	<string>Favorite here</string>
+	<key>收藏功能在这里，也可以双击照片</key>
+	<string>Favorite here, or double-tap a photo.</string>
+	<key>放弃待删除项</key>
+	<string>Discard pending deletions</string>
+	<key>放弃，再来一组</key>
+	<string>Skip</string>
+	<key>放弃，回到首页</key>
+	<string>Skip</string>
+	<key>放弃，返回</key>
+	<string>Discard and Return</string>
+	<key>数据</key>
+	<string>Data</string>
+	<key>数据: %@</key>
+	<string>Data: %@</string>
+	<key>数据返回但解码失败</key>
+	<string>Data returned, but decoding failed</string>
+	<key>文件名</key>
+	<string>Filename</string>
+	<key>文件大小</key>
+	<string>File Size</string>
+	<key>新功能许愿</key>
+	<string>Feature Request</string>
+	<key>新增纯代码邮票剪贴方案，背景会从当前照片取样生成；下方仍保留口袋方案用于对比。</key>
+	<string>The new stamp collage is drawn entirely in code, with a background sampled from the current photo. The pocket styles below are retained for comparison.</string>
+	<key>方案</key>
+	<string>Mode</string>
+	<key>方案保存失败，请重试。</key>
+	<string>Couldn’t save the configuration. Please try again.</string>
+	<key>无图</key>
+	<string>No Image</string>
+	<key>无法从照片标识取得静态图片资产</key>
+	<string>Unable to retrieve a still-image asset from the photo identifier</string>
+	<key>无法准备预览照片，请重试。</key>
+	<string>Couldn’t prepare the preview photo. Please try again.</string>
+	<key>无法开启通知</key>
+	<string>Notifications Disabled</string>
+	<key>无法打开预览</key>
+	<string>Unable to Open Preview</string>
+	<key>无法生成照片预览，请换一张重试。</key>
+	<string>Couldn’t generate a photo preview. Please try another photo.</string>
+	<key>无法读取照片</key>
+	<string>Unable to load photos</string>
+	<key>无法重置浏览记录</key>
+	<string>Unable to Reset Viewing History</string>
+	<key>无法验证购买</key>
+	<string>Unable to verify purchase</string>
+	<key>无限畅滑，全功能可用</key>
+	<string>Unlimited smooth browsing with full features.</string>
+	<key>无需付费</key>
+	<string>No payment required</string>
+	<key>早期用户专享升级价</key>
+	<string>Early User Upgrade Price</string>
+	<key>早鸟价</key>
+	<string>Early Bird Price</string>
+	<key>时间信息已拷贝</key>
+	<string>Time info copied</string>
+	<key>时间信息已拷贝。由于系统限制，您可以点下方按钮「去相册」，在搜索框里粘贴时间信息，就可以看到对应照片了。</key>
+	<string>Photo time info has been copied to clipboard. Click the button below to jump to Photos, then paste the time info in the search box to find the current photo.</string>
+	<key>时间格式</key>
+	<string>Time Format</string>
+	<key>明天</key>
+	<string>Tomorrow</string>
+	<key>春季</key>
+	<string>Spring</string>
+	<key>昨天</key>
+	<string>Yesterday</string>
+	<key>显影补全</key>
+	<string>Reveal Completion</string>
+	<key>显影过渡宽度</key>
+	<string>Reveal Transition Width</string>
+	<key>显示 safe area 顶部参照和当前灵动岛计算位置。</key>
+	<string>Shows the top safe-area reference and the calculated Dynamic Island position.</string>
+	<key>显示动态范围</key>
+	<string>Display Dynamic Range</string>
+	<key>显示小组件调试信息</key>
+	<string>Show Widget Debug Info</string>
+	<key>显示照片</key>
+	<string>Show Photos</string>
+	<key>显露边缘宽度系数</key>
+	<string>Reveal Edge Width Factor</string>
+	<key>暂无内容</key>
+	<string>No Content</string>
+	<key>暂无可浏览照片</key>
+	<string>No Photos to Browse</string>
+	<key>暂无同步记录</key>
+	<string>No sync history</string>
+	<key>暂无日志。切换策略、重新载入或选择照片后会记录读取和解码细节。</key>
+	<string>No logs yet. Switching strategies, reloading, or selecting a photo will record loading and decoding details.</string>
+	<key>暂无诊断记录</key>
+	<string>No diagnostic records yet</string>
+	<key>暂时无法开始体验，请再试一次。</key>
+	<string>Couldn't start your trial. Please try again.</string>
+	<key>暂时无法确认小组件体验状态</key>
+	<string>Widget trial unavailable</string>
+	<key>暂时无法读取相册内容，请稍后重试。</key>
+	<string>Your photo library is temporarily unavailable. Please try again later.</string>
+	<key>暂时无法载入照片</key>
+	<string>Unable to load a photo right now</string>
+	<key>暖色纸革</key>
+	<string>Warm Paper Leather</string>
+	<key>更新日记</key>
+	<string>Update Log</string>
+	<key>更新日记预览</key>
+	<string>Update Log Preview</string>
+	<key>更有温度，但不过度复古</key>
+	<string>Warmer without an overly vintage feel</string>
+	<key>最多保留最近 200 条记录，不保存照片或原始照片标识。目录、锁和开关独立于业务数据；清空只删除诊断记录，保留开关，不影响照片缓存、轮换安排、已看记录或每日额度。</key>
+	<string>Keeps up to 200 recent records without saving photos or original photo identifiers. The directory, lock, and toggle are separate from app data. Clearing removes only diagnostic records and keeps the toggle setting; photo caches, rotation schedules, viewing history, and daily limits are unaffected.</string>
+	<key>最大数据需要 iCloud</key>
+	<string>The largest data requires iCloud</string>
+	<key>最接近参考图，背景只保留轻微照片色</key>
+	<string>Closest to the reference, with a subtle hint of the photo’s colors in the background</string>
+	<key>最终图</key>
+	<string>Final image</string>
+	<key>最近同步完成</key>
+	<string>Last sync completed</string>
+	<key>最近打开 %@</key>
+	<string>Last Opened %@</string>
+	<key>最近记录 · %lld</key>
+	<string>Recent records · %lld</string>
+	<key>有待删除的照片</key>
+	<string>Last Look</string>
+	<key>有待删除的视频</key>
+	<string>Videos pending deletion</string>
+	<key>有效期至 %@</key>
+	<string>Valid until %@</string>
+	<key>未完成</key>
+	<string>Not completed</string>
+	<key>未知尺寸</key>
+	<string>Unknown size</string>
+	<key>未知时间</key>
+	<string>Unknown time</string>
+	<key>未知错误</key>
+	<string>Unknown Error</string>
+	<key>未能完成照片筛选，请重试。</key>
+	<string>Couldn’t finish selecting photos. Please try again.</string>
+	<key>未选择</key>
+	<string>Not Selected</string>
+	<key>本地内容暂未完成刷新：%@ 请稍后重试。</key>
+	<string>Local content could not be refreshed yet: %@ Please try again later.</string>
+	<key>本地层级: %@</key>
+	<string>Local availability: %@</string>
+	<key>本地数据</key>
+	<string>Local Data</string>
+	<key>本地数据已返回</key>
+	<string>Local data returned</string>
+	<key>本地数据探测超时，结果不确定</key>
+	<string>Local data check timed out; result is inconclusive</string>
+	<key>本机可读取最大渲染数据</key>
+	<string>The largest rendered data is available locally</string>
+	<key>构建 %@</key>
+	<string>Build %@</string>
+	<key>柔光随照片显露，收尾时变模糊并淡出；照片完成后，余光再单独放大消散。</key>
+	<string>A soft glow follows the photo reveal, then blurs and fades. After the photo is complete, the remaining glow expands and dissolves on its own.</string>
+	<key>查看</key>
+	<string>View</string>
+	<key>查看 3 天试用流程</key>
+	<string>View the 3-day trial process</string>
+	<key>查看会员</key>
+	<string>View Pro</string>
+	<key>查看会员详情</key>
+	<string>Upgrade to Pro</string>
+	<key>查看协议 &gt;</key>
+	<string>View Terms &gt;</string>
+	<key>查看照片信息</key>
+	<string>View Photo Info</string>
+	<key>检查倍率</key>
+	<string>Inspection Zoom</string>
+	<key>模拟小组件三天到期</key>
+	<string>Simulate 3-Day Widget Trial Expiration</string>
+	<key>横纹档案袋</key>
+	<string>Lined Archive Pocket</string>
+	<key>欢迎使用</key>
+	<string>Welcome</string>
+	<key>正在关闭 iCloud 同步…</key>
+	<string>Turning off iCloud Sync…</string>
+	<key>正在准备 iCloud 同步…</key>
+	<string>Preparing iCloud Sync…</string>
+	<key>正在准备照片背景色…</key>
+	<string>Preparing Photo Background Colors…</string>
+	<key>正在准备相册内容，请稍候。</key>
+	<string>Preparing your library. Please wait.</string>
+	<key>正在加载</key>
+	<string>Loading</string>
+	<key>正在加载浏览统计…</key>
+	<string>Loading viewing statistics…</string>
+	<key>正在同步…</key>
+	<string>Syncing…</string>
+	<key>正在处理</key>
+	<string>Working…</string>
+	<key>正在开启 iCloud 同步…</key>
+	<string>Turning on iCloud Sync…</string>
+	<key>正在检测本地可用层级</key>
+	<string>Checking locally available image levels</string>
+	<key>正在确认会员状态…</key>
+	<string>Checking membership…</string>
+	<key>正在确认相册权限</key>
+	<string>Checking Photo Access</string>
+	<key>正在请求相册权限</key>
+	<string>Requesting Photo Access</string>
+	<key>正在读取同步状态…</key>
+	<string>Reading sync status…</string>
+	<key>正在读取系统相册授权状态。如果长时间停留在这里，请稍后重试或前往系统设置确认权限。</key>
+	<string>Checking the system photo access status. If this takes too long, try again later or confirm access in Settings.</string>
+	<key>正在载入随机照片…</key>
+	<string>Loading a random photo…</string>
+	<key>正在重置浏览记录</key>
+	<string>Resetting Viewing History</string>
+	<key>正式流程：%@</key>
+	<string>Production: %@</string>
+	<key>此提示关闭后将不会再次出现。请确保已经取消订阅，避免产生额外费用。</key>
+	<string>This prompt won't appear again after closing. Please ensure you've canceled the subscription to avoid extra charges.</string>
+	<key>每天按这个时间推送</key>
+	<string>Sends daily at this time</string>
+	<key>每日可浏览 3 组照片或视频，会员可无限浏览。</key>
+	<string>Browse 3 sets of photos or videos daily for free. Upgrade to Pro to remove this limit.</string>
+	<key>每日提醒</key>
+	<string>Daily Reminder</string>
+	<key>每组数量</key>
+	<string>Per Group</string>
+	<key>每组数量自定义，最多 100 张</key>
+	<string>Custom groups</string>
+	<key>水波密度</key>
+	<string>Ripple Density</string>
+	<key>水波强度</key>
+	<string>Ripple Intensity</string>
+	<key>水波范围</key>
+	<string>Ripple Width</string>
+	<key>没有可显示的本地图</key>
+	<string>No local image is available to display</string>
+	<key>没有可用照片</key>
+	<string>No photos available</string>
+	<key>没有已删除的项目</key>
+	<string>No deleted items</string>
+	<key>没有找到有效的订阅记录</key>
+	<string>No valid subscription found</string>
+	<key>没有本地最大数据</key>
+	<string>The largest data is not available locally</string>
+	<key>没有照片相关权限，请到系统设置中开启完整访问。</key>
+	<string>No Photos permission. Please enable Full Access in Settings.</string>
+	<key>注意，请取消订阅</key>
+	<string>Reminder: please cancel the subscription</string>
+	<key>浅色剪贴</key>
+	<string>Light Collage</string>
+	<key>测试各种无效坐标情况，验证 App 不会崩溃</key>
+	<string>Test various invalid coordinate cases to ensure the app doesn't crash.</string>
+	<key>测试照片</key>
+	<string>Test Photo</string>
+	<key>测试结果：</key>
+	<string>Test results:</string>
+	<key>测试运行中...</key>
+	<string>Test running...</string>
+	<key>浏览与同步</key>
+	<string>Browsing and Sync</string>
+	<key>浏览了 %@ 个视频，清理了 %@ 个视频，节省了 %@。</key>
+	<string>Reviewed %1$@ videos, cleaned up %2$@ videos, and saved %3$@.</string>
+	<key>浏览了 %@ 张照片、%@ 张截图，清理了 %@ 个项目，节省了 %@。</key>
+	<string>Reviewed %1$@ photos and %2$@ screenshots, cleaned up %3$@ items, and saved %4$@.</string>
+	<key>浏览了 %d 个项目，其中 %d 个已删除。</key>
+	<string>Browsed %1$d items, %2$d deleted.</string>
+	<key>浏览了 %lld 个项目，其中 %lld 个已删除。浏览过的项目不会再出现，直至 3 年以后恢复，你可以现在立即重置。</key>
+	<string>Browsed %1$lld items, %2$lld deleted. Browsed items will not reappear until recovered after 3 years. You can reset now.</string>
+	<key>浏览同步诊断</key>
+	<string>Review Sync Diagnostics</string>
+	<key>浏览完成页实验室</key>
+	<string>Browsing Completion Page Lab</string>
+	<key>浏览完毕</key>
+	<string>Complete</string>
+	<key>浏览记录保存失败，请重试</key>
+	<string>Couldn’t save viewing history. Please try again.</string>
+	<key>浏览记录已重置</key>
+	<string>Viewing History Reset</string>
+	<key>海拔 %@</key>
+	<string>Altitude %@</string>
+	<key>淡入补全</key>
+	<string>Fade in Full Photo</string>
+	<key>深色剪贴</key>
+	<string>Dark Collage</string>
+	<key>清理</key>
+	<string>Cleaned</string>
+	<key>清空诊断记录</key>
+	<string>Clear diagnostic records</string>
+	<key>演示模式</key>
+	<string>Demo Mode</string>
+	<key>演示模式结束</key>
+	<string>Demo Mode Ended</string>
+	<key>灵动岛位置测试</key>
+	<string>Dynamic Island position test</string>
+	<key>灵动岛方案：拖拽上滑时岛体会持续放大并出现红光，提交删除/撤回时触发岛体弹性反馈。</key>
+	<string>Dynamic Island mode: drag up to enlarge the island with a red glow; confirming delete or undo triggers a spring bounce.</string>
+	<key>灵活配置，满足不同整理节奏</key>
+	<string>Flexible setup for any pace</string>
+	<key>点击</key>
+	<string>Tap</string>
+	<key>点击 %@ 撤回刚才的删除</key>
+	<string>Tap %@ to undo the last deletion</string>
+	<key>点击 %@ 收藏照片</key>
+	<string>Tap %@ to favorite the photo</string>
+	<key>点击 %@ 收藏照片，也可以双击照片</key>
+	<string>Tap %@ to favorite the photo, or double-tap the photo</string>
+	<key>点击再来一组，吸入当前卡片后加载新的 3-5 张。</key>
+	<string>Tap for another set. Pull in current cards, then load 3-5 new ones.</string>
+	<key>点击开始即表示同意我们的</key>
+	<string>By clicking Start, you agree to our</string>
+	<key>点赞量</key>
+	<string>Like count</string>
+	<key>点阵扩散</key>
+	<string>Dot Matrix Spread</string>
+	<key>点阵间距</key>
+	<string>Dot Spacing</string>
+	<key>点阵随边缘展开</key>
+	<string>Dots Follow the Reveal Edge</string>
+	<key>焦距</key>
+	<string>Focus</string>
+	<key>照片</key>
+	<string>Photos</string>
+	<key>照片 %d · 视频 %d</key>
+	<string>Photos %d · Videos %d</string>
+	<key>照片 HDR</key>
+	<string>Photo HDR</string>
+	<key>照片信息</key>
+	<string>Photo Info</string>
+	<key>照片分页实验室</key>
+	<string>Photo Paging Lab</string>
+	<key>照片和视频</key>
+	<string>Photos and Videos</string>
+	<key>照片完成 · 光晕消散</key>
+	<string>Photo Complete · Glow Dissolving</string>
+	<key>照片完成：%@ 秒；光晕收尾：%@～%@ 秒。</key>
+	<string>Photo complete: %1$@ s; glow fade: %2$@–%3$@ s.</string>
+	<key>照片展开 · 光晕渐隐</key>
+	<string>Photo Revealing · Glow Fading</string>
+	<key>照片展开实验需要 iOS 17 或更高版本</key>
+	<string>The photo reveal lab requires iOS 17 or later.</string>
+	<key>照片展开预览</key>
+	<string>Photo Reveal Preview</string>
+	<key>照片拍摄位置</key>
+	<string>Photo Location</string>
+	<key>照片数量不足</key>
+	<string>Not Enough Photos</string>
+	<key>照片权限不可用</key>
+	<string>Photo access unavailable</string>
+	<key>照片每组数量</key>
+	<string>Photos Per Group</string>
+	<key>照片池</key>
+	<string>Photo Pool</string>
+	<key>照片浏览完毕</key>
+	<string>Photo Browsing Complete</string>
+	<key>照片详细信息</key>
+	<string>Photo details</string>
+	<key>照片载入失败，请重试。</key>
+	<string>Couldn’t load the photo. Please try again.</string>
+	<key>特别优惠</key>
+	<string>Special Offer</string>
+	<key>状态出错？尝试恢复购买</key>
+	<string>Error?</string>
+	<key>独立诊断目录</key>
+	<string>Separate diagnostic directory</string>
+	<key>现已支持升级到永久会员</key>
+	<string>Upgrading to lifetime is now supported</string>
+	<key>现已支持升级到终身会员</key>
+	<string>Upgrading to lifetime is now supported</string>
+	<key>用看短视频的方式
+看自己的「人生短视频」
+简直是天才般的设计！</key>
+	<string>Swipe through your memories
+just like short videos.
+Simple, yet brilliant.</string>
+	<key>白色棉纸</key>
+	<string>White Cotton Paper</string>
+	<key>目标: %@</key>
+	<string>Target: %@</string>
+	<key>目标图需要 iCloud</key>
+	<string>The requested image requires iCloud</string>
+	<key>目标数据需要 iCloud</key>
+	<string>The requested data requires iCloud</string>
+	<key>相册中暂时没有符合当前日期与分类条件的照片。</key>
+	<string>There are currently no photos matching the selected date and category filters.</string>
+	<key>相册中暂时没有符合条件的新视频。需要时可以重置浏览记录，再来一遍。</key>
+	<string>There are no new eligible videos right now. Reset your viewing history whenever you’d like to start over.</string>
+	<key>相册权限已开启</key>
+	<string>Photo Access Enabled</string>
+	<key>相册读取策略</key>
+	<string>Load Strategy</string>
+	<key>相册里的照片已全部浏览</key>
+	<string>All Photos in Your Library Have Been Browsed</string>
+	<key>相册里的视频已全部浏览</key>
+	<string>All Videos in Your Library Have Been Browsed</string>
+	<key>相对时间</key>
+	<string>Relative Time</string>
+	<key>相机参数、位置一目了然</key>
+	<string>Camera settings and locations at a glance</string>
+	<key>相片信息</key>
+	<string>Photo Info</string>
+	<key>真实材质负责表面与边缘，代码负责照片卡和布局。</key>
+	<string>Real textures define the surface and edges, while code draws the photo card and layout.</string>
+	<key>知道了</key>
+	<string>Got it</string>
+	<key>确认</key>
+	<string>Confirm</string>
+	<key>确认关闭吗？</key>
+	<string>Are you sure you want to close?</string>
+	<key>确认删除</key>
+	<string>Empty Trash</string>
+	<key>确认删除？</key>
+	<string>Confirm delete?</string>
+	<key>确认购买即同意订阅协议。</key>
+	<string>Confirm to agree to terms.</string>
+	<key>确认购买后，将通过您的 iTunes 账户直接支付。购买或试用后，续订会自动进行，苹果 iTunes 账户会在到期前 24 小时内扣费，扣费成功后订阅周期顺延 1 个订阅周期。您可以在系统账户设置中修改自动订阅设置，如需取消续订，请至少在当前扣费期前 24 小时进行操作。</key>
+	<string>Payment will be charged to your iTunes account upon confirmation. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscription in Account Settings.</string>
+	<key>确认重置浏览记录？</key>
+	<string>Reset viewing history?</string>
+	<key>示例：%@</key>
+	<string>Example: %@</string>
+	<key>离线清晰度对比</key>
+	<string>Offline Clarity Comparison</string>
+	<key>离线清晰度对比实验室</key>
+	<string>Offline Photo Clarity Comparison Lab</string>
+	<key>离线照片清晰度实验室</key>
+	<string>Offline Photo Clarity Lab</string>
+	<key>秋季</key>
+	<string>Autumn</string>
+	<key>秒</key>
+	<string>s</string>
+	<key>立即订阅</key>
+	<string>Subscribe Now</string>
+	<key>等待系统继续</key>
+	<string>Waiting for system</string>
+	<key>等待系统继续同步</key>
+	<string>Waiting for the system to continue syncing</string>
+	<key>等待首次同步</key>
+	<string>Waiting for first sync</string>
+	<key>管理待删除内容（%lld）</key>
+	<string>Manage pending deletions (%lld)</string>
+	<key>粒子光点</key>
+	<string>Particle Highlights</string>
+	<key>精确控制</key>
+	<string>Exact Control</string>
+	<key>系统未弹出删除确认，请尝试重启设备后再尝试。</key>
+	<string>The system didn’t show the delete confirmation. Try restarting your device and try again.</string>
+	<key>系统正忙或操作被中断，请稍后再试。</key>
+	<string>The system is busy or the operation was interrupted. Please try again later.</string>
+	<key>系统照片库暂时不可用，请稍后再试。</key>
+	<string>The photo library is temporarily unavailable. Please try again later.</string>
+	<key>系统选择器没有返回照片标识；请确认照片访问权限</key>
+	<string>The system picker did not return a photo identifier; check photo access permissions</string>
+	<key>系统限制了对照片库的访问，暂时无法删除。</key>
+	<string>The system has restricted access to your photo library. Deletion is temporarily unavailable.</string>
+	<key>素材</key>
+	<string>Source</string>
+	<key>素材合成</key>
+	<string>Material Composite</string>
+	<key>纯代码</key>
+	<string>Drawn in Code</string>
+	<key>终身会员</key>
+	<string>Lifetime</string>
+	<key>终身使用，持续更新</key>
+	<string>Lifetime access, ongoing updates</string>
+	<key>结果: %@</key>
+	<string>Result: %@</string>
+	<key>统计</key>
+	<string>Stats</string>
+	<key>继续</key>
+	<string>Continue</string>
+	<key>缩放</key>
+	<string>Zoom</string>
+	<key>联系邮箱</key>
+	<string>Contact Email</string>
+	<key>背景颜色来自照片取样，四边打孔蒙版由 Shape 生成。</key>
+	<string>Background colors are sampled from the photo. Shape creates the perforated mask on all four sides.</string>
+	<key>胶片颗粒</key>
+	<string>Film Grain</string>
+	<key>腾出空间</key>
+	<string>Space Saved</string>
+	<key>自动扣款，开始一年订阅。</key>
+	<string>Auto debit to start the yearly subscription.</string>
+	<key>自动播放</key>
+	<string>Autoplay</string>
+	<key>自拍</key>
+	<string>Selfies</string>
+	<key>获取结果</key>
+	<string>Acquisition Results</string>
+	<key>补充说明：</key>
+	<string>Additional notes:</string>
+	<key>要不要再回顾一下别的分类？</key>
+	<string>Want to review another category?</string>
+	<key>要再来一组吗？</key>
+	<string>One more set?</string>
+	<key>覆盖层是时间表提交时的快照，不是实时状态。如果桌面仍显示旧构建编号，请在这里读取记录，对照请求、执行、取图和提交环节。提交成功不代表系统已经显示新画面。</key>
+	<string>The overlay is a snapshot taken when the timeline was submitted, not a live status. If the Home Screen still shows an old build number, read the records here to check the request, execution, image loading, and submission stages. A successful submission does not mean the system has displayed the new image.</string>
+	<key>规则的蓝色小点沿照片展开的边缘亮起，大小随边缘距离渐变；点阵位置固定，紧贴扩散路径。</key>
+	<string>Evenly spaced blue dots light up along the photo’s reveal edge, changing size with their distance from it. The dots stay in place and closely follow the spread path.</string>
+	<key>视频</key>
+	<string>Videos</string>
+	<key>视频 HDR</key>
+	<string>Video HDR</string>
+	<key>视频会自动播放声音，要继续吗？</key>
+	<string>Videos will play with sound. Continue?</string>
+	<key>视频信息</key>
+	<string>Video Info</string>
+	<key>视频加载失败</key>
+	<string>Couldn't Load Video</string>
+	<key>视频回顾模式</key>
+	<string>Video Review Mode</string>
+	<key>视频拍摄位置</key>
+	<string>Video Location</string>
+	<key>视频数量不足</key>
+	<string>Not Enough Videos</string>
+	<key>视频时长</key>
+	<string>Duration</string>
+	<key>视频每组数量</key>
+	<string>Videos Per Group</string>
+	<key>视频浏览完毕</key>
+	<string>Video Review Complete</string>
+	<key>解锁全部功能</key>
+	<string>Unlock All Features</string>
+	<key>解锁无限制浏览及未来更新内容</key>
+	<string>Unlock unlimited browsing and future updates</string>
+	<key>解锁无限畅滑，轻松回顾和整理</key>
+	<string>Unlock unlimited browsing</string>
+	<key>订单信息异常，请稍后重试</key>
+	<string>Invalid order info. Please try again later.</string>
+	<key>订单购买超时，请稍后重试</key>
+	<string>Purchase timed out. Please try again later.</string>
+	<key>订阅会员</key>
+	<string>Subscription Member</string>
+	<key>订阅协议</key>
+	<string>Subscription Terms</string>
+	<key>记录开关不主动刷新小组件，也不改变照片上的调试文字显示。</key>
+	<string>The recording toggle does not request a widget refresh or change the debug text shown on photos.</string>
+	<key>记录构建编号、取图结果和耗时，脱离 Xcode 运行时也会记录。照片上的调试文字可在 Debug 工具页面单独开关。</key>
+	<string>Records build numbers, image-loading results, and timings, even when running without Xcode. Debug text on photos can be toggled separately on the Debug Tools page.</string>
+	<key>记录诊断信息</key>
+	<string>Record diagnostic information</string>
+	<key>许愿新功能</key>
+	<string>Wishlist</string>
+	<key>设为 0 时同时结束。余波期间照片已完整显现，位置和大小保持稳定。</key>
+	<string>Set to 0 to finish both effects together. During the remaining ripples, the photo is fully revealed and its position and size stay fixed.</string>
+	<key>设备</key>
+	<string>Device</string>
+	<key>设置</key>
+	<string>Settings</string>
+	<key>诊断日志</key>
+	<string>Diagnostic Logs</string>
+	<key>试用流程</key>
+	<string>Trial Process</string>
+	<key>该分类当前不可用</key>
+	<string>This category is currently unavailable</string>
+	<key>该升级方案仅在订阅期内有效，过期无法使用。当前订阅有效期至 %@。</key>
+	<string>This upgrade is only available while your subscription is active and cannot be used after it expires. Your current subscription is valid until %@.</string>
+	<key>请在此写下你的建议或是遇到的问题。
+
+
+
+
+
+Version %@｜%@ %@｜%@</key>
+	<string>Please write your suggestions or issues here.
+
+
+
+
+
+Version %1$@｜%2$@ %3$@｜%4$@</string>
+	<key>请在系统弹窗中允许相册访问。去留只会在本地处理和呈现照片与视频，不会上传您的数据。</key>
+	<string>Allow photo access in the system prompt. linger only processes and displays photos and videos on this device; we never upload your data.</string>
+	<key>请在系统设置中允许去留发送通知，然后回到这里重新开启每日提醒。</key>
+	<string>Allow linger to send notifications in Settings, then come back here to turn Daily Reminder on again.</string>
+	<key>请求中；网络访问被禁止</key>
+	<string>Requesting; network access is disabled</string>
+	<key>请确认需要删除的照片</key>
+	<string>Please confirm photos to delete</string>
+	<key>请确认需要删除的视频</key>
+	<string>Please confirm videos to delete</string>
+	<key>请稍后重试。待删除内容已保留。</key>
+	<string>Please try again later. Your pending deletions have been kept.</string>
+	<key>请至少选择 5 个视频素材</key>
+	<string>Please select at least 5 videos</string>
+	<key>请至少选择 5 张照片</key>
+	<string>Please select at least 5 photos</string>
+	<key>请选择照片或视频来进行演示
+照片和视频会按照你选择的顺序排序
+你可以选择 5-15 张照片或视频用来进行一组的演示
+选择之后会自动跳转对应页面
+你可以截屏或录屏
+一组演示结束之后，会自动关闭演示模式
+演示删除的照片不会被真的删除</key>
+	<string>Select photos or videos for the demo
+They'll be shown in the order you select
+You can choose 5-15 photos or videos for one demo set
+After selecting, you'll automatically jump to the corresponding page
+You can take screenshots or screen recordings
+Demo Mode will turn off automatically after one set ends
+Photos deleted during the demo won't actually be deleted</string>
+	<key>读取最新记录</key>
+	<string>Read latest records</string>
+	<key>调整内容大小</key>
+	<string>Resize Content</string>
+	<key>调整每组数量</key>
+	<string>Per Group</string>
+	<key>调试文字默认关闭，方便观察照片清晰度。切换后会请求刷新，系统更新小组件时生效；诊断记录仍由刷新诊断页的开关控制。</key>
+	<string>Debug text is off by default so you can inspect photo clarity. Changing this setting requests a refresh and takes effect when the system updates the widget. Diagnostic recording is still controlled by the switch on the refresh diagnostics page.</string>
+	<key>购买处理中，请稍后查看</key>
+	<string>Purchase pending. Please check again later.</string>
+	<key>购买失败</key>
+	<string>Purchase Failed</string>
+	<key>购买已取消</key>
+	<string>Purchase Cancelled</string>
+	<key>购买成功</key>
+	<string>Purchase Successful</string>
+	<key>购买终身会员</key>
+	<string>Purchase Lifetime</string>
+	<key>资产: %@</key>
+	<string>Asset: %@</string>
+	<key>资产像素: %@</key>
+	<string>Asset pixels: %@</string>
+	<key>跳转到系统相册对应位置</key>
+	<string>Jump to that spot in Photos</string>
+	<key>轻触开始回顾</key>
+	<string>Tap to Start Review</string>
+	<key>载入中…</key>
+	<string>Loading…</string>
+	<key>边缘提示卡片画廊</key>
+	<string>Edge Hint Card Gallery</string>
+	<key>边缘效果与照片显现共用同一条扩散路径；圆角逐渐收小，完成后效果一起消退。</key>
+	<string>The edge effect follows the same spread path as the photo reveal. Corners gradually shrink, and the effects fade together when the reveal completes.</string>
+	<key>边缘效果宽度</key>
+	<string>Edge Effect Width</string>
+	<key>边缘效果强度</key>
+	<string>Edge Effect Intensity</string>
+	<key>边缘柔化随展开增强再收回，原局部保持清晰；模糊半径最多 12 pt。</key>
+	<string>Edge softness increases during the reveal, then decreases. The original crop stays sharp; the blur radius is capped at 12 pt.</string>
+	<key>边长为照片最短边的 1/2，位置随机且完整落在照片内。</key>
+	<string>Each side is half the photo’s shorter side. The crop is placed randomly and stays entirely within the photo.</string>
+	<key>运行所有测试</key>
+	<string>Run all tests</string>
+	<key>返回</key>
+	<string>Back</string>
+	<key>返回: %@</key>
+	<string>Returned: %@</string>
+	<key>返回前请先处理这些照片</key>
+	<string>These items will be removed from your library</string>
+	<key>返回首页</key>
+	<string>Back to Home</string>
+	<key>还未取消</key>
+	<string>Not yet canceled</string>
+	<key>这一天没有可显示的录屏</key>
+	<string>No screen recordings available for this day</string>
+	<key>这一天没有可显示的截屏</key>
+	<string>No screenshots available for this day</string>
+	<key>这一天没有可显示的截屏或录屏</key>
+	<string>No screenshots or screen recordings available for this day</string>
+	<key>这一天没有可显示的照片</key>
+	<string>No photos available for this day</string>
+	<key>这一天没有可显示的照片或视频</key>
+	<string>No photos or videos available for this day</string>
+	<key>这一天没有可显示的视频</key>
+	<string>No videos available for this day</string>
+	<key>这一步需要系统弹出确认窗口，但有时它不会按预期出现，重启手机后再试通常就能恢复。</key>
+	<string>This step requires a system confirmation prompt, but it may not appear as expected. Restart your phone and try again—it usually fixes the issue.</string>
+	<key>这个分类已浏览完毕</key>
+	<string>This Category Is Complete</string>
+	<key>这个分类暂无内容</key>
+	<string>No Content in This Category</string>
+	<key>这张照片暂时无法读取，请换一张重试。</key>
+	<string>This photo can’t be read right now. Please try another one.</string>
+	<key>进入 Review</key>
+	<string>Enter Review</string>
+	<key>进行中</key>
+	<string>In progress</string>
+	<key>选定照片</key>
+	<string>Select Photo</string>
+	<key>选择演示照片</key>
+	<string>Select Demo Photos</string>
+	<key>选择演示视频</key>
+	<string>Select Demo Videos</string>
+	<key>选择照片</key>
+	<string>Choose Photo</string>
+	<key>选择要重置的记录</key>
+	<string>Select records to reset</string>
+	<key>选择需要重置的范围。重置仅影响浏览记录，不会改变已删除项目的统计。</key>
+	<string>Select what you want to reset. Resetting affects viewing history only and does not change statistics for deleted items.</string>
+	<key>透明相册袋</key>
+	<string>Clear Album Sleeve</string>
+	<key>通知权限未打开</key>
+	<string>Notifications Permission Off</string>
+	<key>通知设置失败</key>
+	<string>Notification Setup Failed</string>
+	<key>邮票剪贴 · 纯代码</key>
+	<string>Stamp Collage · Drawn in Code</string>
+	<key>邮箱</key>
+	<string>Email</string>
+	<key>邮箱已复制到剪贴板</key>
+	<string>Email copied to clipboard</string>
+	<key>重新播放</key>
+	<string>Replay</string>
+	<key>重置</key>
+	<string>Reset</string>
+	<key>重置完成组数。Photo%lldVideo%lld</key>
+	<string>Reset completed groups. Photos: %1$lld · Videos: %2$lld</string>
+	<key>重置浏览记录</key>
+	<string>Reset Viewing History</string>
+	<key>重置调整</key>
+	<string>Reset adjustments</string>
+	<key>重试</key>
+	<string>Try Again</string>
+	<key>重跑</key>
+	<string>Run Again</string>
+	<key>长图</key>
+	<string>Long Images</string>
+	<key>问题反馈</key>
+	<string>Feedback</string>
+	<key>降级图</key>
+	<string>Degraded image</string>
+	<key>限时折扣</key>
+	<string>Flash Sale</string>
+	<key>随心浏览，不再受限</key>
+	<string>Browse freely without limits</string>
+	<key>随机</key>
+	<string>Random</string>
+	<key>随机回顾照片还不错吧？
+视频更有意思！</key>
+	<string>Love rediscovering old photos?
+The video experience is even more fun!</string>
+	<key>随机提醒你回到去留整理回忆</key>
+	<string>Random reminders to return to linger and sort memories</string>
+	<key>随机正方形区域</key>
+	<string>Random Square Crop</string>
+	<key>随机的趣味性</key>
+	<string>Random Fun</string>
+	<key>隐私政策</key>
+	<string>Privacy Policy</string>
+	<key>隐藏照片</key>
+	<string>Hide Photos</string>
+	<key>需要帮助吗</key>
+	<string>Need Help?</string>
+	<key>需要照片访问权限才能使用真实照片比较样式。</key>
+	<string>Photo access is required to compare styles using real photos.</string>
+	<key>需要相册权限</key>
+	<string>Photo Library Access Required</string>
+	<key>需要网络后才能完成删除操作，请检查网络连接后重试。</key>
+	<string>A network connection is required to complete deletion. Check your connection and try again.</string>
+	<key>震动反馈</key>
+	<string>Haptic</string>
+	<key>静音播放</key>
+	<string>Mute playback</string>
+	<key>非灵动岛方案：拖拽上滑时顶部红色流光跟手增强，删除提交后冲顶衰减；撤回使用主题色流光。</key>
+	<string>Non-Dynamic Island mode: drag up to intensify the top red glow; delete sends it upward, undo uses the theme glow.</string>
+	<key>页面预览</key>
+	<string>Page Previews</string>
+	<key>顺滑体验，专注回忆</key>
+	<string>Smooth experience focused on memories</string>
+	<key>预览比例</key>
+	<string>Preview scale</string>
+	<key>领取成功</key>
+	<string>Claim Successful</string>
+	<key>领取额度</key>
+	<string>Claim Credits</string>
+	<key>高插值</key>
+	<string>High Interpolation</string>
+	<key>🤨 恢复中...请保持在此页面</key>
+	<string>🤨 Restoring... Please stay on this page</string>
+	<key>🤨 订阅中...请保持在此页面</key>
+	<string>🤨 Subscribing... Please stay on this page</string>
+	<key>🥳 恢复成功！</key>
+	<string>🥳 Restoration successful!</string>
+	<key>🥳 订阅成功！</key>
+	<string>🥳 Subscription successful!</string>
+</dict>
+</plist>

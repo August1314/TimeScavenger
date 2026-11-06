@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+*.log
+.DS_Store
+analysis/quliu.ipa
+analysis/extracted/
+.superpowers/
+app/ios/
+app/android/
+screens/*_s.png
