@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { GradientBackground } from '../../theme/GradientBackground';
 import { C } from '../../theme/colors';
 import { CardStack } from '../../components/CardStack';
@@ -12,6 +11,7 @@ import { setFavorite, getAssetLocation } from '../../lib/assets';
 import { placeName } from '../../lib/place';
 import { formatTime } from '../../lib/time';
 import { getSetting } from '../../db/repo';
+import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticLight, hapticSelect } from '../../lib/haptics';
 import type { Category, MediaRow } from '../../db/repo';
 
 export default function ReviewScreen() {
@@ -24,6 +24,14 @@ export default function ReviewScreen() {
   const [, force] = useState(0);
 
   const currentId = deck?.items[deck.index]?.id;
+  const [toast, setToast] = useState<string | null>(null);
+  const [hintVisible, setHintVisible] = useState(true);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (s: string) => {
+    setToast(s);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2500);
+  };
   useEffect(() => {
     setPlace(null);
     if (!currentId) return;
@@ -44,6 +52,8 @@ export default function ReviewScreen() {
     (async () => {
       const tf = (await getSetting('timeFormat')) as 'relative' | 'date' | null;
       if (tf === 'date') setTimeFormat('date');
+      const h = await getSetting('haptics');
+      setHapticsEnabled(h !== 'off');
       const g = await nextGroup(category);
       setRows(g.items);
       const dta = (await getSetting('doubleTapAction')) === 'zoom' ? 'zoom' : 'favorite';
@@ -73,19 +83,25 @@ export default function ReviewScreen() {
           pendingQueue.push(row);
           await markSeen(row);
         }
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        hapticWarn();
+        setHintVisible(false);
+        showToast('已加入待删除 · 点 ↩ 撤回');
         break;
       case 'favorite':
         if (row) await markSeen(row);
         await setFavorite(a.id, true);
-        Haptics.selectionAsync();
+        hapticSuccess();
+        setHintVisible(false);
+        showToast('已收藏 · 同步到系统个人收藏');
         break;
       case 'seen':
         if (row) await markSeen(row);
+        hapticLight();
         break;
       case 'undoDelete':
         pendingQueue.remove(a.id);
-        Haptics.selectionAsync();
+        hapticSelect();
+        showToast('已撤回删除');
         break;
       case 'backToDay':
         router.push({ pathname: '/back-to-day', params: { id: a.id } });
@@ -163,6 +179,17 @@ export default function ReviewScreen() {
         )}
       </View>
 
+      {/* 提示与反馈条 */}
+      <View style={styles.feedbackRow}>
+        {toast ? (
+          <View style={styles.toast}>
+            <Text style={styles.toastText}>{toast}</Text>
+          </View>
+        ) : hintVisible && !deck.done ? (
+          <Text style={styles.hint}>上滑待删除 · 下滑收藏 · 左右切换 · 捏合回到那天</Text>
+        ) : null}
+      </View>
+
       {/* 底栏 */}
       <View style={styles.bottomBar}>
         <RoundBtn
@@ -170,7 +197,7 @@ export default function ReviewScreen() {
           onPress={() => {
             const id = deck.items[deck.index]?.id;
             if (!id) return;
-            void setFavorite(id, true).then(() => Haptics.selectionAsync());
+            void setFavorite(id, true).then(() => hapticSelect());
           }}
         />
         <View style={styles.timeCapsule}>
@@ -220,6 +247,10 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: { color: '#fff', fontSize: 13, fontWeight: '600' },
   placeText: { color: C.textDim, fontSize: 13 },
+  feedbackRow: { minHeight: 34, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
+  hint: { color: 'rgba(255,255,255,0.4)', fontSize: 13 },
+  toast: { backgroundColor: 'rgba(30,30,40,0.85)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 8 },
+  toastText: { color: '#fff', fontSize: 14 },
   bottomBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 24, paddingBottom: 110, paddingTop: 10,

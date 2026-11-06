@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -55,6 +55,14 @@ function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
     opacity: withTiming(gone.value === 1 ? 0 : 1, { duration: 200 }),
   }));
 
+  // 方向反馈：上拖红光+待删除，下拖蓝光+收藏
+  const upOverlay = useAnimatedStyle(() => ({
+    opacity: Math.min(1, Math.max(0, -y.value / 140)),
+  }));
+  const downOverlay = useAnimatedStyle(() => ({
+    opacity: Math.min(1, Math.max(0, y.value / 140)),
+  }));
+
   const pan = Gesture.Pan()
     .onChange((e) => {
       x.value = e.translationX;
@@ -108,6 +116,12 @@ function TopCard({ card, badge, onSwipe, onDoubleTap, onPinchOut }: {
           transition={150}
           recyclingKey={card.id}
         />
+        <Animated.View pointerEvents="none" style={[styles.upGlow, upOverlay]}>
+          <Text style={styles.upLabel}>待删除</Text>
+        </Animated.View>
+        <Animated.View pointerEvents="none" style={[styles.downGlow, downOverlay]}>
+          <Text style={styles.downLabel}>♡ 收藏</Text>
+        </Animated.View>
         {badge}
       </Animated.View>
     </GestureDetector>
@@ -151,4 +165,16 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.94 }, { translateY: 18 }],
     opacity: 0.55,
   },
+  upGlow: {
+    position: 'absolute', top: 0, left: 0, right: 0, height: 130,
+    backgroundColor: 'rgba(224,60,60,0.35)',
+    alignItems: 'center', justifyContent: 'flex-start', paddingTop: 22,
+  },
+  upLabel: { color: '#fff', fontSize: 17, fontWeight: '800', letterSpacing: 2 },
+  downGlow: {
+    position: 'absolute', bottom: 0, left: 0, right: 0, height: 130,
+    backgroundColor: 'rgba(76,141,255,0.35)',
+    alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 22,
+  },
+  downLabel: { color: '#fff', fontSize: 17, fontWeight: '800', letterSpacing: 2 },
 });
