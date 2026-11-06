@@ -67,11 +67,11 @@ export default function PhotoInfoScreen() {
       {/* 原版 live_after 采样：照片为整页背景（延伸到状态栏后），标题叠在照片上，向下渐隐入黑 */}
       <Image source={{ uri: id }} style={styles.photoBg} contentFit="cover" recyclingKey={id} />
       <LinearGradient
-        colors={['rgba(14,14,18,0)', 'rgba(14,14,18,0.35)', '#0e0e12']}
-        locations={[0, 0.5, 1]}
+        colors={['rgba(14,14,18,0)', 'rgba(14,14,18,0.25)', '#0e0e12']}
+        locations={[0, 0.62, 1]}
         style={styles.photoFade}
       />
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: SCREEN_H * 0.22 }]}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: SCREEN_H * 0.25 }]}>
         {/* 时间标题（相对时间大字 + 完整日期） */}
         {row && (
           <>
@@ -81,6 +81,7 @@ export default function PhotoInfoScreen() {
         )}
 
         {/* 相片信息 */}
+        <View style={styles.separator} />
         <View style={styles.sectionHead}>
           <Ionicons name="camera-outline" size={15} color={C.textDim} />
           <Text style={styles.sectionTitle}>相片信息</Text>
@@ -130,6 +131,7 @@ export default function PhotoInfoScreen() {
         )}
 
         {/* 拍摄位置 */}
+        <View style={styles.separator} />
         <View style={styles.sectionHead}>
           <Ionicons name="navigate-outline" size={15} color={C.textDim} />
           <Text style={styles.sectionTitle}>拍摄位置</Text>
@@ -141,8 +143,16 @@ export default function PhotoInfoScreen() {
                 style={styles.map}
                 initialRegion={{ latitude: loc.latitude, longitude: loc.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
               >
-                <Marker coordinate={{ latitude: loc.latitude, longitude: loc.longitude }} />
+                <Marker coordinate={{ latitude: loc.latitude, longitude: loc.longitude }} anchor={{ x: 0.5, y: 1 }}>
+                  <View style={styles.pin}>
+                    <View style={styles.pinInner} />
+                  </View>
+                </Marker>
               </MapView>
+              {/* 原版：地点名直接叠在地图中央（白字带阴影） */}
+              {!!parts?.street && (
+                <Text style={styles.mapLabel}>{parts.street}</Text>
+              )}
             </View>
             <View style={styles.placeRow}>
               <Text style={styles.placeText}>{parts?.street ?? (parts || loc ? '' : '定位中…')}</Text>
@@ -180,27 +190,38 @@ const styles = StyleSheet.create({
   bigTime: { color: '#fff', fontSize: 28, fontWeight: '800' },
   fullDate: { color: 'rgba(255,255,255,0.75)', fontSize: 16, fontWeight: '600', marginTop: 4 },
 
-  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 26, marginBottom: 10 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14, marginBottom: 12 },
   sectionTitle: { color: C.textDim, fontSize: 14, fontWeight: '600' },
+  separator: { height: 1, backgroundColor: 'rgba(255,255,255,0.08)', marginTop: 26, marginBottom: 2 },
   noExif: { color: 'rgba(255,255,255,0.45)', fontSize: 14 },
 
   deviceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   deviceKey: { color: '#fff', fontSize: 16, fontWeight: '600' },
   deviceVal: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  paramRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  paramRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   paramCard: {
-    flex: 1, backgroundColor: 'rgba(20,20,28,0.55)', borderRadius: 12,
-    paddingVertical: 10, alignItems: 'center', gap: 3,
+    flex: 1, height: 56, backgroundColor: '#26262e', borderRadius: 12,
+    alignItems: 'center', justifyContent: 'center', gap: 3,
   },
-  paramVal: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  paramVal: { color: '#fff', fontSize: 15, fontWeight: '800' },
   paramKey: { color: 'rgba(255,255,255,0.45)', fontSize: 11 },
-  kvList: { gap: 10 },
-  kv: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  kvList: { gap: 0 },
+  kv: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 9 },
   kvKey: { color: '#fff', fontSize: 15 },
   kvVal: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
-  mapWrap: { height: 170, borderRadius: 16, overflow: 'hidden', marginBottom: 10 },
+  mapWrap: { height: 165, borderRadius: 16, overflow: 'hidden', marginBottom: 12 },
   map: { flex: 1 },
+  pin: {
+    width: 34, height: 34, borderRadius: 17, backgroundColor: '#34C759',
+    borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',
+  },
+  pinInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' },
+  mapLabel: {
+    position: 'absolute', alignSelf: 'center', top: '58%',
+    color: '#fff', fontSize: 15, fontWeight: '700',
+    textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4,
+  },
   placeRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   placeText: { color: '#fff', fontSize: 15, flexShrink: 1 },
   placeRegion: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
