@@ -71,6 +71,30 @@ export default function SpikeScreen() {
         say(`keys: ${Object.keys(exif ?? {}).join(', ')}`);
         say(JSON.stringify(exif).slice(0, 1200));
       })} busy={busy} />
+      <Btn label="5. 实况配对视频探查" onPress={() => run(async () => {
+        const { Asset, AssetField, MediaType, Query } = require('expo-media-library');
+        const { File } = require('expo-file-system');
+        const one = (await fetchUnreviewedRandom('live', 1))[0];
+        if (!one) { say('库中没有实况照片'); return; }
+        const a = new Asset(one.localIdentifier);
+        const [uri, name] = await Promise.all([a.getUri(), a.getFilename()]);
+        say(`实况: ${name} uri=${uri}`);
+        try {
+          const f = new File(uri);
+          const dir = f.parent;
+          if (dir) {
+            const kids: string[] = [];
+            for (const it of dir.list()) { kids.push((it as { name?: string }).name ?? '?'); if (kids.length >= 12) break; }
+            say(`同目录: ${kids.join(', ')}`);
+          } else { say('无 parent 目录'); }
+        } catch (e) { say(`fs: ${String(e)}`); }
+        const vids = await new Query().eq(AssetField.MEDIA_TYPE, MediaType.VIDEO).exeForMetadata();
+        const s = String(name ?? '').split('.')[0];
+        const hits = vids
+          .filter((v: { filename?: string }) => String(v.filename ?? '').split('.')[0] === s)
+          .map((v: { id: string; filename?: string; mediaSubtypes?: string[] }) => `${v.id} ${v.filename} [${(v.mediaSubtypes ?? []).join('|')}]`);
+        say(`视频总数=${vids.length} 同stem匹配=${hits.length ? hits.join(' ; ') : '无'}`);
+      })} busy={busy} />
     </View>
   );
 }
