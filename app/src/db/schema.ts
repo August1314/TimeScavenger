@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS media (
   creationDate INTEGER NOT NULL,
   favorite INTEGER NOT NULL DEFAULT 0,
   lastReviewedDate INTEGER,
-  lastLocallyReviewedDate INTEGER
+  lastLocallyReviewedDate INTEGER,
+  pendingDeletedAt INTEGER
 );
 CREATE TABLE IF NOT EXISTS deletion (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

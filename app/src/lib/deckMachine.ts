@@ -52,6 +52,18 @@ export function deckReducer(
 
   // Review Focus #4：动画进行中的手势一律忽略，防止重复消费
   if (s.status === 'animating') return { state: s, action: null };
+
+  // T7.3 裁决5：done 状态允许撤回（不受 done 阻断）
+  if (e.type === 'undo') {
+    if (!s.lastDeleted) return { state: s, action: null };
+    const id = s.lastDeleted.id;
+    const back = Math.max(0, s.index - 1);
+    return {
+      state: { ...s, index: back, done: back >= s.items.length, lastDeleted: null },
+      action: { kind: 'undoDelete', id },
+    };
+  }
+
   if (s.done) return { state: s, action: null };
   const c = current(s);
   if (!c) return { state: { ...s, done: true }, action: null };
@@ -79,15 +91,6 @@ export function deckReducer(
       };
     case 'pinch':
       return { state: s, action: { kind: 'backToDay', id: c.id } };
-    case 'undo': {
-      if (!s.lastDeleted) return { state: s, action: null };
-      const id = s.lastDeleted.id;
-      const back = Math.max(0, s.index - 1);
-      return {
-        state: { ...s, index: back, done: false, lastDeleted: null },
-        action: { kind: 'undoDelete', id },
-      };
-    }
   }
   return { state: s, action: null };
 }

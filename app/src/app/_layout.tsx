@@ -1,8 +1,11 @@
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { ColorValue } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { C } from '../theme/colors';
+import { initDb } from '../db/repo';
+import { pendingQueue } from '../lib/deletion';
 
 const icon = (name: (f: boolean) => keyof typeof Ionicons.glyphMap) =>
   ({ color, focused }: { color: ColorValue | null; focused: boolean }) => (
@@ -10,6 +13,9 @@ const icon = (name: (f: boolean) => keyof typeof Ionicons.glyphMap) =>
   );
 
 export default function RootLayout() {
+  useEffect(() => {
+    void initDb().then(() => pendingQueue.hydrate());
+  }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <Tabs

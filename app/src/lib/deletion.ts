@@ -1,4 +1,4 @@
-import { addDeletion, removeMedia, type MediaRow } from '../db/repo';
+import { addDeletion, removeMedia, setPending, fetchPending, type MediaRow } from '../db/repo';
 
 export interface DeleteOutcome {
   succeeded: string[];
@@ -10,28 +10,40 @@ export interface DeletionDeps {
   measureSize(id: string): Promise<number | null>;
 }
 
-/** 待删除队列（内存单件：上滑入队 → 回收站确认 → 真删除） */
-class PendingQueue {
+/**
+ * 待删除队列：内存 Map + SQLite pendingDeletedAt 标记双写（T7.3 裁决2）。
+ * 重启/热重载后 hydrate() 从库恢复，杜绝"幽灵照片"。
+ */
+export class PendingQueue {
   private items = new Map<string, MediaRow>();
 
-  push(item: MediaRow): void {
+  async hydrate(): Promise<void> {
+    const rows = await fetchPending();
+    this.items = new Map(rows.map((r) => [r.localIdentifier, r]));
+  }
+
+  async push(item: MediaRow): Promise<void> {
     this.items.set(item.localIdentifier, item);
+    await setPending([item.localIdentifier], Date.now());
   }
 
-  remove(id: string): void {
-    this.items.delete(id);
+  async remove(id: string): Promise<void> {
+    if (!this.items.delete(id)) return;
+    await setPending([id], null);
   }
 
-  has(id: string): boolean {
-    return this.items.has(id);
-  }
-
-  list(): MediaRow[] {
+  async list(): Promise<MediaRow[]> {
     return [...this.items.values()];
   }
 
-  discardAll(): void {
+  async count(): Promise<number> {
+    return this.items.size;
+  }
+
+  async discardAll(): Promise<void> {
+    const ids = [...this.items.keys()];
     this.items.clear();
+    if (ids.length > 0) await setPending(ids, null);
   }
 }
 
@@ -49,12 +61,17 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
 }
 
 /**
- * 提交勾选的待删除项：测尺寸（超时→null，iCloud 未下载即此路径）→ 系统删除
- * → 成功项写删除记录并清 media 行；失败项留在队列里。
+ * 提交勾选的待删除项：测尺寸（超时→null）→ 系统删除
+ * → 成功项写删除记录、清 media 行与 pending 标记；失败项保留在队列。
  */
-export async function commitPending(selectedIds: string[], deps: DeletionDeps): Promise<CommitResult> {
+export async function commitPending(
+  selectedIds: string[],
+  deps: DeletionDeps,
+  queue: PendingQueue = pendingQueue,
+): Promise<CommitResult> {
+  const all = await queue.list();
   const targets = selectedIds
-    .map((id) => pendingQueue.list().find((r) => r.localIdentifier === id))
+    .map((id) => all.find((r) => r.localIdentifier === id))
     .filter((r): r is MediaRow => !!r);
   if (targets.length === 0) return { deleted: [], failed: [] };
 
@@ -76,7 +93,7 @@ export async function commitPending(selectedIds: string[], deps: DeletionDeps): 
       deletedAt: now,
       fileSize: sizes.get(t.localIdentifier) ?? null,
     });
-    pendingQueue.remove(t.localIdentifier);
+    await queue.remove(t.localIdentifier);
     deleted.push(t.localIdentifier);
   }
   if (deleted.length > 0) await removeMedia(deleted);
@@ -84,7 +101,7 @@ export async function commitPending(selectedIds: string[], deps: DeletionDeps): 
   return { deleted, failed: outcome.failed };
 }
 
-/** 生产依赖：expo-media-library Asset.delete + File(uri).size（实机 spike 验证） */
+/** 生产依赖：expo-media-library Asset.delete + File(uri).size（真机已验证 ph:// 可读） */
 export function nativeDeps(): DeletionDeps {
   return {
     async deleteAssets(ids) {

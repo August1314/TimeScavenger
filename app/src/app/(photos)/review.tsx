@@ -83,9 +83,9 @@ export default function ReviewScreen() {
   useEffect(() => {
     if (deck?.done && !doneRef.current) {
       doneRef.current = true;
-      if (pendingQueue.list().length > 0) {
-        router.push({ pathname: '/pending', params: { from: 'done' } });
-      }
+      void pendingQueue.count().then((c) => {
+        if (c > 0) router.push({ pathname: '/pending', params: { from: 'done' } });
+      });
     }
     if (deck && !deck.done) doneRef.current = false;
   }, [deck]);
@@ -95,7 +95,7 @@ export default function ReviewScreen() {
     switch (a.kind) {
       case 'delete':
         if (row) {
-          pendingQueue.push(row);
+          await pendingQueue.push(row);
           await markSeen(row);
         }
         hapticWarn();
@@ -114,7 +114,7 @@ export default function ReviewScreen() {
         hapticLight();
         break;
       case 'undoDelete':
-        pendingQueue.remove(a.id);
+        await pendingQueue.remove(a.id);
         hapticSelect();
         showToast('已撤回删除');
         break;
@@ -148,14 +148,8 @@ export default function ReviewScreen() {
   };
 
   const goHome = () => {
-    if (pendingQueue.list().length > 0) {
-      Alert.alert('返回前请先处理这些照片', '待删除的项目仍保留在你的相册中，直到你确认删除。', [
-        { text: '保留待处理', onPress: () => router.back() },
-        { text: '去处理', onPress: () => router.push({ pathname: '/pending', params: { from: 'done' } }) },
-      ]);
-    } else {
-      router.back();
-    }
+    // R2 由首页焦点逻辑统一处理（队列>抑制水位则自动弹确认页）
+    router.back();
   };
 
   return (

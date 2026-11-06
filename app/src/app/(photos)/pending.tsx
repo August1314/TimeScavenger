@@ -1,17 +1,46 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
-import { router } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { C } from '../../theme/colors';
 import { pendingQueue, commitPending, nativeDeps } from '../../lib/deletion';
 import { toggleId, selectedIdsOf } from '../../lib/selection';
+import { setSuppressionLevel } from '../../lib/binSuppression';
+import type { MediaRow } from '../../db/repo';
 
 export default function PendingScreen() {
-  const [items, setItems] = useState(() => pendingQueue.list());
-  const [sel, setSel] = useState<string[]>(() => pendingQueue.list().map((r) => r.localIdentifier));
+  const { from } = useLocalSearchParams<{ from?: string }>();
+  const [items, setItems] = useState<MediaRow[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [sel, setSel] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
-  const toggle = (id: string) => setSel((s) => toggleId(s, id));
+  const reload = useCallback(async () => {
+    const list = await pendingQueue.list();
+    setItems(list);
+    setSel(list.map((r) => r.localIdentifier));
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  // 标题按内容类型（T7.3 裁决6）
+  const videoCount = items.filter((r) => r.mediaType === 'video').length;
+  const title = items.length > 0 && videoCount > items.length - videoCount ? '有待删除的视频' : '有待删除的照片';
+
+  const closeX = () => {
+    setSuppressionLevel(items.length); // 抑制水位：队列不再增长则不自动重弹
+    router.back();
+  };
+
+  const discard = async () => {
+    await pendingQueue.discardAll();
+    setSuppressionLevel(0);
+    router.back();
+  };
 
   const confirmDelete = async () => {
     if (busy) return;
@@ -21,30 +50,31 @@ export default function PendingScreen() {
     try {
       const res = await commitPending(ids, nativeDeps());
       if (res.failed.length > 0) {
-        Alert.alert('删除未完成', res.failed[0].error);
+        setToast('请稍后重试。待删除内容已保留。');
       }
-      const left = pendingQueue.list();
-      setItems(left);
-      setSel(left.map((r) => r.localIdentifier));
-      if (left.length === 0) router.back();
+      await reload();
+      const left = await pendingQueue.list();
+      if (left.length === 0) {
+        setSuppressionLevel(0);
+        router.back();
+      }
     } finally {
       setBusy(false);
     }
   };
 
-  const discard = () => {
-    pendingQueue.discardAll();
-    router.back();
-  };
-
   return (
     <View style={styles.sheet}>
       <View style={styles.header}>
-        <Text style={styles.title}>有待删除的照片</Text>
-        <TouchableOpacity style={styles.close} onPress={() => router.back()}>
+        <Text style={styles.title}>{title}</Text>
+        <TouchableOpacity style={styles.close} onPress={closeX}>
           <Text style={styles.closeText}>✕</Text>
         </TouchableOpacity>
       </View>
+
+      {toast && (
+        <View style={styles.toast}><Text style={styles.toastText}>{toast}</Text></View>
+      )}
 
       <FlatList
         data={items}
@@ -54,7 +84,7 @@ export default function PendingScreen() {
         renderItem={({ item }) => {
           const on = sel.includes(item.localIdentifier);
           return (
-            <TouchableOpacity style={styles.thumbWrap} onPress={() => toggle(item.localIdentifier)}>
+            <TouchableOpacity style={styles.thumbWrap} onPress={() => setSel((s) => toggleId(s, item.localIdentifier))}>
               <Image source={{ uri: item.localIdentifier }} style={styles.thumb} recyclingKey={item.localIdentifier} />
               {on && (
                 <View style={styles.check}>
@@ -64,12 +94,12 @@ export default function PendingScreen() {
             </TouchableOpacity>
           );
         }}
-        ListEmptyComponent={<Text style={styles.empty}>没有待删除的项目</Text>}
+        ListEmptyComponent={loaded ? <Text style={styles.empty}>没有已删除的项目</Text> : <View />}
       />
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.discardBtn} onPress={discard}>
-          <Text style={styles.discardText}>放弃，返回首页</Text>
+          <Text style={styles.discardText}>{from === 'done' ? '放弃，返回' : '放弃，回到首页'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.deleteBtn, (busy || sel.length === 0) && styles.disabled]}
@@ -91,6 +121,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center',
   },
   closeText: { color: '#fff', fontSize: 18 },
+  toast: { alignSelf: 'center', backgroundColor: 'rgba(224,90,90,0.25)', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 7, marginBottom: 8 },
+  toastText: { color: '#FFD1D1', fontSize: 13 },
   thumbWrap: { flex: 1, aspectRatio: 1, borderRadius: 10, overflow: 'hidden', position: 'relative' },
   thumb: { flex: 1 },
   check: {

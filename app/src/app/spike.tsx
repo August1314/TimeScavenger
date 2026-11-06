@@ -48,7 +48,7 @@ export default function SpikeScreen() {
       <Btn label="2. 删除 2 张截屏(回收站→系统确认)" onPress={() => run(async () => {
         const shots = await fetchUnreviewedRandom('screenshot', 2);
         if (shots.length === 0) { say('没有截屏可删'); return; }
-        shots.forEach((s) => pendingQueue.push(s));
+        for (const s of shots) await pendingQueue.push(s);
         say(`待删: ${shots.map((s) => s.localIdentifier).join(' | ')}`);
         const res = await commitPending(shots.map((s) => s.localIdentifier), nativeDeps());
         say(`结果 deleted=${res.deleted.length} failed=${res.failed.length} ${res.failed[0]?.error ?? ''}`);

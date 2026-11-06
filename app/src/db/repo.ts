@@ -67,6 +67,11 @@ async function ensureDb(): Promise<Db> {
 export async function initDb(): Promise<void> {
   const d = await ensureDb();
   await d.execAsync(SCHEMA_SQL);
+  // 幂等迁移：老库补 pendingDeletedAt 列（T7.3 队列持久化）
+  const cols = await d.getAllAsync<{ name: string }>('PRAGMA table_info(media)');
+  if (!cols.some((c) => c.name === 'pendingDeletedAt')) {
+    await d.execAsync('ALTER TABLE media ADD COLUMN pendingDeletedAt INTEGER');
+  }
 }
 
 function placeholders(n: number): string {
@@ -191,6 +196,22 @@ export async function removeMedia(ids: string[]): Promise<void> {
   if (ids.length === 0) return;
   const d = await ensureDb();
   await d.runAsync(`DELETE FROM media WHERE localIdentifier IN (${placeholders(ids.length)})`, ...ids);
+}
+
+/** 标记/取消待删除（ts=null 取消） */
+export async function setPending(ids: string[], ts: number | null): Promise<void> {
+  if (ids.length === 0) return;
+  const d = await ensureDb();
+  await d.runAsync(
+    `UPDATE media SET pendingDeletedAt = ? WHERE localIdentifier IN (${placeholders(ids.length)})`,
+    ts, ...ids,
+  );
+}
+
+export async function fetchPending(): Promise<MediaRow[]> {
+  const d = await ensureDb();
+  const rows = await d.getAllAsync<RawMediaRow>('SELECT * FROM media WHERE pendingDeletedAt IS NOT NULL');
+  return rows.map(toMediaRow);
 }
 
 export async function getSetting(key: string): Promise<string | null> {

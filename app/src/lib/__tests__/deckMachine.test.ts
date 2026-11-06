@@ -67,4 +67,16 @@ describe('deckMachine', () => {
     const r = deckReducer(s, { type: 'swipe', dir: 'up' });
     expect(r.action).toBeNull();
   });
+
+  it('undo works even in done state (T7.3 ruling 5)', () => {
+    let s = createDeck(items);
+    s = deckReducer(s, { type: 'swipe', dir: 'up' }).state; // A deleted, idx1
+    s = deckReducer(s, { type: 'swipe', dir: 'up' }).state; // B deleted, idx2
+    s = deckReducer(s, { type: 'swipe', dir: 'up' }).state; // C deleted, done
+    expect(s.done).toBe(true);
+    const r = deckReducer(s, { type: 'undo' });
+    expect(r.action).toEqual({ kind: 'undoDelete', id: 'C' });
+    expect(r.state.done).toBe(false);
+    expect(r.state.index).toBe(2);
+  });
 });

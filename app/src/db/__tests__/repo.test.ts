@@ -10,6 +10,8 @@ import {
   getSetting,
   setSetting,
   removeMedia,
+  setPending,
+  fetchPending,
   __testingDb,
   type MediaRow,
 } from '../repo';
@@ -139,5 +141,23 @@ describe('removeMedia', () => {
     await upsertMedia([row('A', 'photo'), row('B', 'photo')]);
     await removeMedia(['A']);
     expect((await fetchUnreviewedRandom('photo', 10)).map((r) => r.localIdentifier)).toEqual(['B']);
+  });
+});
+
+describe('pendingDeletedAt', () => {
+  it('setPending marks rows; fetchPending returns them; null clears', async () => {
+    await upsertMedia([row('A', 'photo'), row('B', 'screenshot'), row('C', 'photo')]);
+    await setPending(['A', 'B'], 1700000001000);
+    const p = await fetchPending();
+    expect(p.map((r) => r.localIdentifier).sort()).toEqual(['A', 'B']);
+    await setPending(['A'], null);
+    expect((await fetchPending()).map((r) => r.localIdentifier)).toEqual(['B']);
+  });
+
+  it('initDb migration is idempotent (double run keeps data)', async () => {
+    await upsertMedia([row('A', 'photo')]);
+    await initDb();
+    await setPending(['A'], 123);
+    expect((await fetchPending()).map((r) => r.localIdentifier)).toEqual(['A']);
   });
 });
