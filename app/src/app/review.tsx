@@ -30,6 +30,7 @@ export default function ReviewScreen() {
   const currentId = deck?.items[deck.index]?.id;
   const [toast, setToast] = useState<string | null>(null);
   const [hintVisible, setHintVisible] = useState(true);
+  const [liveUri, setLiveUri] = useState<string | null>(null); // 必须在顶层：早期 return 前声明会破坏 Hooks 顺序
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = (s: string) => {
     setToast(s);
@@ -164,7 +165,6 @@ export default function ReviewScreen() {
   };
 
   // 实况长按播放一次
-  const [liveUri, setLiveUri] = useState<string | null>(null);
   const playLive = async () => {
     const id = deckRef.current?.items[deckRef.current.index]?.id;
     if (!id) return;
