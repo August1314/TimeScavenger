@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
@@ -24,6 +24,7 @@ function fullDate(ms: number): string {
 
 export default function PhotoInfoScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { height: SCREEN_H } = useWindowDimensions();
   const [row, setRow] = useState<MediaRow | null>(null);
   const [exif, setExif] = useState<ExifInfo | null>(null);
   const [size, setSize] = useState<number | null>(null);
@@ -70,7 +71,7 @@ export default function PhotoInfoScreen() {
         locations={[0, 0.5, 1]}
         style={styles.photoFade}
       />
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: SCREEN_H * 0.22 }]}>
         {/* 时间标题（相对时间大字 + 完整日期） */}
         {row && (
           <>
@@ -173,9 +174,9 @@ export default function PhotoInfoScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#0e0e12' },
-  photoBg: { position: 'absolute', top: 0, left: 0, right: 0, height: Dimensions.get('window').height * 0.46 },
-  photoFade: { position: 'absolute', top: 0, left: 0, right: 0, height: Dimensions.get('window').height * 0.46 },
-  scroll: { paddingHorizontal: 22, paddingTop: Dimensions.get('window').height * 0.24, paddingBottom: 24 },
+  photoBg: { position: 'absolute', top: 0, left: 0, right: 0, height: '46%' },
+  photoFade: { position: 'absolute', top: 0, left: 0, right: 0, height: '46%' },
+  scroll: { paddingHorizontal: 22, paddingTop: '24%', paddingBottom: 24 },
   bigTime: { color: '#fff', fontSize: 28, fontWeight: '800' },
   fullDate: { color: 'rgba(255,255,255,0.75)', fontSize: 16, fontWeight: '600', marginTop: 4 },
 
