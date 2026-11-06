@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
@@ -9,7 +9,7 @@ import { C } from '../theme/colors';
 import { formatTime } from '../lib/time';
 import { readExif, type ExifInfo } from '../lib/exif';
 import { getAssetLocation, type AssetLocation } from '../lib/assets';
-import { placeName } from '../lib/place';
+import { placeParts, type PlaceParts } from '../lib/place';
 import { getMediaById, type MediaRow } from '../db/repo';
 import { nativeDeps } from '../lib/deletion';
 import { formatBytes } from '../lib/statsModel';
@@ -28,7 +28,7 @@ export default function PhotoInfoScreen() {
   const [exif, setExif] = useState<ExifInfo | null>(null);
   const [size, setSize] = useState<number | null>(null);
   const [loc, setLoc] = useState<AssetLocation | null>(null);
-  const [place, setPlace] = useState<string | null>(null);
+  const [parts, setParts] = useState<PlaceParts | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -42,8 +42,8 @@ export default function PhotoInfoScreen() {
       setSize(s);
       setLoc(l);
       if (l) {
-        const p = await placeName(l.latitude, l.longitude);
-        if (alive) setPlace(p);
+        const p = await placeParts(l.latitude, l.longitude);
+        if (alive) setParts(p);
       }
     })();
     return () => {
@@ -63,13 +63,15 @@ export default function PhotoInfoScreen() {
 
   return (
     <View style={styles.root}>
-      {/* 顶部：照片本体（modal 上方露出一截，原版 live_info 采样） */}
-      <View style={styles.photoBand}>
-        <Image source={{ uri: id }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={id} />
-        <LinearGradient colors={['rgba(10,10,14,0)', 'rgba(10,10,14,0.85)']} style={StyleSheet.absoluteFill} />
-      </View>
+      {/* 原版 live_after 采样：照片为整页背景（延伸到状态栏后），标题叠在照片上，向下渐隐入黑 */}
+      <Image source={{ uri: id }} style={styles.photoBg} contentFit="cover" recyclingKey={id} />
+      <LinearGradient
+        colors={['rgba(14,14,18,0)', 'rgba(14,14,18,0.35)', '#0e0e12']}
+        locations={[0, 0.5, 1]}
+        style={styles.photoFade}
+      />
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* 时间标题（IMG_1499：相对时间大字 + 完整日期） */}
+        {/* 时间标题（相对时间大字 + 完整日期） */}
         {row && (
           <>
             <Text style={styles.bigTime}>{formatTime(row.creationDate, 'relative')}</Text>
@@ -142,7 +144,8 @@ export default function PhotoInfoScreen() {
               </MapView>
             </View>
             <View style={styles.placeRow}>
-              <Text style={styles.placeText}>{place ?? '定位中…'}</Text>
+              <Text style={styles.placeText}>{parts?.street ?? (parts || loc ? '' : '定位中…')}</Text>
+              <Text style={styles.placeRegion}>{parts?.region ?? ''}</Text>
             </View>
           </>
         ) : (
@@ -170,9 +173,10 @@ export default function PhotoInfoScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#0e0e12' },
-  photoBand: { height: 235, backgroundColor: '#1a1a20' },
-  scroll: { paddingHorizontal: 22, paddingTop: 4, paddingBottom: 24 },
-  bigTime: { color: '#fff', fontSize: 28, fontWeight: '800', marginTop: 18 },
+  photoBg: { position: 'absolute', top: 0, left: 0, right: 0, height: Dimensions.get('window').height * 0.46 },
+  photoFade: { position: 'absolute', top: 0, left: 0, right: 0, height: Dimensions.get('window').height * 0.46 },
+  scroll: { paddingHorizontal: 22, paddingTop: Dimensions.get('window').height * 0.24, paddingBottom: 24 },
+  bigTime: { color: '#fff', fontSize: 28, fontWeight: '800' },
   fullDate: { color: 'rgba(255,255,255,0.75)', fontSize: 16, fontWeight: '600', marginTop: 4 },
 
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 26, marginBottom: 10 },
@@ -196,8 +200,9 @@ const styles = StyleSheet.create({
 
   mapWrap: { height: 170, borderRadius: 16, overflow: 'hidden', marginBottom: 10 },
   map: { flex: 1 },
-  placeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  placeText: { color: '#fff', fontSize: 15 },
+  placeRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  placeText: { color: '#fff', fontSize: 15, flexShrink: 1 },
+  placeRegion: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
 
   bottomBar: { flexDirection: 'row', justifyContent: 'center', gap: 24, paddingBottom: 34, paddingTop: 8 },
   roundBtn: {

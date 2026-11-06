@@ -27,7 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="review" />
         <Stack.Screen name="settings" />
         {/* 信息页：底部滑出 modal，顶部露出照片本体（原版 live_info 采样） */}
-        <Stack.Screen name="photo-info" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="photo-info" options={{ presentation: 'modal', sheetAllowedDetents: [1.0] }} />
         <Stack.Screen name="back-to-day" />
         {/* 回收站：底部滑出的卡片式 modal（对齐原版 IMG_1498） */}
         <Stack.Screen name="pending" options={{ presentation: 'modal' }} />
