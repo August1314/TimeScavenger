@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   titleMain: { color: '#fff', fontSize: 22, fontWeight: '800' },
 
   wall: { gap: GAP, paddingHorizontal: 12, paddingVertical: 8 },
-  column: { gap: GAP, flexDirection: 'row' },
+  column: { gap: GAP },
   cell: { width: COL_W, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
   liveBadge: {
     position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(20,20,28,0.6)',

@@ -30,7 +30,8 @@ export default function RootLayout() {
         <Stack.Screen name="day-preview" options={{ presentation: 'modal', sheetAllowedDetents: [1.0], contentStyle: { backgroundColor: '#000' } }} />
         {/* 信息页：底部滑出 modal，顶部露出照片本体（原版 live_info 采样） */}
         <Stack.Screen name="photo-info" options={{ presentation: 'modal', sheetAllowedDetents: [1.0] }} />
-        <Stack.Screen name="back-to-day" />
+        {/* 墙页禁用侧滑返回：底部刻度条横向拖动会与原生返回手势冲突（页内 ‹/✓ 已可返回） */}
+        <Stack.Screen name="back-to-day" options={{ gestureEnabled: false }} />
         {/* 回收站：底部滑出的卡片式 modal（对齐原版 IMG_1498） */}
         <Stack.Screen name="pending" options={{ presentation: 'modal' }} />
         <Stack.Screen name="spike" options={{ presentation: 'modal' }} />
