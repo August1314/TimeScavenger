@@ -15,16 +15,11 @@ import type { MediaRow } from '../db/repo';
 const W = Dimensions.get('window').width;
 const GAP = 10;
 const COL_W = Math.round((W - 24 - GAP) / 2); // 两列宽
+// 原版统一格子尺寸（IMG_1516 第一行两图同为 205x380，横图也裁成竖格）
+const CELL_H = Math.round(COL_W * 1.85);
 
 type Filter = 'all' | 'photo' | 'video';
 const FILTER_LABELS: Record<Filter, string> = { all: '照片和视频', photo: '照片', video: '视频' };
-
-/** 保留宽高比的格子高度（限幅 0.8–2.2 倍列宽） */
-function cellHeight(row: MediaRow): number {
-  const aspect = row.width > 0 && row.height > 0 ? row.width / row.height : 0.75;
-  const h = COL_W / aspect;
-  return Math.round(Math.max(COL_W * 0.8, Math.min(COL_W * 2.2, h)));
-}
 
 export default function BackToDayScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -126,7 +121,7 @@ export default function BackToDayScreen() {
               <TouchableOpacity
                 key={it.localIdentifier}
                 activeOpacity={0.9}
-                style={[styles.cell, { height: cellHeight(it) }]}
+                style={styles.cell}
                 onPress={() => router.push({ pathname: '/day-preview', params: { id: it.localIdentifier } })}
               >
                 <Image source={{ uri: it.localIdentifier }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={it.localIdentifier} />
@@ -195,9 +190,9 @@ const styles = StyleSheet.create({
   titleSub: { color: C.textDim, fontSize: 13 },
   titleMain: { color: '#fff', fontSize: 22, fontWeight: '800' },
 
-  wall: { gap: GAP, paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'column' },
-  row: { flexDirection: 'row', gap: GAP, alignItems: 'flex-start' },
-  cell: { width: COL_W, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
+  wall: { gap: GAP, paddingHorizontal: 12, flexDirection: 'column' },
+  row: { flexDirection: 'row', gap: GAP, alignItems: 'flex-start', paddingVertical: 8 },
+  cell: { width: COL_W, height: CELL_H, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
   liveBadge: {
     position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(20,20,28,0.6)',
     borderRadius: 12, paddingHorizontal: 9, paddingVertical: 4,
