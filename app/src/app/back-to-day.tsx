@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity, ScrollView, Dimensions, PanResponder, Modal,
 } from 'react-native';
@@ -14,12 +14,17 @@ import type { MediaRow } from '../db/repo';
 
 const W = Dimensions.get('window').width;
 const GAP = 10;
-const COL_W = Math.round((W - 24 - GAP) / 2); // 两列宽
-// 原版统一格子尺寸（IMG_1516 第一行两图同为 205x380，横图也裁成竖格）
-const CELL_H = Math.round(COL_W * 1.85);
+const COL_W = Math.round((W - 24 - GAP) / 2);
 
 type Filter = 'all' | 'photo' | 'video';
 const FILTER_LABELS: Record<Filter, string> = { all: '照片和视频', photo: '照片', video: '视频' };
+
+/** 小红书式瀑布流（用户裁决 2026-11-07，替代原版统一格子）：保留宽高比，限幅防极端长图 */
+function cellHeight(row: MediaRow): number {
+  const aspect = row.width > 0 && row.height > 0 ? row.width / row.height : 0.75;
+  const h = COL_W / aspect;
+  return Math.round(Math.max(COL_W * 0.7, Math.min(COL_W * 1.5, h)));
+}
 
 export default function BackToDayScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,8 +33,9 @@ export default function BackToDayScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const scrollRef = useRef<ScrollViewInstance | null>(null);
-  const contentWRef = useRef(0);
-  const viewWRef = useRef(W);
+  const contentHRef = useRef(0);
+  const viewHRef = useRef(600);
+  const anchorYRef = useRef(0);
 
   useEffect(() => {
     if (!id) return;
@@ -47,33 +53,36 @@ export default function BackToDayScreen() {
     [items, filter],
   );
 
-  // 原版为"行式"：奇偶分两行、每行顶边对齐、行内保留各自宽高比（IMG_1516 对比裁决）
-  const rows: MediaRow[][] = useMemo(() => {
-    const r1: MediaRow[] = [];
-    const r2: MediaRow[] = [];
-    filtered.forEach((it, i) => (i % 2 === 0 ? r1 : r2).push(it));
-    return [r1, r2];
-  }, [filtered]);
+  // 最短列优先分配 → 两列底边自然齐平（瀑布流核心）
+  const cols = useMemo(() => {
+    const c: [MediaRow[], MediaRow[]] = [[], []];
+    const h = [0, 0];
+    for (const it of filtered) {
+      const k = h[0] <= h[1] ? 0 : 1;
+      c[k].push(it);
+      h[k] += cellHeight(it) + GAP;
+      if (it.localIdentifier === id) anchorYRef.current = h[k] - GAP;
+    }
+    return c;
+  }, [filtered, id]);
 
-  const anchorCol = Math.max(0, Math.floor(filtered.findIndex((r) => r.localIdentifier === id) / 2));
+  const jumpToAnchor = () => {
+    scrollRef.current?.scrollTo({ y: Math.max(0, anchorYRef.current - 20), animated: true });
+  };
 
-  const jumpToAnchor = useCallback(() => {
-    scrollRef.current?.scrollTo({ x: Math.max(0, anchorCol * (COL_W + GAP)), animated: true });
-  }, [anchorCol]);
-
-  // 刻度条拖动 → 跳转滚动位置
+  // 刻度条拖动 → 纵向滚动跳转
   const scrub = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: (e) => {
-        const max = Math.max(1, contentWRef.current - viewWRef.current);
-        scrollRef.current?.scrollTo({ x: (e.nativeEvent.locationX / 220) * max, animated: false });
+        const max = Math.max(1, contentHRef.current - viewHRef.current);
+        scrollRef.current?.scrollTo({ y: (e.nativeEvent.locationX / 220) * max, animated: false });
       },
       onPanResponderMove: (e) => {
         const x = Math.max(0, Math.min(220, e.nativeEvent.locationX));
-        const max = Math.max(1, contentWRef.current - viewWRef.current);
-        scrollRef.current?.scrollTo({ x: (x / 220) * max, animated: false });
+        const max = Math.max(1, contentHRef.current - viewHRef.current);
+        scrollRef.current?.scrollTo({ y: (x / 220) * max, animated: false });
       },
     }),
   ).current;
@@ -82,7 +91,7 @@ export default function BackToDayScreen() {
     <View style={styles.root}>
       <GradientBackground seed={id} />
 
-      {/* 顶栏（原版：‹ ☰ 日期✓ —— ☰=过滤，✓=返回） */}
+      {/* 顶栏（原版：‹ ☰ 日期 ✓ —— ☰=过滤，✓=返回） */}
       <View style={styles.topBar}>
         <View style={styles.topLeft}>
           <TouchableOpacity style={styles.roundBtn} onPress={() => router.back()}>
@@ -101,27 +110,26 @@ export default function BackToDayScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 错落照片墙：两行、保留宽高比、横滑 */}
+      {/* 瀑布流：纵向滚动、两列、保留宽高比 */}
       <ScrollView
         ref={scrollRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.wall}
         onScroll={(e) => {
-          contentWRef.current = e.nativeEvent.contentSize.width;
-          viewWRef.current = e.nativeEvent.layoutMeasurement.width;
-          const max = Math.max(1, e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width);
-          setProgress(Math.min(1, e.nativeEvent.contentOffset.x / max));
+          contentHRef.current = e.nativeEvent.contentSize.height;
+          viewHRef.current = e.nativeEvent.layoutMeasurement.height;
+          const max = Math.max(1, e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height);
+          setProgress(Math.min(1, e.nativeEvent.contentOffset.y / max));
         }}
         scrollEventThrottle={32}
       >
-        {rows.map((row, ri) => (
-          <View key={ri} style={styles.row}>
-            {row.map((it) => (
+        {cols.map((col, ci) => (
+          <View key={ci} style={styles.column}>
+            {col.map((it) => (
               <TouchableOpacity
                 key={it.localIdentifier}
                 activeOpacity={0.9}
-                style={styles.cell}
+                style={[styles.cell, { height: cellHeight(it) }]}
                 onPress={() => router.push({ pathname: '/day-preview', params: { id: it.localIdentifier } })}
               >
                 <Image source={{ uri: it.localIdentifier }} style={StyleSheet.absoluteFill} contentFit="cover" recyclingKey={it.localIdentifier} />
@@ -190,9 +198,9 @@ const styles = StyleSheet.create({
   titleSub: { color: C.textDim, fontSize: 13 },
   titleMain: { color: '#fff', fontSize: 22, fontWeight: '800' },
 
-  wall: { gap: GAP, paddingHorizontal: 12, flexDirection: 'column' },
-  row: { flexDirection: 'row', gap: GAP, alignItems: 'flex-start', paddingVertical: 8 },
-  cell: { width: COL_W, height: CELL_H, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
+  wall: { flexDirection: 'row', gap: GAP, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 24 },
+  column: { flex: 1, gap: GAP },
+  cell: { width: COL_W, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1c1c24' },
   liveBadge: {
     position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(20,20,28,0.6)',
     borderRadius: 12, paddingHorizontal: 9, paddingVertical: 4,
