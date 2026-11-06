@@ -127,6 +127,22 @@ export async function fetchUnreviewedRandom(category: Category, n: number): Prom
   return rows.map(toMediaRow);
 }
 
+export async function getMediaById(id: string): Promise<MediaRow | null> {
+  const d = await ensureDb();
+  const rows = await d.getAllAsync<RawMediaRow>('SELECT * FROM media WHERE localIdentifier = ?', id);
+  return rows[0] ? toMediaRow(rows[0]) : null;
+}
+
+/** 时间范围 [start,end) 内的全部媒体（含视频/截屏），按创建时间升序 */
+export async function fetchByDayRange(startMs: number, endMs: number): Promise<MediaRow[]> {
+  const d = await ensureDb();
+  const rows = await d.getAllAsync<RawMediaRow>(
+    'SELECT * FROM media WHERE creationDate >= ? AND creationDate < ? ORDER BY creationDate ASC',
+    startMs, endMs,
+  );
+  return rows.map(toMediaRow);
+}
+
 export async function countUnreviewed(category: Category): Promise<number> {
   const d = await ensureDb();
   const types = category === 'photo' ? STILL_TYPES : [category];
