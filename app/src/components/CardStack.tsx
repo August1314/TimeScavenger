@@ -115,11 +115,11 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
       scale.value = withSpring(1, { damping: 14 });
     });
 
-  // 实况照片长按在当前卡内播放一次（expo-live-photo PHLivePhotoView，对齐原版）
+  // 实况照片：按住 0.35 秒立即在卡内开始播放（onStart 在手指未松开时触发，对齐原版手感）
   const longPress = Gesture.LongPress()
     .minDuration(350)
     .maxDistance(12)
-    .onEnd(() => {
+    .onStart(() => {
       if (live) runOnJS(onLongPress)();
     });
 
