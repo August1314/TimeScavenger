@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
+import { Alert, Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { GradientBackground } from '../../theme/GradientBackground';
 import { C } from '../../theme/colors';
@@ -129,6 +129,30 @@ export default function ReviewScreen() {
     const g = await nextGroup(category);
     setRows(g.items);
     setDeck(createDeck(g.items.map((r) => ({ id: r.localIdentifier, uri: r.localIdentifier }))));
+    setHintVisible(true);
+  };
+
+  // 一组刷完 → 有待删除项则自动进入确认页（原 app 闭环）
+  const doneRef = useRef(false);
+  useEffect(() => {
+    if (deck?.done && !doneRef.current) {
+      doneRef.current = true;
+      if (pendingQueue.list().length > 0) {
+        router.push({ pathname: '/pending', params: { from: 'done' } });
+      }
+    }
+    if (deck && !deck.done) doneRef.current = false;
+  }, [deck]);
+
+  const goHome = () => {
+    if (pendingQueue.list().length > 0) {
+      Alert.alert('返回前请先处理这些照片', '待删除的项目仍保留在你的相册中，直到你确认删除。', [
+        { text: '保留待处理', onPress: () => router.back() },
+        { text: '去处理', onPress: () => router.push({ pathname: '/pending', params: { from: 'done' } }) },
+      ]);
+    } else {
+      router.back();
+    }
   };
 
   return (
@@ -137,7 +161,7 @@ export default function ReviewScreen() {
 
       {/* 顶栏 */}
       <View style={styles.topBar}>
-        <RoundBtn label="‹" onPress={() => router.back()} />
+        <RoundBtn label="‹" onPress={goHome} />
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
         </View>
@@ -157,7 +181,7 @@ export default function ReviewScreen() {
             <TouchableOpacity style={styles.primaryBtn} onPress={nextSet}>
               <Text style={styles.primaryBtnText}>再来一组</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ghostBtn} onPress={() => router.back()}>
+            <TouchableOpacity style={styles.ghostBtn} onPress={goHome}>
               <Text style={styles.ghostBtnText}>返回首页</Text>
             </TouchableOpacity>
           </View>
