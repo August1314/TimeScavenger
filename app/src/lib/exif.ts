@@ -52,11 +52,27 @@ function formatShutter(sec: number): string {
   return `1/${Math.round(1 / sec)} s`;
 }
 
-export function mapExif(tags: Raw): ExifInfo {
+/** iOS getExif() 返回嵌套字典 {Exif:{...}, TIFF:{...}, ExifAux:{...}, 顶层杂项}（实机 IMG_1505 校准）；拍平后再取键 */
+export function flattenExif(tags: Raw): Raw {
+  const out: Raw = {};
+  for (const [k, v] of Object.entries(tags)) {
+    const clean = k.replace(/[{}]/g, ''); // 兼容键名带字面花括号的渲染/实现差异
+    if ((clean === 'Exif' || clean === 'TIFF' || clean === 'ExifAux') && v && typeof v === 'object') {
+      Object.assign(out, v as Raw);
+    } else {
+      out[clean] = v;
+    }
+  }
+  return out;
+}
+
+export function mapExif(raw: Raw): ExifInfo {
+  const tags = flattenExif(raw);
   const aperture = num(pick(tags, ['FNumber', 'ApertureValue']));
   const shutter = num(pick(tags, ['ExposureTime']));
   const iso = num(first(pick(tags, ['ISOSpeedRatings', 'ISO', 'PhotoISOSpeed']))) ?? undefined;
-  const focal = num(pick(tags, ['FocalLength', 'LensInfo']));
+  // 原版显示 35mm 等效焦距（IMG_1505: FocalLength 6.86 → FocalLenIn35mmFilm 48）
+  const focal = num(pick(tags, ['FocalLenIn35mmFilm', 'FocalLength']));
   const make = pick(tags, ['Make']);
   const model = pick(tags, ['Model']);
   const camera = [make, model].filter(Boolean).join(' ').trim() || null;
@@ -71,10 +87,16 @@ export function mapExif(tags: Raw): ExifInfo {
   };
 }
 
-/** 读取并映射 EXIF；失败/无 EXIF 返回全 null（截屏降级态） */
+/** 读取并映射 EXIF + 文件名；失败/无 EXIF 返回全 null（截屏降级态） */
 export async function readExif(localIdentifier: string): Promise<ExifInfo> {
   try {
-    return mapExif(await new Asset(localIdentifier).getExif());
+    const asset = new Asset(localIdentifier);
+    const [tags, filename] = await Promise.all([
+      asset.getExif(),
+      asset.getFilename().catch(() => null),
+    ]);
+    const info = mapExif(tags);
+    return { ...info, fileName: info.fileName ?? filename ?? null };
   } catch {
     return EMPTY;
   }
