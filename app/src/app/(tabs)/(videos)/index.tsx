@@ -142,7 +142,9 @@ export default function VideosHome() {
     settleTimer.current = setTimeout(() => {
       settleTimer.current = null;
       const target = dragPage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
-      if (target !== currentRef.current) {
+      // 偏离目标格 >2px 就动画滚过去（含回弹原页）；此前只在翻页时滚动，
+      // 慢拖回弹会停在错位处
+      if (Math.abs(y - target * feedH) > 2) {
         listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
       }
       commitIndex(target);
@@ -153,9 +155,11 @@ export default function VideosHome() {
     cancelSettleTimer();
     const y = e.nativeEvent.contentOffset.y;
     const target = settlePage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
-    // 快甩补翻页需动画到目标页；正常落点则只在偏离边界 >2px 时瞬时回正
+    // 一律动画滚动：此前同页回正用 animated:false 瞬时跳，而轻点/滑动的
+    // momentumEnd 常带几 px 误差 → 正是真机"画面上下跳一下"的根源。
+    // inset 错位已由 contentInsetAdjustmentBehavior=never 根治，瞬时回正不再需要。
     if (Math.abs(y - target * feedH) > 2) {
-      listRef.current?.scrollToOffset({ offset: target * feedH, animated: target !== currentRef.current });
+      listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
     }
     commitIndex(target);
   };
