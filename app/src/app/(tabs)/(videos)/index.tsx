@@ -164,8 +164,10 @@ export default function VideosHome() {
   return (
     <GestureDetector gesture={longPress2x}>
       <View style={styles.root}>
-        {/* 容器高度=单格高度：视口恰为一屏画面，下一条不漏出（iOS pagingEnabled 按整视口
-            吸附会与 snapToInterval 冲突造成错位，故只用 snapToInterval） */}
+        {/* 容器高度=单格高度 + contentInsetAdjustmentBehavior=never：iOS 默认 automatic 会按
+            底部安全区给滚动视图加 contentInset，导致停靠 offset 与格子边界错位（下一条漏出
+            且 current 已前进→"露出还自动播"）。关掉调整后 offset 严格等于格子边界，
+            整屏分页用 pagingEnabled（此时与 snapToInterval 等价且更稳） */}
         <FlatList
           style={{ height: feedH }}
           data={rows}
@@ -182,7 +184,8 @@ export default function VideosHome() {
               />
             </View>
           )}
-          snapToInterval={feedH}
+          contentInsetAdjustmentBehavior="never"
+          pagingEnabled
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
           windowSize={3}
