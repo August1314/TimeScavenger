@@ -2,7 +2,6 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Text, View, StyleSheet } from 'react-native';
 import { Asset } from 'expo-media-library';
 import { VideoView, useVideoPlayer } from 'expo-video';
-import { rawId } from '../lib/videoFeed';
 import { C } from '../theme/colors';
 import type { MediaRow } from '../db/repo';
 
@@ -38,7 +37,9 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     setCloud(null);
     (async () => {
       try {
-        const isInCloud = await new Asset(rawId(row.localIdentifier)).getIsInCloud();
+        // 新 API Asset() 必须传带 ph:// 前缀的完整 id：原生构造是无条件 dropFirst(5)，
+        // 传剥掉前缀的原始 id 会被砍头成错误 localIdentifier 导致查不到资产
+        const isInCloud = await new Asset(row.localIdentifier).getIsInCloud();
         if (!alive) return;
         setCloud(isInCloud);
         if (!isInCloud) {

@@ -1,4 +1,4 @@
-import { snapIndex, seekRatio, rawId } from '../videoFeed';
+import { snapIndex, seekRatio } from '../videoFeed';
 
 describe('videoFeed', () => {
   it('snapIndex rounds to nearest page and clamps negatives', () => {
@@ -10,9 +10,5 @@ describe('videoFeed', () => {
     expect(seekRatio(50, 0, 200)).toBeCloseTo(0.25);
     expect(seekRatio(-10, 0, 200)).toBe(0);
     expect(seekRatio(999, 0, 200)).toBe(0.999);
-  });
-  it('rawId strips ph:// prefix only', () => {
-    expect(rawId('ph://ABC/001')).toBe('ABC/001');
-    expect(rawId('ABC/001')).toBe('ABC/001');
   });
 });
