@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Share, Platform } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Share, Platform, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -69,7 +69,12 @@ export default function DayPreviewScreen() {
     }
   };
 
-  const isPortrait = (row?.height ?? 1) >= (row?.width ?? 1);
+  // 照片盒按实际宽高比计算（RN0.88 禁模块顶层 Dimensions.get → useWindowDimensions）：
+  // 横版图完整显示不裁两侧，竖版图不超过可用高度
+  const { width: W, height: H } = useWindowDimensions();
+  const aspect = row && row.width > 0 && row.height > 0 ? row.width / row.height : 0.75;
+  const photoW = Math.min(W * 0.92, H * 0.58 * aspect);
+  const photoH = photoW / aspect;
 
   return (
     <View style={styles.root}>
@@ -79,16 +84,16 @@ export default function DayPreviewScreen() {
         <Text style={styles.date}>{row ? dayTitle(row.creationDate) : ''}</Text>
       </View>
 
-      {/* 照片：保留宽高比居中 */}
+      {/* 照片：按实际比例完整显示（不裁切） */}
       <View style={styles.photoWrap}>
         {row && (
-          <>
+          <View style={{ width: photoW, height: photoH, borderRadius: 14, overflow: 'hidden', backgroundColor: '#0a0a0f' }}>
             {playing && liveSrc ? (
               <LivePhotoView
                 ref={liveRef}
                 source={liveSrc}
-                style={isPortrait ? styles.photoPortrait : styles.photoLandscape}
-                contentFit="cover"
+                style={StyleSheet.absoluteFill}
+                contentFit="contain"
                 useDefaultGestureRecognizer={false}
                 onLoadComplete={() => liveRef.current?.startPlayback('full')}
                 onPlaybackStop={() => setPlaying(false)}
@@ -97,20 +102,17 @@ export default function DayPreviewScreen() {
             ) : (
               <Image
                 source={{ uri: row.localIdentifier }}
-                style={isPortrait ? styles.photoPortrait : styles.photoLandscape}
-                contentFit="cover"
+                style={StyleSheet.absoluteFill}
+                contentFit="contain"
                 recyclingKey={row.localIdentifier}
               />
             )}
             {row.mediaType === 'live' && (
-              <TouchableOpacity
-                style={[styles.liveBadge, isPortrait ? styles.liveBadgePortrait : styles.liveBadgeLandscape]}
-                onPress={() => liveSrc && setPlaying(true)}
-              >
+              <TouchableOpacity style={styles.liveBadge} onPress={() => liveSrc && setPlaying(true)}>
                 <Text style={styles.liveBadgeText}>◉ 实况</Text>
               </TouchableOpacity>
             )}
-          </>
+          </View>
         )}
       </View>
 
@@ -142,14 +144,10 @@ const styles = StyleSheet.create({
   date: { color: '#fff', fontSize: 24, fontWeight: '800', marginTop: 2 },
 
   photoWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  photoPortrait: { width: '86%', height: '72%', borderRadius: 14, overflow: 'hidden' },
-  photoLandscape: { width: '92%', height: '52%', borderRadius: 14, overflow: 'hidden' },
   liveBadge: {
-    position: 'absolute', backgroundColor: 'rgba(20,20,28,0.6)',
+    position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(20,20,28,0.6)',
     borderRadius: 12, paddingHorizontal: 9, paddingVertical: 4,
   },
-  liveBadgePortrait: { top: '14%', left: '8%' },
-  liveBadgeLandscape: { top: '24%', left: '5%' },
   liveBadgeText: { color: '#fff', fontSize: 12, fontWeight: '600' },
 
   bottomBar: { flexDirection: 'row', justifyContent: 'center', gap: 22, paddingBottom: 16 },

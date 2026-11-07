@@ -133,6 +133,8 @@ export default function ReviewScreen() {
         router.push({ pathname: '/back-to-day', params: { id: a.id } });
         break;
       case 'zoom':
+        // 双击放大 = 打开完整不裁切预览（day-preview 已按实际宽高比 contain 显示）
+        router.push({ pathname: '/day-preview', params: { id: a.id } });
         break;
     }
   };
