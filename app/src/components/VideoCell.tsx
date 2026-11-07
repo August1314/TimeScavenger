@@ -62,9 +62,13 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     }
   }, [active, cloud, player]);
 
+  // 空源 '' 在构造时即触发一次原生加载错误（file:/// Cannot Open，Metro 日志实证）——
+  // 只有真正开始装载真实视频后的 error 才上报，避免每格挂载即弹"播放失败"
   useEffect(() => {
     const sub = player.addListener('statusChange', ({ status, error }) => {
-      if (status === 'error') onError(String(error?.message ?? '未知').slice(0, 60));
+      if (status === 'error' && loadedRef.current) {
+        onError(String(error?.message ?? '未知').slice(0, 60));
+      }
     });
     return () => sub.remove();
   }, [player]);
