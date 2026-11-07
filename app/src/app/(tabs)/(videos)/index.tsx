@@ -87,14 +87,8 @@ export default function VideosHome() {
     }
   };
 
-  const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-    const y = e.nativeEvent.contentOffset.y;
-    const next = snapIndex(y, feedH);
-    // 防御校正：iOS 吸附偶发停在格子边界外（>2px），先瞬时拉回精确边界再前进，
-    // 杜绝"定格后两条同屏"（用户怀疑的吸附问题兜底）
-    if (Math.abs(y - next * feedH) > 2) {
-      listRef.current?.scrollToOffset({ offset: next * feedH, animated: false });
-    }
+  // 提交定格下标：离开行记已读、推进 current、组尾续拉
+  const commitIndex = (next: number) => {
     const prev = currentRef.current;
     if (next === prev) return;
     const leaving = rowsRef.current[prev];
@@ -102,6 +96,42 @@ export default function VideosHome() {
     currentRef.current = next;
     setCurrent(next);
     if (next >= rowsRef.current.length - 1) void appendNextGroup();
+  };
+
+  // 慢拖松手（无惯性）时 iOS pagingEnabled 不会吸附分页，会停在半格"卡住"——
+  // 拖拽结束起 240ms 定时器：若期间进入惯性滚动（onMomentumScrollBegin）则取消，
+  // 由 onMomentumScrollEnd 正常结算；否则手动动画吸附到最近一格并提交切换
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelSettleTimer = () => {
+    if (settleTimer.current) {
+      clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+    }
+  };
+  useEffect(() => cancelSettleTimer, []);
+
+  const onEndDrag = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const idx = snapIndex(y, feedH);
+    if (Math.abs(y - idx * feedH) <= 2) return;
+    cancelSettleTimer();
+    settleTimer.current = setTimeout(() => {
+      settleTimer.current = null;
+      listRef.current?.scrollToOffset({ offset: idx * feedH, animated: true });
+      commitIndex(idx);
+    }, 240);
+  };
+
+  const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    cancelSettleTimer();
+    const y = e.nativeEvent.contentOffset.y;
+    const next = snapIndex(y, feedH);
+    // 防御校正：iOS 吸附偶发停在格子边界外（>2px），先瞬时拉回精确边界再前进，
+    // 杜绝"定格后两条同屏"（用户怀疑的吸附问题兜底）
+    if (Math.abs(y - next * feedH) > 2) {
+      listRef.current?.scrollToOffset({ offset: next * feedH, animated: false });
+    }
+    commitIndex(next);
   };
 
   const setFastRate = (v: boolean) => {
@@ -198,6 +228,8 @@ export default function VideosHome() {
           showsVerticalScrollIndicator={false}
           windowSize={3}
           getItemLayout={(_, index) => ({ length: feedH, offset: feedH * index, index })}
+          onScrollEndDrag={onEndDrag}
+          onMomentumScrollBegin={cancelSettleTimer}
           onMomentumScrollEnd={onSettled}
         />
 
