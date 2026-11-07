@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "去留复刻",
-    "slug": "quliu-clone",
-    "scheme": "quliu",
+    "name": "拾光",
+    "slug": "timescavenger",
+    "scheme": "timescavenger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.augustone.quliu-clone",
+      "bundleIdentifier": "com.augustone.timescavenger",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "随机回顾与整理需要访问你的照片库；所有处理仅在本机完成，不会上传任何照片。"
       }

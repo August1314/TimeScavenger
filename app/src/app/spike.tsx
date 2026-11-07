@@ -25,7 +25,7 @@ export default function SpikeScreen() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>去留复刻 · 设备验证</Text>
+      <Text style={styles.title}>拾光 · 设备验证</Text>
       <ScrollView style={{ flex: 1 }}>
         {log.map((l, i) => (
           <Text key={i} style={styles.line}>{l}</Text>

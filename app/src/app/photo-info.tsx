@@ -64,7 +64,7 @@ export default function PhotoInfoScreen() {
 
   return (
     <View style={styles.root}>
-      {/* 原版 live_after 采样：照片为整页背景（延伸到状态栏后），标题叠在照片上，向下渐隐入黑 */}
+      {/* 照片为整页背景（延伸到状态栏后），标题叠在照片上，向下渐隐入黑 */}
       <Image source={{ uri: id }} style={styles.photoBg} contentFit="cover" recyclingKey={id} />
       <LinearGradient
         colors={['rgba(14,14,18,0)', 'rgba(14,14,18,0.25)', '#0e0e12']}
@@ -149,7 +149,7 @@ export default function PhotoInfoScreen() {
                   </View>
                 </Marker>
               </MapView>
-              {/* 原版：地点名直接叠在地图中央（白字带阴影） */}
+              {/* 地点名直接叠在地图中央（白字带阴影） */}
               {!!parts?.street && (
                 <Text style={styles.mapLabel}>{parts.street}</Text>
               )}

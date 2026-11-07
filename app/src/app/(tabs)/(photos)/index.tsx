@@ -72,7 +72,7 @@ export default function PhotosHome() {
     <View style={styles.root}>
       <GradientBackground seed={center?.localIdentifier ?? String(n)} />
 
-      {/* 顶栏：左分类胶囊（点开菜单） + 右垃圾桶（复刻新增入口） */}
+      {/* 顶栏：左分类胶囊（点开菜单） + 右垃圾桶（待删除常驻入口） */}
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.capsule} onPress={() => setMenuOpen(true)}>
           <Text style={styles.chev}>⌄</Text>
@@ -87,7 +87,7 @@ export default function PhotosHome() {
         </TouchableOpacity>
       </View>
 
-      {/* 中央卡组预览（原版 IMG_1490：拍立得中卡 + ±8° 白边侧卡） */}
+      {/* 中央卡组预览：中卡 + ±8° 白边侧卡 */}
       <View style={styles.deck}>
         {n === 0 ? (
           <Text style={styles.emptyText}>这一轮都回顾完啦{'\n'}可在设置中重置再来一轮</Text>
@@ -182,14 +182,14 @@ const styles = StyleSheet.create({
   deck: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyText: { color: C.textDim, fontSize: 16, textAlign: 'center', lineHeight: 26 },
 
-  // 侧卡：白边圆角照片卡，外翻 ±8°、上移、缩 0.92（原版在拍立得后方上下探出）
+  // 侧卡：白边圆角照片卡，外翻 ±8°、上移、缩 0.92，从后方上下探出
   sideCard: {
     position: 'absolute', width: SIDE_W, height: SIDE_H,
     backgroundColor: C.cardBase, borderRadius: 22, padding: 5,
     shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 16, shadowOffset: { width: 0, height: 8 },
     elevation: 8,
   },
-  // 原版侧卡顶缘高出拍立得约 40pt（IMG_1490 实测），从后上方探出
+  // 侧卡顶缘高出中卡约 40pt，从后上方探出
   sideLeft: { transform: [{ translateX: -W * 0.19 }, { translateY: -W * 0.16 }, { rotate: '-7deg' }, { scale: 0.92 }] },
   sideRight: { transform: [{ translateX: W * 0.19 }, { translateY: -W * 0.16 }, { rotate: '7deg' }, { scale: 0.92 }] },
   sidePhoto: { flex: 1, borderRadius: 18, backgroundColor: '#222' },

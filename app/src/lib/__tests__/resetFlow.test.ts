@@ -9,7 +9,7 @@ describe('SCOPE_LABELS', () => {
 });
 
 describe('resetConfirmText', () => {
-  it('maps scope to original-phrase confirmation (en_localizable evidence)', () => {
+  it('maps scope to confirmation text', () => {
     expect(resetConfirmText('screenshots')).toBe('将重置截屏的浏览记录，重置后，这些项目会重新出现在浏览过程中。');
     expect(resetConfirmText('photos')).toBe('将重置照片的浏览记录，重置后，这些项目会重新出现在浏览过程中。');
     expect(resetConfirmText('photosNoScreenshots')).toContain('不含截屏');

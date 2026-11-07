@@ -52,7 +52,7 @@ function formatShutter(sec: number): string {
   return `1/${Math.round(1 / sec)} s`;
 }
 
-/** iOS getExif() 返回嵌套字典 {Exif:{...}, TIFF:{...}, ExifAux:{...}, 顶层杂项}（实机 IMG_1505 校准）；拍平后再取键 */
+/** iOS getExif() 返回嵌套字典 {Exif:{...}, TIFF:{...}, ExifAux:{...}, 顶层杂项}（iOS 实机校准）；拍平后再取键 */
 export function flattenExif(tags: Raw): Raw {
   const out: Raw = {};
   for (const [k, v] of Object.entries(tags)) {
@@ -71,7 +71,7 @@ export function mapExif(raw: Raw): ExifInfo {
   const aperture = num(pick(tags, ['FNumber', 'ApertureValue']));
   const shutter = num(pick(tags, ['ExposureTime']));
   const iso = num(first(pick(tags, ['ISOSpeedRatings', 'ISO', 'PhotoISOSpeed']))) ?? undefined;
-  // 原版显示 35mm 等效焦距（IMG_1505: FocalLength 6.86 → FocalLenIn35mmFilm 48）
+  // 显示 35mm 等效焦距（如 FocalLength 6.86 → FocalLenIn35mmFilm 48）
   const focal = num(pick(tags, ['FocalLenIn35mmFilm', 'FocalLength']));
   const make = pick(tags, ['Make']);
   const model = pick(tags, ['Model']);

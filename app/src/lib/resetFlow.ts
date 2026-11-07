@@ -8,7 +8,7 @@ export const SCOPE_LABELS: Record<ResetScope, string> = {
   videos: '仅视频',
 };
 
-/** 确认文案，措辞对齐原版 en_localizable.txt 中文原句 */
+/** 各重置范围的确认文案 */
 export function resetConfirmText(scope: ResetScope): string {
   switch (scope) {
     case 'all':

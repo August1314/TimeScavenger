@@ -41,7 +41,7 @@ export default function OnboardingScreen() {
     <View style={styles.root}>
       <GradientBackground seed="onboarding" />
       <View style={styles.center}>
-        <Text style={styles.logo}>去留复刻</Text>
+        <Text style={styles.logo}>拾光</Text>
 
         {st.phase === 'guide' && (
           <>

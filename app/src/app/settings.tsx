@@ -121,7 +121,7 @@ export default function SettingsScreen() {
           </View>
           <View style={styles.about}>
             <Text style={styles.aboutText}>
-              去留复刻仅在本机访问与处理你的照片数据，不会上传任何内容。所有删除操作都会先进入待删除队列，由你最终确认。
+              拾光仅在本机访问与处理你的照片数据，不会上传任何内容。所有删除操作都会先进入待删除队列，由你最终确认。
             </Text>
           </View>
         </View>

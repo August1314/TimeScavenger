@@ -182,7 +182,7 @@ export default function ReviewScreen() {
     <View style={styles.root}>
       <GradientBackground seed={deck.items[deck.index]?.id} />
 
-      {/* 顶栏：左右圆钮 + 中央短横线进度条（原版 IMG_1492/live_current 采样） */}
+      {/* 顶栏：左右圆钮 + 中央短横线进度条 */}
       <View style={styles.topBar}>
         <RoundBtn light icon="chevron-back" onPress={goHome} />
         <View style={styles.progressTrack}>
@@ -192,7 +192,7 @@ export default function ReviewScreen() {
           light
           icon="share-outline"
           onPress={() =>
-            Share.share({ message: '像刷短视频一样刷自己的照片 —— 去留复刻' }).catch(() => {})
+            Share.share({ message: '像刷短视频一样刷自己的照片 —— 拾光' }).catch(() => {})
           }
         />
       </View>
@@ -256,7 +256,7 @@ export default function ReviewScreen() {
         ) : null}
       </View>
 
-      {/* 底栏：深色圆钮 + 时间胶囊（原版 live_current 采样） */}
+      {/* 底栏：深色圆钮 + 时间胶囊 */}
       <View style={styles.bottomBar}>
         <RoundBtn
           icon={currentRow?.favorite ? 'heart' : 'heart-outline'}

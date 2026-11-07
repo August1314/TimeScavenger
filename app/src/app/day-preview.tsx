@@ -78,7 +78,7 @@ export default function DayPreviewScreen() {
 
   return (
     <View style={styles.root}>
-      {/* 左上：省市区 + 日期大字（原版 IMG_1517） */}
+      {/* 左上：省市区 + 日期大字 */}
       <View style={styles.header}>
         <Text style={styles.region}>{region ?? ''}</Text>
         <Text style={styles.date}>{row ? dayTitle(row.creationDate) : ''}</Text>

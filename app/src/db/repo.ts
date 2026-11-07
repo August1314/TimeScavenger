@@ -59,7 +59,7 @@ export function __testingDb(): Db {
 async function ensureDb(): Promise<Db> {
   if (db) return db;
   const SQLite = require('expo-sqlite');
-  const opened: Db = await SQLite.openDatabaseAsync('quliu.db');
+  const opened: Db = await SQLite.openDatabaseAsync('timescavenger.db');
   db = opened;
   return opened;
 }

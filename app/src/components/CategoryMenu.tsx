@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur';
 import { C } from '../theme/colors';
 import type { Category } from '../db/repo';
 
-// 文案与顺序对齐原版 IMG_1491 / en_localizable.txt
+// 分类菜单的文案与顺序
 export const CATEGORY_LABELS: Record<Category, string> = {
   photo: '照片',
   screenshot: '截屏',

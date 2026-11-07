@@ -161,7 +161,7 @@ export default function VideosHome() {
     player.playbackRate = v ? 2 : 1;
   };
 
-  // 上下滑切换 + 长按 2x（原版 IMG_1494 / 文案"2x 速率播放中"）
+  // 上下滑切换 + 长按 2x（文案"2x 速率播放中"）
   // maxDistance：手指一旦移动就放弃长按，否则慢速滑动(>350ms)会被长按抢掉导致"滑不动"
   const composed = Gesture.Race(
     Gesture.Pan().onEnd((e) => {
@@ -235,7 +235,7 @@ export default function VideosHome() {
         </View>
       </GestureDetector>
 
-      {/* 右侧竖排圆钮：♡ / ↑ / 🗑 / （原版 IMG_1494） */}
+      {/* 右侧竖排圆钮：♡ / ↑ / 🗑 /  */}
       <View style={styles.rightBar}>
         <RoundIcon icon={current?.favorite ? 'heart' : 'heart-outline'} onPress={() => void toggleFav()} />
         <RoundIcon

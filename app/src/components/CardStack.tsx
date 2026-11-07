@@ -115,7 +115,7 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
       scale.value = withSpring(1, { damping: 14 });
     });
 
-  // 实况照片：按住 0.35 秒立即在卡内开始播放（onStart 在手指未松开时触发，对齐原版手感）
+  // 实况照片：按住 0.35 秒立即在卡内开始播放（onStart 在手指未松开时触发）
   const longPress = Gesture.LongPress()
     .minDuration(350)
     .maxDistance(12)
@@ -161,7 +161,7 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
 
 export function CardStack({ cards, index, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: Props) {
   const top = cards[index];
-  // 原版浏览页为单张全出血卡（live_current 采样：无后层卡边）
+  // 浏览页为单张全出血卡（无后层卡边）
   return (
     <View style={styles.stack} pointerEvents="box-none">
       {top && (

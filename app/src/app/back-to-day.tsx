@@ -19,7 +19,7 @@ const COL_W = Math.round((W - 24 - GAP) / 2);
 type Filter = 'all' | 'photo' | 'video';
 const FILTER_LABELS: Record<Filter, string> = { all: '照片和视频', photo: '照片', video: '视频' };
 
-/** 小红书式瀑布流（用户裁决 2026-11-07，替代原版统一格子）：保留宽高比，限幅防极端长图 */
+/** 双列瀑布流：保留宽高比，限幅防极端长图 */
 function cellHeight(row: MediaRow): number {
   const aspect = row.width > 0 && row.height > 0 ? row.width / row.height : 0.75;
   const h = COL_W / aspect;
@@ -91,7 +91,7 @@ export default function BackToDayScreen() {
     <View style={styles.root}>
       <GradientBackground seed={id} />
 
-      {/* 顶栏（原版：‹ ☰ 日期 ✓ —— ☰=过滤，✓=返回） */}
+      {/* 顶栏：‹ ☰ 日期 ✓ —— ☰=过滤，✓=返回 */}
       <View style={styles.topBar}>
         <View style={styles.topLeft}>
           <TouchableOpacity style={styles.roundBtn} onPress={() => router.back()}>
