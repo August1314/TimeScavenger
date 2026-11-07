@@ -99,8 +99,8 @@ export default function VideosHome() {
   };
 
   // 慢拖松手（无惯性）时 iOS pagingEnabled 不会吸附分页，会停在半格"卡住"——
-  // 拖拽结束起 240ms 定时器：若期间进入惯性滚动（onMomentumScrollBegin）则取消，
-  // 由 onMomentumScrollEnd 正常结算；否则手动动画吸附到最近一格并提交切换
+  // 拖拽结束起定时器：若期间进入惯性滚动（onMomentumScrollBegin）则取消，交给
+  // onMomentumScrollEnd 结算；否则按"速度或距离"决定翻页/回弹（抖音式手感，用户裁决）
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelSettleTimer = () => {
     if (settleTimer.current) {
@@ -110,24 +110,55 @@ export default function VideosHome() {
   };
   useEffect(() => cancelSettleTimer, []);
 
-  const onEndDrag = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+  // 松手速度检测：onScroll 采样 px/ms 轻度平滑；手指停稳 >90ms 视为 0（慢拖不算甩）
+  const FLING_V = 0.45; // px/ms，约 450px/s
+  const scrollSample = useRef({ t: 0, y: 0, v: 0 });
+  const releaseRef = useRef({ v: 0, d: 0 });
+  const onScrollSample = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     const y = e.nativeEvent.contentOffset.y;
-    const idx = snapIndex(y, feedH);
-    if (Math.abs(y - idx * feedH) <= 2) return;
+    const t = Date.now();
+    const p = scrollSample.current;
+    if (p.t > 0 && t > p.t) {
+      const inst = (y - p.y) / (t - p.t);
+      scrollSample.current = { t, y, v: p.v * 0.4 + inst * 0.6 };
+    } else {
+      scrollSample.current = { t, y, v: p.v };
+    }
+  };
+  const clampPage = (i: number) => Math.max(0, Math.min(i, rowsRef.current.length - 1));
+
+  const onEndDrag = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    const d = e.nativeEvent.contentOffset.y - currentRef.current * feedH;
+    const v = Date.now() - scrollSample.current.t < 90 ? scrollSample.current.v : 0;
+    releaseRef.current = { v, d };
     cancelSettleTimer();
+    if (Math.abs(d) <= 2) return;
     settleTimer.current = setTimeout(() => {
       settleTimer.current = null;
-      listRef.current?.scrollToOffset({ offset: idx * feedH, animated: true });
-      commitIndex(idx);
-    }, 240);
+      let target = currentRef.current;
+      if (Math.abs(v) > FLING_V) target += v > 0 ? 1 : -1;
+      else if (Math.abs(d) > feedH * 0.25) target += d > 0 ? 1 : -1;
+      target = clampPage(target);
+      listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
+      commitIndex(target);
+    }, 200);
   };
 
   const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     cancelSettleTimer();
     const y = e.nativeEvent.contentOffset.y;
     const next = snapIndex(y, feedH);
-    // 防御校正：iOS 吸附偶发停在格子边界外（>2px），先瞬时拉回精确边界再前进，
-    // 杜绝"定格后两条同屏"（用户怀疑的吸附问题兜底）
+    const prev = currentRef.current;
+    // 短促轻甩：iOS 分页把惯性回弹回原页（next===prev），但松手速度够且方向一致
+    // → 照样前进/后退一条（抖音语义：小幅快滑即可切，用户裁决）
+    const { v, d } = releaseRef.current;
+    if (next === prev && Math.abs(v) > FLING_V && Math.sign(v) === Math.sign(d)) {
+      const target = clampPage(prev + (v > 0 ? 1 : -1));
+      listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
+      commitIndex(target);
+      return;
+    }
+    // 防御校正：停靠偏离格子边界 >2px 时先瞬时拉回，杜绝"定格后两条同屏"
     if (Math.abs(y - next * feedH) > 2) {
       listRef.current?.scrollToOffset({ offset: next * feedH, animated: false });
     }
@@ -228,6 +259,8 @@ export default function VideosHome() {
           showsVerticalScrollIndicator={false}
           windowSize={3}
           getItemLayout={(_, index) => ({ length: feedH, offset: feedH * index, index })}
+          onScroll={onScrollSample}
+          scrollEventThrottle={16}
           onScrollEndDrag={onEndDrag}
           onMomentumScrollBegin={cancelSettleTimer}
           onMomentumScrollEnd={onSettled}
