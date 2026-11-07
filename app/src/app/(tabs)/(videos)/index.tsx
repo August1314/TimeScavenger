@@ -19,6 +19,8 @@ import type { MediaRow } from '../../../db/repo';
 
 export default function VideosHome() {
   const { width: vw, height: vh } = useWindowDimensions();
+  // 画面不与底部悬浮 tab 胶囊重叠：feed 区 = 视口高 − 胶囊区（12+62+8 余量），抖音式收边
+  const feedH = vh - 82;
   const [rows, setRows] = useState<MediaRow[]>([]);
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -90,7 +92,7 @@ export default function VideosHome() {
   };
 
   const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-    const next = snapIndex(e.nativeEvent.contentOffset.y, vh);
+    const next = snapIndex(e.nativeEvent.contentOffset.y, feedH);
     const prev = currentRef.current;
     if (next === prev) return;
     const leaving = rowsRef.current[prev];
@@ -188,7 +190,7 @@ export default function VideosHome() {
           data={rows}
           keyExtractor={(r) => r.localIdentifier}
           renderItem={({ item, index }) => (
-            <View style={{ width: vw, height: vh }}>
+            <View style={{ width: vw, height: feedH }}>
               <VideoCell
                 row={item}
                 active={index === current}
@@ -201,11 +203,11 @@ export default function VideosHome() {
             </View>
           )}
           pagingEnabled
-          snapToInterval={vh}
+          snapToInterval={feedH}
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
           windowSize={3}
-          getItemLayout={(_, index) => ({ length: vh, offset: vh * index, index })}
+          getItemLayout={(_, index) => ({ length: feedH, offset: feedH * index, index })}
           onMomentumScrollEnd={onSettled}
         />
 
