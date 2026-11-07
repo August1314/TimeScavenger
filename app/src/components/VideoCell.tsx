@@ -6,7 +6,6 @@ import { C } from '../theme/colors';
 import type { MediaRow } from '../db/repo';
 
 export interface VideoCellHandle {
-  seekTo(ratio: number): void;
   setRate(n: number): void;
 }
 
@@ -14,7 +13,6 @@ interface Props {
   row: MediaRow;
   active: boolean;
   onError: (msg: string) => void;
-  onTick: (t: number, d: number) => void;
 }
 
 /**
@@ -22,7 +20,7 @@ interface Props {
  * 构造空源，iCloud 守卫判定为本地后才 replaceAsync 装载 ph:// URI（云端视频不触发下载）。
  */
 export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
-  { row, active, onError, onTick },
+  { row, active, onError },
   ref,
 ) {
   const player = useVideoPlayer('', (p) => {
@@ -74,21 +72,7 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     return () => sub.remove();
   }, [player]);
 
-  // 仅当前格上报进度，省掉离屏轮询
-  useEffect(() => {
-    if (!active) return;
-    const t = setInterval(() => {
-      const d = player.duration;
-      if (d > 0) onTick(player.currentTime, d);
-    }, 400);
-    return () => clearInterval(t);
-  }, [active, player]);
-
   useImperativeHandle(ref, () => ({
-    seekTo: (ratio: number) => {
-      const d = player.duration;
-      if (d > 0) player.currentTime = ratio * d;
-    },
     setRate: (n: number) => {
       player.playbackRate = n;
     },

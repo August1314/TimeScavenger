@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Text, View, StyleSheet, TouchableOpacity, Share, Platform, FlatList, PanResponder,
+  Text, View, StyleSheet, TouchableOpacity, Share, Platform, FlatList,
   useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,7 @@ import { runOnJS } from 'react-native-reanimated';
 import { C } from '../../../theme/colors';
 import { VideoCell, type VideoCellHandle } from '../../../components/VideoCell';
 import { nextGroup, markSeen } from '../../../lib/session';
-import { snapIndex, seekRatio } from '../../../lib/videoFeed';
+import { snapIndex } from '../../../lib/videoFeed';
 import { pendingQueue } from '../../../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../../../lib/assets';
 import { placeParts } from '../../../lib/place';
@@ -24,8 +24,6 @@ export default function VideosHome() {
   const [rows, setRows] = useState<MediaRow[]>([]);
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
-  const [tick, setTick] = useState({ t: 0, d: 0 });
-  const [drag, setDrag] = useState<number | null>(null); // 拖动中的 seek 预览比例
   const [fast, setFast] = useState(false);
   const [place, setPlace] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -35,7 +33,6 @@ export default function VideosHome() {
   const loadingMoreRef = useRef(false);
   const rowsRef = useRef<MediaRow[]>([]);
   const currentRef = useRef(0);
-  const trackWRef = useRef(vw - 36);
 
   const showToast = (s: string) => {
     setToast(s);
@@ -57,11 +54,9 @@ export default function VideosHome() {
     };
   }, []);
 
-  // 当前行变化 → 刷新位置信息 + 归零进度预览
+  // 当前行变化 → 刷新位置信息
   const cur = rows[current];
   useEffect(() => {
-    setTick({ t: 0, d: 0 });
-    setDrag(null);
     setPlace(null);
     if (!cur) return;
     let alive = true;
@@ -101,21 +96,6 @@ export default function VideosHome() {
     setCurrent(next);
     if (next >= rowsRef.current.length - 1) void appendNextGroup();
   };
-
-  // 进度条轨道：点按+拖动 seek（3pt 线外套 24pt 高命中区）
-  const scrub = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (e) => setDrag(seekRatio(e.nativeEvent.locationX, 0, trackWRef.current)),
-      onPanResponderMove: (e) => setDrag(seekRatio(e.nativeEvent.locationX, 0, trackWRef.current)),
-      onPanResponderRelease: (e) => {
-        const r = seekRatio(e.nativeEvent.locationX, 0, trackWRef.current);
-        cellRefs.current[currentRef.current]?.seekTo(r);
-        setDrag(null);
-      },
-    }),
-  ).current;
 
   const setFastRate = (v: boolean) => {
     setFast(v);
@@ -166,8 +146,6 @@ export default function VideosHome() {
     setLastDeleted(null);
   };
 
-  const progress = drag ?? (tick.d > 0 ? tick.t / tick.d : 0);
-
   if (!ready) {
     return (
       <View style={styles.root}>
@@ -186,7 +164,10 @@ export default function VideosHome() {
   return (
     <GestureDetector gesture={longPress2x}>
       <View style={styles.root}>
+        {/* 容器高度=单格高度：视口恰为一屏画面，下一条不漏出（iOS pagingEnabled 按整视口
+            吸附会与 snapToInterval 冲突造成错位，故只用 snapToInterval） */}
         <FlatList
+          style={{ height: feedH }}
           data={rows}
           keyExtractor={(r) => r.localIdentifier}
           renderItem={({ item, index }) => (
@@ -195,14 +176,12 @@ export default function VideosHome() {
                 row={item}
                 active={index === current}
                 onError={(m) => showToast(`播放失败：${m}`)}
-                onTick={(t, d) => index === currentRef.current && setTick({ t, d })}
                 ref={(h) => {
                   cellRefs.current[index] = h;
                 }}
               />
             </View>
           )}
-          pagingEnabled
           snapToInterval={feedH}
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
@@ -246,18 +225,6 @@ export default function VideosHome() {
           )}
         </View>
 
-        {/* 进度条：tab 胶囊上方，可点按/拖动 seek */}
-        <View
-          style={styles.trackHit}
-          onLayout={(e) => {
-            trackWRef.current = e.nativeEvent.layout.width;
-          }}
-          {...scrub.panHandlers}
-        >
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${Math.round(progress * 100)}%` }]} />
-          </View>
-        </View>
       </View>
     </GestureDetector>
   );
@@ -280,7 +247,6 @@ const styles = StyleSheet.create({
   },
   fastText: { color: '#fff', fontSize: 13, fontWeight: '600' },
 
-  // tab 胶囊占底部 12+62=74，轨道命中区底边 78、高 24（3pt 线居中）
   rightBar: { position: 'absolute', right: 14, bottom: 210, gap: 16 },
   roundBtn: {
     width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(25,25,30,0.55)',
@@ -293,8 +259,4 @@ const styles = StyleSheet.create({
   placeText: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
   toast: { backgroundColor: 'rgba(30,30,40,0.85)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
   toastText: { color: '#fff', fontSize: 13 },
-
-  trackHit: { position: 'absolute', left: 18, right: 18, bottom: 78, height: 24, justifyContent: 'center' },
-  track: { height: 3, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 2 },
-  fill: { height: 3, backgroundColor: '#fff', borderRadius: 2 },
 });
