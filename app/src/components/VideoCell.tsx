@@ -112,7 +112,16 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
   // 非当前格不挂 VideoView，只留黑底占位；播放器仍已装载，定格即 active 秒起播。
   // contain：保持视频原始比例（用户裁决：不做全出血裁切），竖屏视频上下留黑边
   if (!active) return <View style={styles.root} />;
-  return <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="contain" />;
+  // 用户最终裁决：播放控制直接用系统原生控件（轻点弹出进度条/暂停/±15s 快进快退），
+  // 不来自绘控制层
+  return (
+    <VideoView
+      player={player}
+      style={StyleSheet.absoluteFill}
+      contentFit="contain"
+      nativeControls
+    />
+  );
 });
 
 const styles = StyleSheet.create({
