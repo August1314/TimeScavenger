@@ -29,6 +29,7 @@ export default function VideosHome() {
   const [toast, setToast] = useState<string | null>(null);
   const [lastDeleted, setLastDeleted] = useState<MediaRow | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listRef = useRef<FlatList<MediaRow>>(null);
   const cellRefs = useRef<(VideoCellHandle | null)[]>([]);
   const loadingMoreRef = useRef(false);
   const rowsRef = useRef<MediaRow[]>([]);
@@ -87,7 +88,13 @@ export default function VideosHome() {
   };
 
   const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-    const next = snapIndex(e.nativeEvent.contentOffset.y, feedH);
+    const y = e.nativeEvent.contentOffset.y;
+    const next = snapIndex(y, feedH);
+    // 防御校正：iOS 吸附偶发停在格子边界外（>2px），先瞬时拉回精确边界再前进，
+    // 杜绝"定格后两条同屏"（用户怀疑的吸附问题兜底）
+    if (Math.abs(y - next * feedH) > 2) {
+      listRef.current?.scrollToOffset({ offset: next * feedH, animated: false });
+    }
     const prev = currentRef.current;
     if (next === prev) return;
     const leaving = rowsRef.current[prev];
@@ -169,6 +176,7 @@ export default function VideosHome() {
             且 current 已前进→"露出还自动播"）。关掉调整后 offset 严格等于格子边界，
             整屏分页用 pagingEnabled（此时与 snapToInterval 等价且更稳） */}
         <FlatList
+          ref={listRef}
           style={{ height: feedH }}
           data={rows}
           keyExtractor={(r) => r.localIdentifier}

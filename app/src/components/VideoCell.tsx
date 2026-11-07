@@ -18,8 +18,8 @@ interface Props {
 /**
  * 单格视频：独立播放器，播停完全由 active 驱动（不用 shouldPlay，避免列表回收误播）。
  * 构造空源，iCloud 守卫判定为本地后才 replaceAsync 装载 ph:// URI（云端视频不触发下载）。
- * 预加载语义（用户裁决）：挂载即装载（相邻格滑动中显示首帧），但 play() 只在
- * active=true（列表定格、拖动完成）时才发生——装载完成绝不等于开始播放。
+ * 预加载语义（用户裁决）：挂载即 replaceAsync 装载，但 VideoView 与 play() 都只在
+ * active=true（列表定格、拖动完成）时发生——同屏最多一个播放器层，杜绝叠画/提前播。
  */
 export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
   { row, active, onError },
@@ -88,7 +88,10 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
       </View>
     );
   }
+  // 同屏最多一个播放器层（用户裁决：消除"两个视频同屏+下一条提前播"）：
+  // 非当前格不挂 VideoView，只留黑底占位；播放器仍已装载，定格即 active 秒起播。
   // contain：保持视频原始比例（用户裁决：不做全出血裁切），竖屏视频上下留黑边
+  if (!active) return <View style={styles.root} />;
   return <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="contain" />;
 });
 
