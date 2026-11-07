@@ -3,6 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { Asset } from 'expo-media-library';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { C } from '../theme/colors';
+import { playbackAction, loadedAction } from '../lib/videoFeed';
 import type { MediaRow } from '../db/repo';
 
 export interface VideoCellHandle {
@@ -20,6 +21,8 @@ interface Props {
  * 构造空源，iCloud 守卫判定为本地后才 replaceAsync 装载 ph:// URI（云端视频不触发下载）。
  * 预加载语义（用户裁决）：挂载即 replaceAsync 装载，但 VideoView 与 play() 都只在
  * active=true（列表定格、拖动完成）时发生——同屏最多一个播放器层，杜绝叠画/提前播。
+ * play() 还要求 loaded（源装载完成）：装载前 play 的原生意图在划走时 pause 可能清不掉，
+ * 会造成非当前格隐形出声（声音重叠/音画不同步，真机 bug，判定见 videoFeed.playbackAction）。
  */
 export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
   { row, active, onError },
@@ -29,11 +32,17 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     p.loop = true;
   });
   const [cloud, setCloud] = useState<boolean | null>(null);
+  // loaded=源真正装载完成（replaceAsync resolve）。play() 必须等它，否则 iOS 上
+  // 装载前 play 形成"就绪即播"意图、装载中 pause 又可能不生效 → 划走后隐形播放器出声
+  const [loaded, setLoaded] = useState(false);
   const loadedRef = useRef(false);
+  const activeRef = useRef(active);
+  activeRef.current = active;
 
   useEffect(() => {
     let alive = true;
     loadedRef.current = false;
+    setLoaded(false);
     setCloud(null);
     (async () => {
       try {
@@ -45,6 +54,10 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
         if (!isInCloud) {
           loadedRef.current = true;
           await player.replaceAsync(row.localIdentifier);
+          if (!alive) return;
+          setLoaded(true);
+          // 装载完成瞬间补偿：若期间已划走，补一次 pause 清掉残留的原生播放意图
+          if (loadedAction(activeRef.current) === 'pause') player.pause();
         }
       } catch (e: any) {
         if (alive) onError(String(e?.message ?? e).slice(0, 60));
@@ -56,22 +69,29 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
   }, [row.localIdentifier, player]);
 
   useEffect(() => {
-    if (cloud === false && active) void player.play();
-    if (!active) {
+    const action = playbackAction({ active, cloud, loaded });
+    if (action === 'play') void player.play();
+    if (action === 'pause') {
       player.pause();
       player.playbackRate = 1;
     }
-  }, [active, cloud, player]);
+  }, [active, cloud, loaded, player]);
 
-  // 空源 '' 在构造时即触发一次原生加载错误（file:/// Cannot Open，Metro 日志实证）——
-  // 只有真正开始装载真实视频后的 error 才上报，避免每格挂载即弹"播放失败"
   useEffect(() => {
-    const sub = player.addListener('statusChange', ({ status, error }) => {
+    // 兜底：非当前格一旦真正进入播放态（任何残留原生意图），立即静音
+    const playingSub = player.addListener('playingChange', ({ isPlaying }) => {
+      if (isPlaying && !activeRef.current) player.pause();
+    });
+    // 空源 '' 在构造时即触发一次原生加载错误——装载真实视频后的 error 才上报
+    const statusSub = player.addListener('statusChange', ({ status, error }) => {
       if (status === 'error' && loadedRef.current) {
         onError(String(error?.message ?? '未知').slice(0, 60));
       }
     });
-    return () => sub.remove();
+    return () => {
+      playingSub.remove();
+      statusSub.remove();
+    };
   }, [player]);
 
   useImperativeHandle(ref, () => ({

@@ -36,6 +36,29 @@ export function settlePage(
   return current;
 }
 
+/**
+ * 播放意图判定（真机 bug：非 active 格"隐形播放"导致声音重叠/音画不同步）。
+ * iOS 上 play() 在源装载完成前调用会形成"就绪即播"原生意图，且装载中 pause()
+ * 作用在空源上可能不生效——replaceAsync 完成后隐形播放器照样出声。
+ * 因此 play() 必须等源真正装载完（loaded）才发出；非 active 一律 pause。
+ */
+export type PlaybackAction = 'play' | 'pause' | 'none';
+
+export function playbackAction(s: {
+  active: boolean;
+  cloud: boolean | null;
+  loaded: boolean;
+}): PlaybackAction {
+  if (!s.active) return 'pause';
+  if (s.cloud === false && s.loaded) return 'play';
+  return 'none';
+}
+
+/** replaceAsync 完成瞬间的补偿判定：仍 active 起播；已划走则补 pause 清残留播放意图 */
+export function loadedAction(active: boolean): PlaybackAction {
+  return active ? 'play' : 'pause';
+}
+
 /** 慢拖松手（无惯性）判定：快甩沿速度方向翻；拖距超 1/4 屏沿拖距方向翻；否则回弹原页 */
 export function dragPage(
   current: number,
