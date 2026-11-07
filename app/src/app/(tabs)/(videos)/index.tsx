@@ -9,7 +9,7 @@ import { runOnJS } from 'react-native-reanimated';
 import { C } from '../../../theme/colors';
 import { VideoCell, type VideoCellHandle } from '../../../components/VideoCell';
 import { nextGroup, markSeen } from '../../../lib/session';
-import { snapIndex } from '../../../lib/videoFeed';
+import { settlePage, dragPage, type SwipeRelease } from '../../../lib/videoFeed';
 import { pendingQueue } from '../../../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../../../lib/assets';
 import { placeParts } from '../../../lib/place';
@@ -111,9 +111,15 @@ export default function VideosHome() {
   useEffect(() => cancelSettleTimer, []);
 
   // 松手速度检测：onScroll 采样 px/ms 轻度平滑；手指停稳 >90ms 视为 0（慢拖不算甩）
-  const FLING_V = 0.45; // px/ms，约 450px/s
   const scrollSample = useRef({ t: 0, y: 0, v: 0 });
-  const releaseRef = useRef({ v: 0, d: 0 });
+  // 松手信息必须一次性消费（用后置零）：补翻页的动画滚动会再次触发结算事件，
+  // 若残留甩速信息将造成"滑一下无限连跳"级联（真机 bug，测试已钉死防回归）
+  const releaseRef = useRef<SwipeRelease>({ v: 0, d: 0 });
+  const consumeRelease = (): SwipeRelease => {
+    const r = releaseRef.current;
+    releaseRef.current = { v: 0, d: 0 };
+    return r;
+  };
   const onScrollSample = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     const y = e.nativeEvent.contentOffset.y;
     const t = Date.now();
@@ -125,21 +131,20 @@ export default function VideosHome() {
       scrollSample.current = { t, y, v: p.v };
     }
   };
-  const clampPage = (i: number) => Math.max(0, Math.min(i, rowsRef.current.length - 1));
 
   const onEndDrag = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-    const d = e.nativeEvent.contentOffset.y - currentRef.current * feedH;
+    const y = e.nativeEvent.contentOffset.y;
+    const d = y - currentRef.current * feedH;
     const v = Date.now() - scrollSample.current.t < 90 ? scrollSample.current.v : 0;
     releaseRef.current = { v, d };
     cancelSettleTimer();
-    if (Math.abs(d) <= 2) return;
+    if (Math.abs(d) <= 2) return; // 恰在边界：交给惯性/原生分页结算
     settleTimer.current = setTimeout(() => {
       settleTimer.current = null;
-      let target = currentRef.current;
-      if (Math.abs(v) > FLING_V) target += v > 0 ? 1 : -1;
-      else if (Math.abs(d) > feedH * 0.25) target += d > 0 ? 1 : -1;
-      target = clampPage(target);
-      listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
+      const target = dragPage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
+      if (target !== currentRef.current) {
+        listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
+      }
       commitIndex(target);
     }, 200);
   };
@@ -147,22 +152,12 @@ export default function VideosHome() {
   const onSettled = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     cancelSettleTimer();
     const y = e.nativeEvent.contentOffset.y;
-    const next = snapIndex(y, feedH);
-    const prev = currentRef.current;
-    // 短促轻甩：iOS 分页把惯性回弹回原页（next===prev），但松手速度够且方向一致
-    // → 照样前进/后退一条（抖音语义：小幅快滑即可切，用户裁决）
-    const { v, d } = releaseRef.current;
-    if (next === prev && Math.abs(v) > FLING_V && Math.sign(v) === Math.sign(d)) {
-      const target = clampPage(prev + (v > 0 ? 1 : -1));
-      listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
-      commitIndex(target);
-      return;
+    const target = settlePage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
+    // 快甩补翻页需动画到目标页；正常落点则只在偏离边界 >2px 时瞬时回正
+    if (Math.abs(y - target * feedH) > 2) {
+      listRef.current?.scrollToOffset({ offset: target * feedH, animated: target !== currentRef.current });
     }
-    // 防御校正：停靠偏离格子边界 >2px 时先瞬时拉回，杜绝"定格后两条同屏"
-    if (Math.abs(y - next * feedH) > 2) {
-      listRef.current?.scrollToOffset({ offset: next * feedH, animated: false });
-    }
-    commitIndex(next);
+    commitIndex(target);
   };
 
   const setFastRate = (v: boolean) => {
