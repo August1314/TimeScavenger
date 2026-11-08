@@ -21,5 +21,9 @@ appId: com.augustone.timescavenger
 - tapOn:
     text: ".*Allow.*"
     optional: true
+# 弹窗若因文案漂移仍在，dismiss 后再撤销，避免 undo 被遮挡硬失败
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
 - tapOn:
     id: "video_undo"

@@ -6,6 +6,8 @@ appId: com.augustone.timescavenger
 - assertVisible:
     id: "onboard_grant"
     optional: true
+# 非 optional 硬断言：tab 栏存在 = 已过 onboarding 且无红屏挡层
+- assertVisible: "照片"
 - assertVisible:
     text: "轻触照片开始回顾.*"
     optional: true

@@ -100,15 +100,18 @@ describe('commitPending', () => {
 
 describe('classifyDeleteError', () => {
   it('classifies iOS cancel', () => {
-    expect(classifyDeleteError('PHAsset deletion was canceled')).toBe('cancelled');
+    expect(classifyDeleteError('PHAsset deletion was canceled', 'ios')).toBe('cancelled');
   });
   it('classifies Android MediaStore denial', () => {
-    expect(classifyDeleteError('User did not grant permission for the delete request')).toBe('cancelled');
+    expect(classifyDeleteError('User did not grant permission for the delete request', 'android')).toBe('cancelled');
   });
   it('classifies Android wrapped rejection (device-verified message)', () => {
-    expect(classifyDeleteError("Call to function 'Asset.delete' has been rejected.")).toBe('cancelled');
+    expect(classifyDeleteError("Call to function 'Asset.delete' has been rejected.", 'android')).toBe('cancelled');
+  });
+  it('does not treat generic rejection as cancel on iOS', () => {
+    expect(classifyDeleteError("Call to function 'Asset.delete' has been rejected.", 'ios')).toBe('failed');
   });
   it('keeps unknown errors as failed', () => {
-    expect(classifyDeleteError('EACCES')).toBe('failed');
+    expect(classifyDeleteError('EACCES', 'android')).toBe('failed');
   });
 });

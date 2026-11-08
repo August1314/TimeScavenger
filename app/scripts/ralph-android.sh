@@ -20,6 +20,10 @@ if [ "$code" != "200" ]; then
 fi
 
 "$ADB" -s "$S" reverse tcp:8081 tcp:8081
+if [ -z "$("$ADB" -s "$S" shell pm path "$PKG" 2>/dev/null)" ]; then
+  echo "ERROR: $PKG 未安装（先 npx expo run:android）" >&2
+  exit 1
+fi
 "$ADB" -s "$S" shell pm grant "$PKG" android.permission.READ_MEDIA_IMAGES || true
 "$ADB" -s "$S" shell pm grant "$PKG" android.permission.READ_MEDIA_VIDEO || true
 "$ADB" -s "$S" shell pm grant "$PKG" android.permission.ACCESS_MEDIA_LOCATION || true
@@ -29,8 +33,13 @@ sleep 1
 "$ADB" -s "$S" shell "am start -a android.intent.action.VIEW -d 'timescavenger://?__expo_url=http%3A%2F%2F${METRO_HOST}%3A8081&__expo_disable_fab=1' $PKG" >/dev/null
 sleep 12
 
-"$ADB" -s "$S" shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
-maestro test --device "$S" "$FLOW"
 mkdir -p ../screens
-"$ADB" -s "$S" exec-out screencap -p > "../screens/android-$(date +%H%M%S).png"
-echo "ralph done: flow=$FLOW"
+SHOT="../screens/android-$(date +%H%M%S)"
+if maestro test --device "$S" "$FLOW"; then
+  "$ADB" -s "$S" exec-out screencap -p > "$SHOT-pass.png"
+  echo "ralph done: flow=$FLOW PASS"
+else
+  "$ADB" -s "$S" exec-out screencap -p > "$SHOT-fail.png"
+  echo "ralph FAILED: flow=$FLOW, 现场截图 $SHOT-fail.png" >&2
+  exit 1
+fi

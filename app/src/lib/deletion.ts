@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { addDeletion, removeMedia, setPending, fetchPending, type MediaRow } from '../db/repo';
 
 export interface DeleteOutcome {
@@ -101,11 +102,13 @@ export async function commitPending(
   return { deleted, failed: outcome.failed };
 }
 
-/** 删除失败信息归类：用户取消（iOS canceled / Android MediaStore 拒绝）vs 真失败。
+/** 删除失败信息归类：用户取消 vs 真失败。
  * Android 原生 cause（"User didn't grant write permission…"）被 modules-core 吞掉，
- * JS 只见 "Call to function 'Asset.delete' has been rejected."，故 rejected 归 cancelled */
-export function classifyDeleteError(msg: string): 'cancelled' | 'failed' {
-  return /cancel|did not grant|didn't grant|denied|rejected/i.test(msg) ? 'cancelled' : 'failed';
+ * JS 只见 "Call to function 'Asset.delete' has been rejected."，故 rejected 仅 Android 归 cancelled */
+export function classifyDeleteError(msg: string, os: 'ios' | 'android'): 'cancelled' | 'failed' {
+  if (/cancel|did not grant|didn't grant/i.test(msg)) return 'cancelled';
+  if (os === 'android' && /denied|rejected/i.test(msg)) return 'cancelled';
+  return 'failed';
 }
 
 /** 生产依赖：expo-media-library Asset.delete + File(uri).size（真机已验证 ph:// 可读） */
@@ -118,7 +121,7 @@ export function nativeDeps(): DeletionDeps {
         return { succeeded: ids, failed: [] };
       } catch (e: any) {
         const msg = String(e?.message ?? e);
-        if (classifyDeleteError(msg) === 'cancelled') return { succeeded: [], failed: ids.map((id) => ({ id, error: '已取消删除。' })) };
+        if (classifyDeleteError(msg, Platform.OS === 'android' ? 'android' : 'ios') === 'cancelled') return { succeeded: [], failed: ids.map((id) => ({ id, error: '已取消删除。' })) };
         return { succeeded: [], failed: ids.map((id) => ({ id, error: msg })) };
       }
     },
