@@ -1,4 +1,5 @@
 import * as Location from 'expo-location';
+import { Platform } from 'react-native';
 
 export interface PlaceParts {
   street: string | null; // 路名/地点名（信息页左侧）
@@ -6,11 +7,22 @@ export interface PlaceParts {
 }
 
 const cache = new Map<string, PlaceParts | null>();
+let permChecked = false;
 
 async function geocode(lat: number, lon: number): Promise<PlaceParts | null> {
   const key = `${lat.toFixed(3)},${lon.toFixed(3)}`;
   if (cache.has(key)) return cache.get(key) ?? null;
   try {
+    // Android：系统 Geocoder 需要定位权限才返回结果（OPPO 真机实证：无权限恒空、
+    // 授权后出"省市区+POI"级地名）；首次调用请求一次，拒绝则静默走坐标兜底
+    if (Platform.OS === 'android' && !permChecked) {
+      permChecked = true;
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        cache.set(key, null);
+        return null;
+      }
+    }
     const [p] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
     if (!p) {
       cache.set(key, null);

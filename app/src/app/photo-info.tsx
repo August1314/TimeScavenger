@@ -151,22 +151,28 @@ export default function PhotoInfoScreen() {
                   </Marker>
                 </MapView>
               ) : (
-                // Android 无 Google 服务/地图密钥：坐标 + geo: intent 调起系统地图
+                // Android 无 Google 服务/地图密钥：不渲染地图，用可点块（地名优先，
+                // 反查失败显示坐标）+ geo: intent 调起系统地图
                 <TouchableOpacity
                   style={styles.mapFallback}
                   onPress={() => void Linking.openURL(`geo:${loc.latitude},${loc.longitude}`).catch(() => {})}
                 >
-                  <Text style={styles.coordsText}>{loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}</Text>
+                  <Text style={styles.coordsText} numberOfLines={1}>
+                    {parts?.street ?? `${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(4)}`}
+                  </Text>
                   <Text style={styles.coordsOpen}>在地图中打开</Text>
                 </TouchableOpacity>
               )}
-              {/* 地点名直接叠在地图中央（白字带阴影） */}
-              {!!parts?.street && (
+              {/* 地点名叠在地图中央（白字带阴影）——仅 iOS 有地图可叠 */}
+              {!!parts?.street && Platform.OS === 'ios' && (
                 <Text style={styles.mapLabel}>{parts.street}</Text>
               )}
             </View>
             <View style={styles.placeRow}>
-              <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">{parts?.street ?? (parts || loc ? '' : '定位中…')}</Text>
+              {/* Android 地名已在上方块内展示，这里只留省市区；iOS 维持 路名+省市区 */}
+              <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">
+                {Platform.OS === 'android' ? '' : parts?.street ?? (parts || loc ? '' : '定位中…')}
+              </Text>
               <Text style={styles.placeRegion} numberOfLines={1} ellipsizeMode="tail">{parts?.region ?? ''}</Text>
             </View>
           </>
