@@ -248,7 +248,7 @@ Task 8: complete (commits 181283c..feb89ae, tests: bash -c 'cd app && npx tsc --
 RealDevice(OPPO PLZ110/ColorOS，PR#1 合并后抽查，2026-11-08 晚):
 RealDevice: finding: release 包 R8 混淆致启动即崩（WorkDatabase.canonicalName 反射目标被删）→ 本地 android/gradle.properties enableMinifyInReleaseBuilds=false — 注意：android/ 被 gitignore，重跑 prebuild 须再关，或补 R8 keep 规则（生产待办）
 RealDevice: finding: modules-core 把 setFavorite 拒绝也吞成 rejected → 收藏被拒误报"收藏失败，请重试"。修复：setFavoriteSafe 复用 classifyDeleteError(os) 归 cancelled，review/videos 调用方提示"已取消收藏"，真机复测 toast 正确
-RealDevice: finding: 视频 tab FlatList 默认 initialNumToRender=10 一次挂 10 个预装载 ExoPlayer，秒爆 512MB Java 堆（OOM + MediaCodec SIGABRT；模拟器 2 视频库不可见）。修复：Android initialNumToRender=1/maxToRenderPerBatch=2/windowSize=1 + app.json largeHeapEnabled，真机复测仅 2 会话、连滑不崩
+RealDevice: finding: 视频 tab FlatList 默认 initialNumToRender=10 一次挂 10 个预装载 ExoPlayer，秒爆 512Java 堆（OOM + MediaCodec SIGABRT；模拟器 2 视频库不可见）。首轮修复 initialNumToRender=1+windowSize=1 被否决——实证 VirtualizedList 把滚动弹回 index1（commit 1→2→1，划不动）；FlatList 参数不可动。终版修复：VideoCell 加 near 闸门（当前±1 才建真实源，near 翻转经 key 重建播放器释放远格解码器）+ app.json largeHeapEnabled；真机 20 连滑每滑 +1 会话、Java 堆 168/512MB、不崩不卡
 RealDevice: finding: expo-router tab 屏保活 → 离开视频页声音继续（用户报告）。修复：useFocusEffect 维护 focused，active=focused&&index===current；media_session 实证 PLAYING(3)→PAUSED(2) speed=0
 RealDevice: 抽查 PASS: 权限弹窗(ACCESS_MEDIA_LOCATION 授予成功)、ColorOS 文案"要允许拾光修改/删除这张照片吗？"、6486 项导入秒级、回顾页 9 格渲染、photo-info EXIF 全量+GPS 坐标+geo: 调起百度地图/滴滴、删除拒绝→"已取消删除。待删除内容已保留"、pending 放弃清队
 RealDevice: finding: 首页右下"设备验证页"=iOS 期 spike 入口(router.push('/spike'))，非重叠 bug；adb USB 被 IDE root adb server(5037) 独占，真机命令一律带 `-P 5037`

@@ -13,24 +13,41 @@ export interface VideoCellHandle {
 interface Props {
   row: MediaRow;
   active: boolean;
+  /** Android 内存闸门：仅近机格（当前±1）建真实源播放器，远格空源不占解码器。
+   * 真机实证：大列表一次挂 10 个已装载 ExoPlayer 会爆 512MB 堆（OOM + MediaCodec SIGABRT） */
+  near: boolean;
   onError: (msg: string) => void;
 }
 
 /**
  * 单格视频：独立播放器，播停完全由 active 驱动（不用 shouldPlay，避免列表回收误播）。
- * 构造空源，iCloud 守卫判定为本地后才 replaceAsync 装载 ph:// URI（云端视频不触发下载）。
- * 预加载语义（用户裁决）：挂载即 replaceAsync 装载，但 VideoView 与 play() 都只在
+ * iOS：构造空源，iCloud 守卫判定为本地后才 replaceAsync 装载 ph:// URI（云端视频不触发下载）。
+ * Android：near=true 时构造即真实 content:// 源（replaceAsync 在 Android 会把 URI 变空，
+ * 实证不可用）；near 翻转经 key 重建播放器，远格释放解码器内存。
+ * 预加载语义（用户裁决）：装载即首帧，但 VideoView 与 play() 都只在
  * active=true（列表定格、拖动完成）时发生——同屏最多一个播放器层，杜绝叠画/提前播。
  * play() 还要求 loaded（源装载完成）：装载前 play 的原生意图在划走时 pause 可能清不掉，
  * 会造成非当前格隐形出声（声音重叠/音画不同步，真机 bug，判定见 videoFeed.playbackAction）。
  */
 export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
-  { row, active, onError },
+  { row, active, near, onError },
   ref,
 ) {
-  const player = useVideoPlayer(Platform.OS === 'ios' ? '' : row.localIdentifier, (p) => {
-    p.loop = true;
-  });
+  // iOS 播放器生命周期与 near 无关，不随其重建
+  const key = Platform.OS === 'android' ? (near ? 'near' : 'far') : 'fixed';
+  return <CellPlayer key={key} row={row} active={active} near={near} onError={onError} ref={ref} />;
+});
+
+const CellPlayer = forwardRef<VideoCellHandle, Props>(function CellPlayer(
+  { row, active, near, onError },
+  ref,
+) {
+  const player = useVideoPlayer(
+    Platform.OS === 'ios' ? '' : near ? row.localIdentifier : '',
+    (p) => {
+      p.loop = true;
+    },
+  );
   const [cloud, setCloud] = useState<boolean | null>(null);
   // loaded=源真正装载完成（replaceAsync resolve）。play() 必须等它，否则 iOS 上
   // 装载前 play 形成"就绪即播"意图、装载中 pause 又可能不生效 → 划走后隐形播放器出声
@@ -46,9 +63,12 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     setCloud(null);
     (async () => {
       try {
-        // Android：构造即真实 content:// 源（replaceAsync 在 Android 会把 URI 变空，实证不可用）；
-        // 无 iCloud 概念，直接就绪
         if (Platform.OS === 'android') {
+          // 远格空源：不装载、不上报 '' 构造期原生错误
+          if (!near) {
+            setCloud(false);
+            return;
+          }
           loadedRef.current = true;
           setCloud(false);
           setLoaded(true);
@@ -74,7 +94,7 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     return () => {
       alive = false;
     };
-  }, [row.localIdentifier, player]);
+  }, [row.localIdentifier, player, near]);
 
   useEffect(() => {
     const action = playbackAction({ active, cloud, loaded });

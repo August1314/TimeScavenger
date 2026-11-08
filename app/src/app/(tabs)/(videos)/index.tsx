@@ -260,6 +260,7 @@ export default function VideosHome() {
               <VideoCell
                 row={item}
                 active={focused && index === current}
+                near={Math.abs(index - current) <= 1}
                 onError={(m) => showToast(`播放失败：${m}`)}
                 ref={(h) => {
                   cellRefs.current[index] = h;
@@ -271,12 +272,10 @@ export default function VideosHome() {
           pagingEnabled
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
-          // Android 大相册实证：FlatList 默认 initialNumToRender=10 会一次挂 10 个
-          // 预装载的 ExoPlayer，MediaCodec 并发解码秒爆 512MB 堆（OOM + native SIGABRT）。
-          // Android 首屏只渲 1 格、小批续渲；iOS 维持预加载体验
-          initialNumToRender={Platform.OS === 'android' ? 1 : undefined}
-          maxToRenderPerBatch={Platform.OS === 'android' ? 2 : undefined}
-          windowSize={Platform.OS === 'android' ? 1 : 3}
+          // FlatList 参数保持原状（实证改 initialNumToRender/windowSize 会触发
+          // VirtualizedList 回弹 → 划不动）；Android 内存问题改由 VideoCell
+          // 只给近机格（±1）建真实源解决
+          windowSize={3}
           getItemLayout={(_, index) => ({ length: feedH, offset: feedH * index, index })}
           onScroll={onScrollSample}
           scrollEventThrottle={16}
