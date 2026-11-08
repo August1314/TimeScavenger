@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Share, Platform, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { Asset } from 'expo-media-library';
 import { LivePhotoView, type LivePhotoViewType } from 'expo-live-photo';
 import { C } from '../theme/colors';
@@ -80,7 +82,17 @@ export default function DayPreviewScreen() {
   const photoW = Math.min(W * 0.92, H * 0.58 * aspect);
   const photoH = photoW / aspect;
 
+  // "下滑返回"手势（提示文案承诺过但从未实现；Android 无 iOS 式侧滑返回，必须补上）：
+  // 纵向下滑 >80px 或甩速 >500px/s 即 router.back；横向意图不拦截（activeOffsetY 门槛）
+  const goBack = useCallback(() => router.back(), []);
+  const dismissPan = Gesture.Pan()
+    .activeOffsetY([-20, 20])
+    .onEnd((e) => {
+      if (e.translationY > 80 || e.velocityY > 500) runOnJS(goBack)();
+    });
+
   return (
+    <GestureDetector gesture={dismissPan}>
     <View style={styles.root}>
       {/* 左上：省市区 + 日期大字 */}
       <View style={styles.header}>
@@ -138,6 +150,7 @@ export default function DayPreviewScreen() {
 
       <Text style={styles.dismissHint}>下滑返回</Text>
     </View>
+    </GestureDetector>
   );
 }
 

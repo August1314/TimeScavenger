@@ -28,7 +28,9 @@ async function geocode(lat: number, lon: number): Promise<PlaceParts | null> {
       cache.set(key, null);
       return null;
     }
-    const region = [p.region, p.city, p.district].filter(Boolean).join('') || null;
+    // 去重相邻同名段：特别行政区等地名 region 与 city 相同（澳门真机实证重复）
+    const segs = [p.region, p.city, p.district].filter(Boolean) as string[];
+    const region = segs.filter((s, i) => s !== segs[i - 1]).join('') || null;
     const street = p.name ?? p.street ?? null;
     const v = region || street ? { street, region } : null;
     cache.set(key, v);
