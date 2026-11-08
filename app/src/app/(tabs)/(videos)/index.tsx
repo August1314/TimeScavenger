@@ -78,8 +78,11 @@ export default function VideosHome() {
     loadingMoreRef.current = true;
     try {
       const g = await nextGroup('video');
-      if (g.items.length > 0) {
-        rowsRef.current = [...rowsRef.current, ...g.items];
+      // 小库时 nextGroup 可能返回已在列表中的行（尚未全部记已读），去重防重复 key
+      const seenIds = new Set(rowsRef.current.map((r) => r.localIdentifier));
+      const fresh = g.items.filter((r) => !seenIds.has(r.localIdentifier));
+      if (fresh.length > 0) {
+        rowsRef.current = [...rowsRef.current, ...fresh];
         setRows(rowsRef.current);
       }
     } finally {
@@ -279,7 +282,8 @@ export default function VideosHome() {
             onPress={() => {
               const uri = cur?.localIdentifier ?? '';
               if (uri && Platform.OS === 'ios') void Share.share({ url: uri }).catch(() => {});
-              else void Share.share({ message: uri }).catch(() => {});
+              // Android localIdentifier 即 content:// URI，可直接分享
+              else if (uri) void Share.share({ url: uri }).catch(() => void Share.share({ message: uri }));
             }}
           />
           <RoundIcon icon="trash-outline" onPress={() => void del()} />

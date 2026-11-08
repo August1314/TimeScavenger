@@ -61,9 +61,13 @@ export default function DayPreviewScreen() {
 
   const doShare = async () => {
     try {
-      const uri = await new Asset(id ?? '').getUri();
-      if (Platform.OS === 'ios' && uri) await Share.share({ url: uri });
-      else await Share.share({ message: uri ?? '' });
+      if (Platform.OS === 'ios') {
+        const uri = await new Asset(id ?? '').getUri();
+        if (uri) await Share.share({ url: uri });
+      } else if (id) {
+        // Android localIdentifier 即 content:// URI，可直接分享
+        await Share.share({ url: id });
+      }
     } catch {
       // 用户取消
     }
