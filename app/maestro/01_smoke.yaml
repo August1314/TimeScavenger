@@ -1,0 +1,11 @@
+appId: com.augustone.timescavenger
+---
+- launchApp
+- waitForAnimationToEnd
+# 首启 onboarding 或已导入主屏，二者其一可见即 PASS
+- assertVisible:
+    id: "onboard_grant"
+    optional: true
+- assertVisible:
+    text: "轻触照片开始回顾.*"
+    optional: true

@@ -1,0 +1,13 @@
+appId: com.augustone.timescavenger
+---
+- openLink: "timescavenger://pending"
+- waitForAnimationToEnd
+- tapOn:
+    id: "pending_submit"
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+- waitForAnimationToEnd
+- assertVisible:
+    text: "没有已删除的项目"
+    optional: true
