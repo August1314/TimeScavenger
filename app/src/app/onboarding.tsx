@@ -49,7 +49,7 @@ export default function OnboardingScreen() {
               为了进行照片回顾与清理，需要相册访问权限{'\n'}才能在本机呈现和处理你的照片。
             </Text>
             <Text style={styles.privacy}>我们不会上传你的数据，也不会用作任何其它用途。</Text>
-            <BigBtn label="继续" onPress={() => void ask()} />
+            <BigBtn testID="onboard_grant" label="继续" onPress={() => void ask()} />
             <SmallBtn label="前往系统设置" onPress={() => { dispatch({ type: 'openSettings' }); void Linking.openURL('app-settings://'); }} />
           </>
         )}
@@ -57,7 +57,7 @@ export default function OnboardingScreen() {
         {(st.phase === 'unknown' || st.phase === 'ask') && (
           <>
             <Text style={styles.body}>像刷短视频一样{'\n'}刷自己的照片</Text>
-            <BigBtn label={st.phase === 'unknown' ? '开始' : '开始回顾'} onPress={() => void ask()} />
+            <BigBtn testID="onboard_import" label={st.phase === 'unknown' ? '开始' : '开始回顾'} onPress={() => void ask()} />
           </>
         )}
 
@@ -74,9 +74,9 @@ export default function OnboardingScreen() {
   );
 }
 
-function BigBtn({ label, onPress }: { label: string; onPress: () => void }) {
+function BigBtn({ label, onPress, testID }: { label: string; onPress: () => void; testID?: string }) {
   return (
-    <TouchableOpacity style={styles.bigBtn} onPress={onPress}>
+    <TouchableOpacity testID={testID} style={styles.bigBtn} onPress={onPress}>
       <Text style={styles.bigBtnText}>{label}</Text>
     </TouchableOpacity>
   );

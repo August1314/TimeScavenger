@@ -3,6 +3,9 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ColorValue } from 'react-native';
 import { C } from '../../theme/colors';
 
+// expo-router 类型未暴露 bottom-tabs v7 的 tabBarButtonProps，运行时支持
+const withTestId = (testID: string) => ({ tabBarButtonProps: { testID } } as Record<string, unknown>);
+
 const icon = (name: (f: boolean) => keyof typeof Ionicons.glyphMap) =>
   ({ color, focused }: { color: ColorValue | null; focused: boolean }) => (
     <Ionicons name={name(focused)} size={22} color={(color as string) ?? C.textDim} />
@@ -34,6 +37,7 @@ export default function TabsLayout() {
         name="(photos)"
         options={{
           title: '照片',
+          ...withTestId('tab_photos'),
           tabBarIcon: icon((f) => (f ? 'albums' : 'albums-outline')),
         }}
       />
@@ -41,6 +45,7 @@ export default function TabsLayout() {
         name="(videos)"
         options={{
           title: '视频',
+          ...withTestId('tab_videos'),
           tabBarIcon: icon((f) => (f ? 'play' : 'play-outline')),
         }}
       />
@@ -48,6 +53,7 @@ export default function TabsLayout() {
         name="(stats)"
         options={{
           title: '统计',
+          ...withTestId('tab_stats'),
           tabBarIcon: icon(() => 'person'),
         }}
       />

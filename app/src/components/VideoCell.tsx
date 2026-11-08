@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Platform, Text, View, StyleSheet } from 'react-native';
 import { Asset } from 'expo-media-library';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { C } from '../theme/colors';
@@ -28,7 +28,7 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
   { row, active, onError },
   ref,
 ) {
-  const player = useVideoPlayer('', (p) => {
+  const player = useVideoPlayer(Platform.OS === 'ios' ? '' : row.localIdentifier, (p) => {
     p.loop = true;
   });
   const [cloud, setCloud] = useState<boolean | null>(null);
@@ -46,6 +46,14 @@ export const VideoCell = forwardRef<VideoCellHandle, Props>(function VideoCell(
     setCloud(null);
     (async () => {
       try {
+        // Android：构造即真实 content:// 源（replaceAsync 在 Android 会把 URI 变空，实证不可用）；
+        // 无 iCloud 概念，直接就绪
+        if (Platform.OS === 'android') {
+          loadedRef.current = true;
+          setCloud(false);
+          setLoaded(true);
+          return;
+        }
         // 新 API Asset() 必须传带 ph:// 前缀的完整 id：原生构造是无条件 dropFirst(5)，
         // 传剥掉前缀的原始 id 会被砍头成错误 localIdentifier 导致查不到资产
         const isInCloud = await new Asset(row.localIdentifier).getIsInCloud();

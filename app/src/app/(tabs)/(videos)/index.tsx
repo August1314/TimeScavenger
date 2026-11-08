@@ -78,8 +78,11 @@ export default function VideosHome() {
     loadingMoreRef.current = true;
     try {
       const g = await nextGroup('video');
-      if (g.items.length > 0) {
-        rowsRef.current = [...rowsRef.current, ...g.items];
+      // 小库时 nextGroup 可能返回已在列表中的行（尚未全部记已读），去重防重复 key
+      const seenIds = new Set(rowsRef.current.map((r) => r.localIdentifier));
+      const fresh = g.items.filter((r) => !seenIds.has(r.localIdentifier));
+      if (fresh.length > 0) {
+        rowsRef.current = [...rowsRef.current, ...fresh];
         setRows(rowsRef.current);
       }
     } finally {
@@ -237,6 +240,7 @@ export default function VideosHome() {
             整屏分页用 pagingEnabled（此时与 snapToInterval 等价且更稳） */}
         <FlatList
           ref={listRef}
+          testID="feed_scroll"
           style={{ height: feedH }}
           data={rows}
           keyExtractor={(r) => r.localIdentifier}
@@ -273,17 +277,18 @@ export default function VideosHome() {
 
         {/* 右侧竖排圆钮：♡ / ↑ / 🗑 /  */}
         <View style={styles.rightBar}>
-          <RoundIcon icon={cur?.favorite ? 'heart' : 'heart-outline'} onPress={() => void toggleFav()} />
+          <RoundIcon testID="video_like" icon={cur?.favorite ? 'heart' : 'heart-outline'} onPress={() => void toggleFav()} />
           <RoundIcon
             icon="share-outline"
             onPress={() => {
               const uri = cur?.localIdentifier ?? '';
               if (uri && Platform.OS === 'ios') void Share.share({ url: uri }).catch(() => {});
-              else void Share.share({ message: uri }).catch(() => {});
+              // Android localIdentifier 即 content:// URI，可直接分享
+              else if (uri) void Share.share({ url: uri }).catch(() => void Share.share({ message: uri }));
             }}
           />
-          <RoundIcon icon="trash-outline" onPress={() => void del()} />
-          <RoundIcon icon="arrow-undo-outline" dim={!lastDeleted} onPress={() => void undo()} />
+          <RoundIcon testID="video_delete" icon="trash-outline" onPress={() => void del()} />
+          <RoundIcon testID="video_undo" icon="arrow-undo-outline" dim={!lastDeleted} onPress={() => void undo()} />
         </View>
 
         {/* 左下：时间 + 位置 / toast */}
@@ -305,9 +310,9 @@ export default function VideosHome() {
   );
 }
 
-function RoundIcon({ icon, dim, onPress }: { icon: keyof typeof Ionicons.glyphMap; dim?: boolean; onPress: () => void }) {
+function RoundIcon({ icon, dim, onPress, testID }: { icon: keyof typeof Ionicons.glyphMap; dim?: boolean; onPress: () => void; testID?: string }) {
   return (
-    <TouchableOpacity style={[styles.roundBtn, dim && styles.roundBtnDim]} onPress={onPress}>
+    <TouchableOpacity testID={testID} style={[styles.roundBtn, dim && styles.roundBtnDim]} onPress={onPress}>
       <Ionicons name={icon} size={24} color="#fff" />
     </TouchableOpacity>
   );

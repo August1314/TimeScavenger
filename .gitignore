@@ -9,3 +9,4 @@ analysis/extracted/
 app/ios/
 app/android/
 screens/*_s.png
+screens/android-*.png

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, useWindowDimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, ToastAndroid, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
@@ -139,16 +139,27 @@ export default function PhotoInfoScreen() {
         {loc ? (
           <>
             <View style={styles.mapWrap}>
-              <MapView
-                style={styles.map}
-                initialRegion={{ latitude: loc.latitude, longitude: loc.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
-              >
-                <Marker coordinate={{ latitude: loc.latitude, longitude: loc.longitude }} anchor={{ x: 0.5, y: 1 }}>
-                  <View style={styles.pin}>
-                    <View style={styles.pinInner} />
-                  </View>
-                </Marker>
-              </MapView>
+              {Platform.OS === 'ios' ? (
+                <MapView
+                  style={styles.map}
+                  initialRegion={{ latitude: loc.latitude, longitude: loc.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
+                >
+                  <Marker coordinate={{ latitude: loc.latitude, longitude: loc.longitude }} anchor={{ x: 0.5, y: 1 }}>
+                    <View style={styles.pin}>
+                      <View style={styles.pinInner} />
+                    </View>
+                  </Marker>
+                </MapView>
+              ) : (
+                // Android 无 Google 服务/地图密钥：坐标 + geo: intent 调起系统地图
+                <TouchableOpacity
+                  style={styles.mapFallback}
+                  onPress={() => void Linking.openURL(`geo:${loc.latitude},${loc.longitude}`).catch(() => {})}
+                >
+                  <Text style={styles.coordsText}>{loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}</Text>
+                  <Text style={styles.coordsOpen}>在地图中打开</Text>
+                </TouchableOpacity>
+              )}
               {/* 地点名直接叠在地图中央（白字带阴影） */}
               {!!parts?.street && (
                 <Text style={styles.mapLabel}>{parts.street}</Text>
@@ -173,6 +184,7 @@ export default function PhotoInfoScreen() {
           style={styles.roundBtn}
           onPress={() => {
             if (Platform.OS === 'ios') void Linking.openURL('photos-redirect://');
+            else ToastAndroid.show('Android 暂不支持跳转相册', ToastAndroid.SHORT);
           }}
         >
           <Ionicons name="images-outline" size={22} color="#fff" />
@@ -212,6 +224,11 @@ const styles = StyleSheet.create({
 
   mapWrap: { height: 165, borderRadius: 16, overflow: 'hidden', marginBottom: 12 },
   map: { flex: 1 },
+  mapFallback: {
+    flex: 1, backgroundColor: '#1a1a22', alignItems: 'center', justifyContent: 'center', gap: 6,
+  },
+  coordsText: { color: C.text, fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  coordsOpen: { color: C.accent, fontSize: 13 },
   pin: {
     width: 34, height: 34, borderRadius: 17, backgroundColor: '#34C759',
     borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',

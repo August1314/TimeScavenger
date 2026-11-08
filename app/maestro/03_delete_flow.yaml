@@ -1,0 +1,24 @@
+appId: com.augustone.timescavenger
+---
+# 闭环：feed 删一格 → pending 确认 → 系统弹窗 → 队列空态
+# 前置：视频 feed 至少一格未删（跑前 reset DB，见 ralph 脚本注释）
+- tapOn: "视频"
+- waitForAnimationToEnd
+- tapOn:
+    id: "video_delete"
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+- openLink: "timescavenger://pending"
+- waitForAnimationToEnd
+- tapOn:
+    id: "pending_submit"
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+- waitForAnimationToEnd
+# 删除成功后 pending 自动返回 feed；重开 pending 强断言队列已清
+- openLink: "timescavenger://pending"
+- waitForAnimationToEnd
+# 硬断言：删除确认后队列空态可见（漂移/失败时此步 FAIL 即回归信号）
+- assertVisible: "没有已删除的项目"

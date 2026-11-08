@@ -50,7 +50,8 @@ export default function PendingScreen() {
     try {
       const res = await commitPending(ids, nativeDeps());
       if (res.failed.length > 0) {
-        setToast('请稍后重试。待删除内容已保留。');
+        const cancelled = res.failed.every((f) => f.error === '已取消删除。');
+        setToast(cancelled ? '已取消删除。待删除内容已保留。' : '请稍后重试。待删除内容已保留。');
       }
       await reload();
       const left = await pendingQueue.list();
@@ -102,6 +103,7 @@ export default function PendingScreen() {
           <Text style={styles.discardText}>{from === 'done' ? '放弃，返回' : '放弃，回到首页'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          testID="pending_submit"
           style={[styles.deleteBtn, (busy || sel.length === 0) && styles.disabled]}
           onPress={confirmDelete}
         >

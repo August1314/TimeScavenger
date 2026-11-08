@@ -159,11 +159,11 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
   );
 }
 
-export function CardStack({ cards, index, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: Props) {
+export function CardStack({ cards, index, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd, testID }: Props & { testID?: string }) {
   const top = cards[index];
   // 浏览页为单张全出血卡（无后层卡边）
   return (
-    <View style={styles.stack} pointerEvents="box-none">
+    <View style={styles.stack} pointerEvents="box-none" testID={testID}>
       {top && (
         <TopCard card={top} badge={badge} live={live} liveSource={liveSource} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} onLiveEnd={onLiveEnd} />
       )}

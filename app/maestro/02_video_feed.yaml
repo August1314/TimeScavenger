@@ -1,0 +1,29 @@
+appId: com.augustone.timescavenger
+---
+- launchApp
+- tapOn: "视频"
+- waitForAnimationToEnd
+- swipe:
+    direction: UP
+- waitForAnimationToEnd
+- swipe:
+    direction: UP
+- waitForAnimationToEnd
+- tapOn:
+    id: "video_like"
+# Android 收藏/删除均触发 MediaStore 系统弹窗（modify / delete），逐个 Allow
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+- tapOn:
+    id: "video_delete"
+# MediaStore 系统确认弹窗（AOSP 文案；ColorOS 需真机校准，optional 防漂移硬失败）
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+# 弹窗若因文案漂移仍在，dismiss 后再撤销，避免 undo 被遮挡硬失败
+- tapOn:
+    text: ".*Allow.*"
+    optional: true
+- tapOn:
+    id: "video_undo"
