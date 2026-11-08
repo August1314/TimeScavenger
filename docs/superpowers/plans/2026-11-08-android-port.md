@@ -208,3 +208,40 @@ describe('classifyDeleteError', () => {
 - [ ] **Step 2:** 问题回对应 Task 修复迭代；全过后写台账 `.superpowers/sdd/2026-11-08-android-port/progress.md`：Android metadata spike 结论、classify 降级裁决、nativeControls 观感、AOSP 删除弹窗文案、提交链。
 - [ ] **Step 3: 真机抽查（需用户 USB 接入一加 15T，可延后）**：`ADB_SERIAL=<序列号> ./scripts/ralph-android.sh` 跑 02/03 flow，重点核对 ColorOS 删除弹窗文案与 `classifyDeleteError` 匹配、expo-video 系统播放器观感、真实相册导入性能；结论补录台账。
 - [ ] **Step 4: Commit**（仅代码修复需提交；台账 gitignore）
+# SDD ledger — plan: docs/superpowers/plans/2026-11-08-android-port.md
+Task 0 start: BASE=d8f3697
+Task 0: Ruling: openjdk@17 formula 替代 temurin@17 cask — cask 需交互 sudo，formula 免密等效 — 代价：无（JAVA_HOME 已写 .zshrc）
+Task 0: Ruling: 复用镜像新建 shiguang34 AVD，设备 pixel_6（pixel_8 profile 本机 SDK 无；oneshot AVD 数据分区为 temp 不可复用）— 代价：无
+Task 0: finding: Android MediaStore id 为长数字串(1000000019)，MEDIA_SCANNER_SCAN_FILE 广播在 API34 模拟器仍有效
+Task 0: complete (commits d8f3697..d8f3697, tests: bash -c 'cd app && npx jest --silent 2>&1 | tail -3' → Time:        0.755 s, estimated 1 s)
+Task 1: Ruling: expo install --fix 对齐 expo~58.0.23/modules-core58.0.30 — expo-sqlite58.0.15 原生 Kotlin 需 SharedObjectRegistry.register 新签名（NoSuchMethodError 实证）— 代价：iOS 需回归验证 Expo Go 兼容
+Task 1: complete (commits d8f3697..27b0efd, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.726 s, estimated 1 s)
+Task 2: Ruling: Android localIdentifier 已是完整 content:// URI（DB 实证 1000000019-23），toDisplayUri 的 content:// 直通分支即主路径；数字id拼接为防御性保留 — 代价：无
+Task 2: finding: expo-image Android 直接渲染 content:// 成功（照片卡片栈截图实证）；spike Query().eq(MEDIA_TYPE).exeForMetadata() 在 Android 挂起(busy卡死)，Task 3 对 VideoCell 的 Asset() 构造需真机验证
+Task 2: finding: Metro 必须经工具后台常驻(进程组随shell退出会被杀)；应用冷启须用 __expo_url=http://172.26.122.140:8081 深链，plain am start 会回落 assets 红屏；adb reverse 会被模拟器重启清掉
+Task 2: complete (commits 3b4f024..efc6864, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.717 s, estimated 1 s)
+Task 3: Ruling: Image 消费点不包 toDisplayUri — Android DB 已存 content:// 完整 URI，真机渲染实证；包装=恒等，徒增 6 文件 churn — 代价：若未来 scan 改存裸 id 需回补
+Task 3: Ruling: expo-video Android replaceAsync 实证失效(URI 序列化为空,ExoPlayer FileDataSource ENOENT)；改为构造即传 content:// 源+iOS 路径逐字不变 — 代价:FlatList 回收换 row 时 hook 内部仍走 replaceAsync 会坏,须 key 稳定(现有 keyExtractor 已保证);若 expo-video 修复可回退
+Task 3: Ruling: 续组 append 按 localIdentifier 去重 — 小库 nextGroup 返回已在列表行导致重复 key 警告(iOS 大库被掩盖的既有缺陷) — 代价:无
+Task 3: finding: Android 分享走 Share.share({url: content://});LivePhotoView 经 liveSource=null 路径在 Android 天然不渲染(照片卡实证),无需惰性导入
+Task 3: complete (commits efc6864..d8a0ea1, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.666 s, estimated 1 s)
+Task 4: Ruling: Android GPS 读取需 ACCESS_MEDIA_LOCATION(manifest+运行时请求,MediaProvider 对无权 app 剥 EXIF GPS)+getAssetLocation 直读文件流;MediaStore lat/long 列由 scanner 决定,与 app 路径无关 — 代价:真机首用有一次权限弹窗
+Task 4: finding: 测试媒体 GPS 须用 exiftool 写(piexif 的 GPS IFD 不被 Android ExifInterface 解析,实证列 NULL+latLong null);模拟器无地图 app,geo: intent 留真机验证
+Task 4: complete (commits d8a0ea1..32ed3ed, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.723 s, estimated 1 s)
+Task 5: Ruling: classifyDeleteError 加 rejected/didn't grant — 实证 JS 只见 modules-core 泛化消息 'Call to function Asset.delete has been rejected.'(原生 PermissionsException cause 被吞);取消/失败行为相同(队列均保留)仅文案差,误判无数据代价 — 代价:真 IO 失败也显示已取消文案
+Task 5: Ruling: pending.tsx 区分 cancelled toast(已取消删除。待删除内容已保留。) — 计划 Task5 明确要求,iOS 取消场景文案由'请稍后重试'改为准消案 — 代价:iOS 一行文案变化
+Task 5: finding: AOSP 删除弹窗文案 'Allow 拾光 to delete this photo?'+Deny/Allow;Allow 后 MediaStore 行消失+队列清+自动返回;Deny 命中 cancelled
+Task 5: complete (commits 32ed3ed..31b0713, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.946 s, estimated 1 s)
+Task 6: complete (commits 31b0713..646f5af, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.698 s, estimated 1 s)
+Task 7: Ruling: flow 用 text 选 tab(tabBarButtonProps 运行时未生效,resource-id 空)+Allow optional 弹窗步(收藏触发 modify 弹窗为 Android 实证新路径);takeScreenshot 移出 flow(相对路径不支持,脚本 screencap 兜底) — 代价:文案漂移需真机校准
+Task 7: complete (commits 646f5af..181283c, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.691 s, estimated 1 s)
+Task 8: 模拟器全屏回归 PASS: onboarding/照片tab/review卡(实况降静态)/视频feed(播放+滑动+♡+🗑+↩+空态)/统计/设置/pending(取消+真删双路径)/day-preview/back-to-day/photo-info(坐标降级+GPS实证)。真机抽查挂起项:ColorOS 弹窗文案、nativeControls 观感、geo: 调起地图、大相册导入性能、ACCESS_MEDIA_LOCATION 弹窗。
+Final: fixed Important1 classifyDeleteError iOS 误判 — 'does not treat generic rejection as cancel on iOS' RED→GREEN, suite 88/88
+Final: fixed Important2 删除 mediaUri.ts 死代码+测试（Task3 裁决未接线，防御不存在）
+Final: fixed Important3 ralph 失败也截图+pm path 安装前置检查 — 实证 fail.png 生成
+Final: fixed Important4 smoke 加非optional tab 栏断言;03 重写为自足闭环+重开 pending 强断言空态 — 三 flow 全 PASS 实证
+Final: fixed Important5 02 undo 前双 optional Allow 防遮挡
+Final: fixed minor .gitignore 去重+screens/android-*.png 忽略
+Final: Ruling: 03 断言落点=重开 pending 空态 — pending 删除成功自动 router.back 是既定设计 — 代价:无
+Final: minor (deferred): pending.tsx '已取消删除。' 魔法字符串跨文件耦合;ralph sleep 12 定值;01_smoke 首启无 tab 栏会 FAIL(测试数据已 onboarded 的已知限制);expo 58.0.23 对齐后 iOS Expo Go 冒烟挂起
+Task 8: complete (commits 181283c..feb89ae, tests: bash -c 'cd app && npx tsc --noEmit && npx jest --silent 2>&1 | tail -2' → Time:        0.672 s, estimated 1 s)
