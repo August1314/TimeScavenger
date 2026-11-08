@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity, Share, Platform, FlatList,
   useWindowDimensions,
@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
+import { useFocusEffect } from 'expo-router';
 import { C } from '../../../theme/colors';
 import { VideoCell, type VideoCellHandle } from '../../../components/VideoCell';
 import { nextGroup, markSeen } from '../../../lib/session';
@@ -18,6 +19,14 @@ import { hapticWarn, hapticSuccess, hapticSelect } from '../../../lib/haptics';
 import type { MediaRow } from '../../../db/repo';
 
 export default function VideosHome() {
+  // tab 屏切走不卸载（expo-router 保活）：失焦即全格 pause，杜绝"离开页面声音还在播"
+  const [focused, setFocused] = useState(true);
+  useFocusEffect(
+    useCallback(() => {
+      setFocused(true);
+      return () => setFocused(false);
+    }, []),
+  );
   const { width: vw, height: vh } = useWindowDimensions();
   // 画面不与底部悬浮 tab 胶囊重叠：feed 区 = 视口高 − 胶囊区（12+62+8 余量），抖音式收边
   const feedH = vh - 82;
@@ -195,6 +204,8 @@ export default function VideosHome() {
       setRows(rowsRef.current);
       next ? hapticSuccess() : hapticWarn();
       showToast(next ? '已收藏' : '已取消收藏');
+    } else if (res.cancelled) {
+      showToast('已取消收藏');
     }
   };
 
@@ -248,7 +259,7 @@ export default function VideosHome() {
             <View style={{ width: vw, height: feedH }}>
               <VideoCell
                 row={item}
-                active={index === current}
+                active={focused && index === current}
                 onError={(m) => showToast(`播放失败：${m}`)}
                 ref={(h) => {
                   cellRefs.current[index] = h;
@@ -260,7 +271,12 @@ export default function VideosHome() {
           pagingEnabled
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
-          windowSize={3}
+          // Android 大相册实证：FlatList 默认 initialNumToRender=10 会一次挂 10 个
+          // 预装载的 ExoPlayer，MediaCodec 并发解码秒爆 512MB 堆（OOM + native SIGABRT）。
+          // Android 首屏只渲 1 格、小批续渲；iOS 维持预加载体验
+          initialNumToRender={Platform.OS === 'android' ? 1 : undefined}
+          maxToRenderPerBatch={Platform.OS === 'android' ? 2 : undefined}
+          windowSize={Platform.OS === 'android' ? 1 : 3}
           getItemLayout={(_, index) => ({ length: feedH, offset: feedH * index, index })}
           onScroll={onScrollSample}
           scrollEventThrottle={16}

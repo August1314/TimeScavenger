@@ -115,6 +115,8 @@ export default function ReviewScreen() {
           hapticSuccess();
           setHintVisible(false);
           showToast(next ? '已收藏 · 可在系统相册"个人收藏"查看' : '已取消收藏');
+        } else if (res.cancelled) {
+          showToast('已取消收藏');
         } else {
           showToast(res.limited ? '相册为受限访问，无法修改收藏，请到系统设置开启完全访问' : '收藏失败，请重试');
         }
@@ -273,6 +275,8 @@ export default function ReviewScreen() {
                 setRows((rs) => rs.map((x) => (x.localIdentifier === id ? { ...x, favorite: next } : x)));
                 hapticSelect();
                 showToast(next ? '已收藏 · 可在系统相册"个人收藏"查看' : '已取消收藏');
+              } else if (res.cancelled) {
+                showToast('已取消收藏');
               } else {
                 showToast(res.limited ? '相册为受限访问，无法修改收藏，请到系统设置开启完全访问' : '收藏失败，请重试');
               }
