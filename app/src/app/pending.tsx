@@ -50,7 +50,8 @@ export default function PendingScreen() {
     try {
       const res = await commitPending(ids, nativeDeps());
       if (res.failed.length > 0) {
-        setToast('请稍后重试。待删除内容已保留。');
+        const cancelled = res.failed.every((f) => f.error === '已取消删除。');
+        setToast(cancelled ? '已取消删除。待删除内容已保留。' : '请稍后重试。待删除内容已保留。');
       }
       await reload();
       const left = await pendingQueue.list();

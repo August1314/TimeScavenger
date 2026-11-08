@@ -101,6 +101,13 @@ export async function commitPending(
   return { deleted, failed: outcome.failed };
 }
 
+/** 删除失败信息归类：用户取消（iOS canceled / Android MediaStore 拒绝）vs 真失败。
+ * Android 原生 cause（"User didn't grant write permission…"）被 modules-core 吞掉，
+ * JS 只见 "Call to function 'Asset.delete' has been rejected."，故 rejected 归 cancelled */
+export function classifyDeleteError(msg: string): 'cancelled' | 'failed' {
+  return /cancel|did not grant|didn't grant|denied|rejected/i.test(msg) ? 'cancelled' : 'failed';
+}
+
 /** 生产依赖：expo-media-library Asset.delete + File(uri).size（真机已验证 ph:// 可读） */
 export function nativeDeps(): DeletionDeps {
   return {
@@ -111,7 +118,7 @@ export function nativeDeps(): DeletionDeps {
         return { succeeded: ids, failed: [] };
       } catch (e: any) {
         const msg = String(e?.message ?? e);
-        if (/cancel/i.test(msg)) return { succeeded: [], failed: ids.map((id) => ({ id, error: '已取消删除。' })) };
+        if (classifyDeleteError(msg) === 'cancelled') return { succeeded: [], failed: ids.map((id) => ({ id, error: '已取消删除。' })) };
         return { succeeded: [], failed: ids.map((id) => ({ id, error: msg })) };
       }
     },

@@ -7,7 +7,7 @@ import {
   type MediaRow,
 } from '../../db/repo';
 import { fakeDb } from '../../testlib/fakeDb';
-import { PendingQueue, commitPending, type DeletionDeps } from '../deletion';
+import { PendingQueue, commitPending, classifyDeleteError, type DeletionDeps } from '../deletion';
 
 function row(id: string, mediaType: MediaRow['mediaType'] = 'photo'): MediaRow {
   return {
@@ -95,5 +95,20 @@ describe('commitPending', () => {
     const res = await commitPending(['A'], deps, queue);
     expect(res.deleted).toEqual(['A']);
     expect((await queue.list()).map((r) => r.localIdentifier)).toEqual(['B']);
+  });
+});
+
+describe('classifyDeleteError', () => {
+  it('classifies iOS cancel', () => {
+    expect(classifyDeleteError('PHAsset deletion was canceled')).toBe('cancelled');
+  });
+  it('classifies Android MediaStore denial', () => {
+    expect(classifyDeleteError('User did not grant permission for the delete request')).toBe('cancelled');
+  });
+  it('classifies Android wrapped rejection (device-verified message)', () => {
+    expect(classifyDeleteError("Call to function 'Asset.delete' has been rejected.")).toBe('cancelled');
+  });
+  it('keeps unknown errors as failed', () => {
+    expect(classifyDeleteError('EACCES')).toBe('failed');
   });
 });
