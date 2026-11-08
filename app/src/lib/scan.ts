@@ -27,6 +27,18 @@ export function normalizeCreationTime(v: number | null): number {
   return n > 0 && n < 1e11 ? n * 1000 : n;
 }
 
+/**
+ * 拍摄时间回退链（OPPO ColorOS 真机实证）：Android 的 creationTime 映射
+ * MediaStore DATE_TAKEN（EXIF 拍摄时间），微信 mmexport/部分迁移照片该列为 NULL，
+ * 直接落 0 会显示"56 年前"（1970 纪元）。无 EXIF 时退 DATE_MODIFIED（文件修改时间，
+ * 迁移工具普遍保留原始 mtime≈拍摄/导出时刻）。
+ */
+export function resolveCreationTime(taken: number | null, modified: number | null): number {
+  const t = normalizeCreationTime(taken);
+  if (t > 0) return t;
+  return normalizeCreationTime(modified);
+}
+
 function toLite(m: AssetMetadata): AssetMetaLite {
   return {
     id: m.id,
@@ -89,7 +101,7 @@ export async function startImport(onProgress: (done: number, total: number) => v
         mediaType,
         width: m.width ?? 0,
         height: m.height ?? 0,
-        creationDate: normalizeCreationTime(m.creationTime),
+        creationDate: resolveCreationTime(m.creationTime, m.modificationTime),
         favorite: m.isFavorite,
         lastReviewedDate: null,
         lastLocallyReviewedDate: null,
