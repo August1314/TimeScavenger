@@ -150,7 +150,9 @@ export default function VideosHome() {
     const v = Date.now() - scrollSample.current.t < 90 ? scrollSample.current.v : 0;
     releaseRef.current = { v, d };
     cancelSettleTimer();
-    if (Math.abs(d) <= 2) return; // 恰在边界：交给惯性/原生分页结算
+    if (Math.abs(d) <= 2) return; // 恰在边界：交给惯性结算
+    // Android 已关原生 pagingEnabled（SnapHelper 与 JS 回正互抢导致半格卡死），
+    // 两平台统一走 dragPage 判定 + 动画吸附
     settleTimer.current = setTimeout(() => {
       settleTimer.current = null;
       const target = dragPage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
@@ -167,9 +169,6 @@ export default function VideosHome() {
     cancelSettleTimer();
     const y = e.nativeEvent.contentOffset.y;
     const target = settlePage(currentRef.current, y, feedH, rowsRef.current.length, consumeRelease());
-    // 一律动画滚动：此前同页回正用 animated:false 瞬时跳，而轻点/滑动的
-    // momentumEnd 常带几 px 误差 → 正是真机"画面上下跳一下"的根源。
-    // inset 错位已由 contentInsetAdjustmentBehavior=never 根治，瞬时回正不再需要。
     if (Math.abs(y - target * feedH) > 2) {
       listRef.current?.scrollToOffset({ offset: target * feedH, animated: true });
     }
@@ -269,7 +268,10 @@ export default function VideosHome() {
             </View>
           )}
           contentInsetAdjustmentBehavior="never"
-          pagingEnabled
+          // Android 实证：pagingEnabled 的 SnapHelper 与 JS 结算回正互相触发，
+          // 动量事件风暴+反复半格吸附=停在"不上不下"。关闭原生分页，
+          // 吸附全由 settlePage/dragPage（TDD 纯函数）+ scrollToOffset 负责
+          pagingEnabled={Platform.OS !== 'android'}
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
           // FlatList 参数保持原状（实证改 initialNumToRender/windowSize 会触发
