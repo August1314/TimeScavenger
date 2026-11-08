@@ -1,4 +1,5 @@
 import { Asset, getPermissionsAsync } from 'expo-media-library';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 export async function setFavorite(id: string, fav: boolean): Promise<void> {
   await new Asset(id).setFavorite(fav);
@@ -30,6 +31,10 @@ export interface AssetLocation {
 
 export async function getAssetLocation(id: string): Promise<AssetLocation | null> {
   try {
+    if (Platform.OS === 'android') {
+      // 无此权限时 MediaProvider 会剥掉 EXIF GPS（Android 10+），getLocation 恒 null
+      await PermissionsAndroid.request('android.permission.ACCESS_MEDIA_LOCATION');
+    }
     return await new Asset(id).getLocation();
   } catch {
     return null;
