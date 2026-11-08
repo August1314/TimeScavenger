@@ -14,6 +14,18 @@
         "NSPhotoLibraryUsageDescription": "随机回顾与整理需要访问你的照片库；所有处理仅在本机完成，不会上传任何照片。"
       }
     },
+    "android": {
+      "package": "com.augustone.timescavenger",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0a0a0f"
+      },
+      "permissions": [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO"
+      ]
+    },
     "plugins": [
       "expo-image",
       "expo-video",
