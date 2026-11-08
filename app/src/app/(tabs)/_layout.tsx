@@ -34,6 +34,7 @@ export default function TabsLayout() {
         name="(photos)"
         options={{
           title: '照片',
+          tabBarButtonProps: { testID: 'tab_photos' },
           tabBarIcon: icon((f) => (f ? 'albums' : 'albums-outline')),
         }}
       />
@@ -41,6 +42,7 @@ export default function TabsLayout() {
         name="(videos)"
         options={{
           title: '视频',
+          tabBarButtonProps: { testID: 'tab_videos' },
           tabBarIcon: icon((f) => (f ? 'play' : 'play-outline')),
         }}
       />
@@ -48,6 +50,7 @@ export default function TabsLayout() {
         name="(stats)"
         options={{
           title: '统计',
+          tabBarButtonProps: { testID: 'tab_stats' },
           tabBarIcon: icon(() => 'person'),
         }}
       />

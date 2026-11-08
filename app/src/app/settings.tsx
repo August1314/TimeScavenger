@@ -103,7 +103,7 @@ export default function SettingsScreen() {
 
         {/* 数据 */}
         <View style={styles.group}>
-          <TouchableOpacity style={styles.row} onPress={() => setResetOpen(true)}>
+          <TouchableOpacity testID="settings_reset" style={styles.row} onPress={() => setResetOpen(true)}>
             <Text style={styles.rowTitle}>重置浏览记录</Text>
             <Text style={styles.rowValue}>›</Text>
           </TouchableOpacity>

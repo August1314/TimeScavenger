@@ -103,6 +103,7 @@ export default function PendingScreen() {
           <Text style={styles.discardText}>{from === 'done' ? '放弃，返回' : '放弃，回到首页'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          testID="pending_submit"
           style={[styles.deleteBtn, (busy || sel.length === 0) && styles.disabled]}
           onPress={confirmDelete}
         >

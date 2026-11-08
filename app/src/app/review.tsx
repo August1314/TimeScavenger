@@ -222,6 +222,7 @@ export default function ReviewScreen() {
           </View>
         ) : (
           <CardStack
+            testID="review_card"
             cards={deck.items}
             index={deck.index}
             live={currentRow?.mediaType === 'live'}
@@ -259,6 +260,7 @@ export default function ReviewScreen() {
       {/* 底栏：深色圆钮 + 时间胶囊 */}
       <View style={styles.bottomBar}>
         <RoundBtn
+          testID="review_like"
           icon={currentRow?.favorite ? 'heart' : 'heart-outline'}
           onPress={() => {
             const id = deck.items[deck.index]?.id;
@@ -300,9 +302,9 @@ export default function ReviewScreen() {
   );
 }
 
-function RoundBtn({ icon, light, onPress }: { icon: keyof typeof Ionicons.glyphMap; light?: boolean; onPress: () => void }) {
+function RoundBtn({ icon, light, onPress, testID }: { icon: keyof typeof Ionicons.glyphMap; light?: boolean; onPress: () => void; testID?: string }) {
   return (
-    <TouchableOpacity style={[styles.roundBtn, light && styles.roundBtnLight]} onPress={onPress}>
+    <TouchableOpacity testID={testID} style={[styles.roundBtn, light && styles.roundBtnLight]} onPress={onPress}>
       <Ionicons name={icon} size={24} color="#fff" />
     </TouchableOpacity>
   );
