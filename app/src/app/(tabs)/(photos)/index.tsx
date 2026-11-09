@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { GradientBackground } from '../../../theme/GradientBackground';
 import { C } from '../../../theme/colors';
-import { countUnreviewed, fetchUnreviewedRandom, setSetting, type Category, type MediaRow } from '../../../db/repo';
+import { ALL_BUCKET, countUnreviewed, fetchUnreviewedRandom, setSetting, type Category, type MediaRow } from '../../../db/repo';
 import { CategoryMenu, CATEGORY_LABELS } from '../../../components/CategoryMenu';
 import { GroupSizeSheet } from '../../../components/GroupSizeSheet';
 import { groupSizeLabel } from '../../../lib/session';
@@ -24,6 +24,8 @@ export default function PhotosHome() {
   const [pendingN, setPendingN] = useState(0);
   const [preview, setPreview] = useState<MediaRow[]>([]);
   const [category, setCategory] = useState<Category>('photo');
+  // Android 文件夹分类（Task 4 菜单接线）；iOS 恒 ALL_BUCKET = 旧行为
+  const [bucket, setBucket] = useState<string>(ALL_BUCKET);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
 
@@ -32,9 +34,9 @@ export default function PhotosHome() {
       let alive = true;
       (async () => {
         const [count, label, prev, pn] = await Promise.all([
-          countUnreviewed(category),
+          countUnreviewed(category, bucket),
           groupSizeLabel(category),
-          fetchUnreviewedRandom(category, 3),
+          fetchUnreviewedRandom(category, 3, bucket),
           pendingQueue.count(),
         ]);
         if (!alive) return;
@@ -50,7 +52,7 @@ export default function PhotosHome() {
       return () => {
         alive = false;
       };
-    }, [category]),
+    }, [category, bucket]),
   );
 
   const openBin = () => {
@@ -58,7 +60,7 @@ export default function PhotosHome() {
     router.push({ pathname: '/pending', params: { from: 'home' } });
   };
 
-  const start = () => router.push({ pathname: '/review', params: { category } });
+  const start = () => router.push({ pathname: '/review', params: { category, bucket } });
 
   const commitSize = async (num: number) => {
     await setSetting(category === 'video' ? 'videosPerGroup' : 'photosPerGroup', String(num));

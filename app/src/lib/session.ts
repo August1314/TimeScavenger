@@ -23,9 +23,9 @@ async function groupSize(category: Category): Promise<number> {
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_SIZE;
 }
 
-export async function nextGroup(category: Category): Promise<Group> {
+export async function nextGroup(category: Category, bucket?: string | null): Promise<Group> {
   const size = await groupSize(category);
-  const items = await fetchUnreviewedRandom(category, size);
+  const items = await fetchUnreviewedRandom(category, size, bucket);
   return { items, index: 0 };
 }
 
