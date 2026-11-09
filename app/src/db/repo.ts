@@ -15,7 +15,12 @@ export interface MediaRow {
   favorite: boolean;
   lastReviewedDate: number | null;
   lastLocallyReviewedDate: number | null;
+  /** Android MediaStore 文件夹名（bucket_display_name）；iOS 恒 null */
+  bucket?: string | null;
 }
+
+/** 分类菜单"全部"哨兵值：传它 = 不加 bucket 条件 */
+export const ALL_BUCKET = 'all';
 
 export interface DeletionInput {
   localIdentifier: string;
@@ -72,6 +77,10 @@ export async function initDb(): Promise<void> {
   if (!cols.some((c) => c.name === 'pendingDeletedAt')) {
     await d.execAsync('ALTER TABLE media ADD COLUMN pendingDeletedAt INTEGER');
   }
+  // 幂等迁移：老库补 bucket 列（Android 文件夹分类）
+  if (!cols.some((c) => c.name === 'bucket')) {
+    await d.execAsync('ALTER TABLE media ADD COLUMN bucket TEXT');
+  }
 }
 
 function placeholders(n: number): string {
@@ -92,16 +101,17 @@ export async function upsertMedia(items: MediaRow[]): Promise<void> {
   await d.withTransactionAsync(async () => {
     for (const m of items) {
       await d.runAsync(
-        `INSERT INTO media (localIdentifier, cloudIdentifier, mediaType, width, height, creationDate, favorite)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO media (localIdentifier, cloudIdentifier, mediaType, width, height, creationDate, favorite, bucket)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(localIdentifier) DO UPDATE SET
            cloudIdentifier = excluded.cloudIdentifier,
            mediaType = excluded.mediaType,
            width = excluded.width,
            height = excluded.height,
            creationDate = excluded.creationDate,
-           favorite = excluded.favorite`,
-        m.localIdentifier, m.cloudIdentifier, m.mediaType, m.width, m.height, m.creationDate, m.favorite ? 1 : 0,
+           favorite = excluded.favorite,
+           bucket = excluded.bucket`,
+        m.localIdentifier, m.cloudIdentifier, m.mediaType, m.width, m.height, m.creationDate, m.favorite ? 1 : 0, m.bucket ?? null,
       );
     }
   });
@@ -116,13 +126,20 @@ export async function markReviewed(ids: string[], at: Date): Promise<void> {
   );
 }
 
-export async function fetchUnreviewedRandom(category: Category, n: number): Promise<MediaRow[]> {
+/** bucket 非空且非 ALL_BUCKET 时拼文件夹条件（iOS/默认不传 = 旧行为） */
+function bucketClause(bucket?: string | null): { sql: string; param: string | null } {
+  if (bucket && bucket !== ALL_BUCKET) return { sql: ' AND bucket = ?', param: bucket };
+  return { sql: '', param: null };
+}
+
+export async function fetchUnreviewedRandom(category: Category, n: number, bucket?: string | null): Promise<MediaRow[]> {
   const d = await ensureDb();
   const types = category === 'photo' ? STILL_TYPES : [category];
+  const bc = bucketClause(bucket);
   const rows = await d.getAllAsync<RawMediaRow>(
-    `SELECT * FROM media WHERE lastReviewedDate IS NULL AND mediaType IN (${placeholders(types.length)})
+    `SELECT * FROM media WHERE lastReviewedDate IS NULL AND mediaType IN (${placeholders(types.length)})${bc.sql}
      ORDER BY RANDOM() LIMIT ?`,
-    ...types, n,
+    ...types, ...(bc.param !== null ? [bc.param] : []), n,
   );
   return rows.map(toMediaRow);
 }
@@ -143,14 +160,38 @@ export async function fetchByDayRange(startMs: number, endMs: number): Promise<M
   return rows.map(toMediaRow);
 }
 
-export async function countUnreviewed(category: Category): Promise<number> {
+export async function countUnreviewed(category: Category, bucket?: string | null): Promise<number> {
   const d = await ensureDb();
   const types = category === 'photo' ? STILL_TYPES : [category];
+  const bc = bucketClause(bucket);
   const rows = await d.getAllAsync<{ c: number }>(
-    `SELECT COUNT(*) AS c FROM media WHERE lastReviewedDate IS NULL AND mediaType IN (${placeholders(types.length)})`,
-    ...types,
+    `SELECT COUNT(*) AS c FROM media WHERE lastReviewedDate IS NULL AND mediaType IN (${placeholders(types.length)})${bc.sql}`,
+    ...types, ...(bc.param !== null ? [bc.param] : []),
   );
   return rows[0]?.c ?? 0;
+}
+
+/** 文件夹菜单派生：STILL_TYPES 口径（与照片 feed 一致）、排除无 bucket、按数量降序 */
+export async function fetchBucketCounts(): Promise<{ bucket: string; count: number }[]> {
+  const d = await ensureDb();
+  const rows = await d.getAllAsync<{ bucket: string; count: number }>(
+    `SELECT bucket, COUNT(*) AS count FROM media
+     WHERE mediaType IN (${placeholders(STILL_TYPES.length)}) AND bucket IS NOT NULL
+     GROUP BY bucket HAVING count > 0 ORDER BY count DESC`,
+    ...STILL_TYPES,
+  );
+  return rows;
+}
+
+/** 剔除聚合/虚拟夹：占比>0.8 或名称命中聚合语义（真机 bucket 均为真实夹，此为防御） */
+export function filterAggregateBuckets(
+  rows: { bucket: string; count: number }[],
+  totalImages: number,
+): { bucket: string; count: number }[] {
+  if (totalImages <= 0) return [];
+  const AGG = /(所有|全部|最近|导入)/i;
+  const AGG_EN = /^(all|recent|for you)/i;
+  return rows.filter((r) => r.count / totalImages <= 0.8 && !AGG.test(r.bucket) && !AGG_EN.test(r.bucket));
 }
 
 export async function addDeletion(rec: DeletionInput): Promise<void> {

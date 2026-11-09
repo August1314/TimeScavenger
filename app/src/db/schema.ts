@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS media (
   favorite INTEGER NOT NULL DEFAULT 0,
   lastReviewedDate INTEGER,
   lastLocallyReviewedDate INTEGER,
-  pendingDeletedAt INTEGER
+  pendingDeletedAt INTEGER,
+  bucket TEXT
 );
 CREATE TABLE IF NOT EXISTS deletion (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
