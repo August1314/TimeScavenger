@@ -83,7 +83,7 @@ export default function PhotosHome() {
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.capsule} onPress={() => setMenuOpen(true)}>
           <Text style={styles.chev}>⌄</Text>
-          <Text style={styles.capsuleText}>
+          <Text style={styles.capsuleText} numberOfLines={1}>
             {Platform.OS === 'android' ? (bucket === ALL_BUCKET ? '照片' : bucket) : CATEGORY_LABELS[category]}
           </Text>
           <View style={styles.badge}><Text style={styles.badgeText}>{size}</Text></View>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.capsuleLight, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, gap: 8,
   },
   chev: { color: C.textDim, fontSize: 13 },
-  capsuleText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  capsuleText: { color: '#fff', fontSize: 16, fontWeight: '600', maxWidth: 140 },
   badge: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 10, minWidth: 22, alignItems: 'center', paddingHorizontal: 6 },
   badgeText: { color: '#fff', fontSize: 12 },
   binBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.capsuleLight, alignItems: 'center', justifyContent: 'center' },

@@ -7,6 +7,8 @@ import {
   countUnreviewed,
   fetchBucketCounts,
   filterAggregateBuckets,
+  setPending,
+  __testingDb,
   ALL_BUCKET,
   type MediaRow,
 } from '../repo';
@@ -60,10 +62,31 @@ describe('bucket-filter queries', () => {
   it('upsertMedia 冲突更新 bucket 且不清已读', async () => {
     await upsertMedia([row('c1', 'photo', { bucket: 'Camera' })]);
     await markReviewed(['c1'], new Date(1800000000000));
+    // 重扫前给行设置非默认的本地浏览/待删除时间戳（Review Focus #4：重扫不得覆盖）
+    await __testingDb().runAsync(
+      'UPDATE media SET lastLocallyReviewedDate = ? WHERE localIdentifier = ?',
+      1750000000000, 'c1',
+    );
+    await setPending(['c1'], 1760000000000);
     await upsertMedia([row('c1', 'photo', { bucket: 'WeiXin' })]);
     const inWeiXin = await fetchUnreviewedRandom('photo', 10, 'WeiXin');
     expect(inWeiXin.find((x) => x.localIdentifier === 'c1')).toBeUndefined();
     expect(await countUnreviewed('photo', 'Camera')).toBe(1);
+    const kept = await __testingDb().getAllAsync<{
+      lastReviewedDate: number; lastLocallyReviewedDate: number; pendingDeletedAt: number;
+    }>('SELECT lastReviewedDate, lastLocallyReviewedDate, pendingDeletedAt FROM media WHERE localIdentifier = ?', 'c1');
+    expect(kept).toEqual([
+      { lastReviewedDate: 1800000000000, lastLocallyReviewedDate: 1750000000000, pendingDeletedAt: 1760000000000 },
+    ]);
+  });
+
+  it('upsert 冲突时 NULL bucket 保留旧值（COALESCE 防采集整体失败清空）', async () => {
+    await upsertMedia([row('c1', 'photo', { bucket: 'WeiXin' })]);
+    await upsertMedia([row('c1', 'photo')]); // 采集失败 → bucket null
+    const rows = await __testingDb().getAllAsync<{ bucket: string | null }>(
+      'SELECT bucket FROM media WHERE localIdentifier = ?', 'c1',
+    );
+    expect(rows).toEqual([{ bucket: 'WeiXin' }]);
   });
 });
 

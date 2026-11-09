@@ -62,7 +62,7 @@ export function CategoryMenu({ visible, items, currentKey, onSelectKey, onGroupS
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
         <BlurView intensity={40} tint="dark" style={[styles.panel, { maxHeight: height * 0.6 }]}>
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {items.map((it) => (
               <TouchableOpacity key={it.key} style={styles.row} onPress={() => onSelectKey(it.key)}>
                 <View style={styles.checkCol}>
@@ -91,10 +91,9 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 108, left: 20, width: 216,
     borderRadius: 26, overflow: 'hidden',
     backgroundColor: 'rgba(58,58,70,0.55)',
-    paddingTop: 10,
+    paddingVertical: 10,
     shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 18, shadowOffset: { width: 0, height: 8 },
   },
-  scroll: { paddingBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 12, gap: 12 },
   checkCol: { width: 14 },
   check: { color: '#fff', fontSize: 15, fontWeight: '700' },

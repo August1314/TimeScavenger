@@ -110,7 +110,7 @@ export async function upsertMedia(items: MediaRow[]): Promise<void> {
            height = excluded.height,
            creationDate = excluded.creationDate,
            favorite = excluded.favorite,
-           bucket = excluded.bucket`,
+           bucket = COALESCE(excluded.bucket, media.bucket)`,
         m.localIdentifier, m.cloudIdentifier, m.mediaType, m.width, m.height, m.creationDate, m.favorite ? 1 : 0, m.bucket ?? null,
       );
     }

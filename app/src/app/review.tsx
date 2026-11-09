@@ -63,7 +63,7 @@ export default function ReviewScreen() {
       const dta = (await getSetting('doubleTapAction')) === 'zoom' ? 'zoom' : 'favorite';
       setDeck(createDeck(g.items.map((r) => ({ id: r.localIdentifier, uri: r.localIdentifier })), dta));
     })();
-  }, [category]);
+  }, [category, bucket]);
 
   const rowById = useMemo(() => new Map(rows.map((r) => [r.localIdentifier, r])), [rows]);
 
