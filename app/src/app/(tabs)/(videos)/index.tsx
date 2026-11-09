@@ -13,6 +13,7 @@ import { nextGroup, markSeen } from '../../../lib/session';
 import { settlePage, dragPage, type SwipeRelease } from '../../../lib/videoFeed';
 import { pendingQueue } from '../../../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../../../lib/assets';
+import { shareAssetAndroid } from '../../../lib/share';
 import { placeParts } from '../../../lib/place';
 import { formatTime } from '../../../lib/time';
 import { hapticWarn, hapticSuccess, hapticSelect, hapticMedium } from '../../../lib/haptics';
@@ -299,10 +300,9 @@ export default function VideosHome() {
           <RoundIcon
             icon="share-outline"
             onPress={() => {
-              const uri = cur?.localIdentifier ?? '';
-              if (uri && Platform.OS === 'ios') void Share.share({ url: uri }).catch(() => {});
-              // Android localIdentifier 即 content:// URI，可直接分享
-              else if (uri) void Share.share({ url: uri }).catch(() => void Share.share({ message: uri }));
+              if (!cur) return;
+              if (Platform.OS === 'ios') void Share.share({ url: cur.localIdentifier }).catch(() => {});
+              else void shareAssetAndroid(cur.localIdentifier, cur.mediaType === 'video' ? 'video' : 'image').catch(() => {});
             }}
           />
           <RoundIcon testID="video_delete" icon="trash-outline" onPress={() => void del()} />

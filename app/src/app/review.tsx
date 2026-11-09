@@ -13,13 +13,13 @@ import { setFavoriteSafe, getAssetLocation } from '../lib/assets';
 import { getLiveSource, type LiveSource } from '../lib/live';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
-import { getSetting } from '../db/repo';
+import { ALL_BUCKET, getSetting, type Category, type MediaRow } from '../db/repo';
 import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticMedium, hapticLight, hapticSelect } from '../lib/haptics';
-import type { Category, MediaRow } from '../db/repo';
 
 export default function ReviewScreen() {
-  const params = useLocalSearchParams<{ category?: string }>();
+  const params = useLocalSearchParams<{ category?: string; bucket?: string }>();
   const category = (params.category ?? 'photo') as Category;
+  const bucket = params.bucket ?? ALL_BUCKET;
   const [rows, setRows] = useState<MediaRow[]>([]);
   const [deck, setDeck] = useState<DeckState | null>(null);
   const [timeFormat, setTimeFormat] = useState<'relative' | 'date'>('relative');
@@ -58,12 +58,12 @@ export default function ReviewScreen() {
       if (tf === 'date') setTimeFormat('date');
       const h = await getSetting('haptics');
       setHapticsEnabled(h !== 'off');
-      const g = await nextGroup(category);
+      const g = await nextGroup(category, bucket);
       setRows(g.items);
       const dta = (await getSetting('doubleTapAction')) === 'zoom' ? 'zoom' : 'favorite';
       setDeck(createDeck(g.items.map((r) => ({ id: r.localIdentifier, uri: r.localIdentifier })), dta));
     })();
-  }, [category]);
+  }, [category, bucket]);
 
   const rowById = useMemo(() => new Map(rows.map((r) => [r.localIdentifier, r])), [rows]);
 
@@ -157,7 +157,7 @@ export default function ReviewScreen() {
   const progress = deck.items.length ? deck.index / deck.items.length : 0;
 
   const nextSet = async () => {
-    const g = await nextGroup(category);
+    const g = await nextGroup(category, bucket);
     setRows(g.items);
     setDeck(createDeck(g.items.map((r) => ({ id: r.localIdentifier, uri: r.localIdentifier }))));
     setHintVisible(true);

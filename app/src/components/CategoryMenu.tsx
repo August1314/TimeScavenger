@@ -1,8 +1,8 @@
-import { Text, View, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Modal, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { C } from '../theme/colors';
-import type { Category } from '../db/repo';
+import { ALL_BUCKET, filterAggregateBuckets, type Category } from '../db/repo';
 
 // 分类菜单的文案与顺序
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -27,28 +27,52 @@ const ICONS: Record<Category, keyof typeof Ionicons.glyphMap> = {
 
 const ORDER: Category[] = ['photo', 'screenshot', 'selfie', 'live', 'gif', 'long'];
 
+/** iOS 固定类型菜单（行为与旧版一致） */
+export function buildCategoryMenu(): MenuEntry[] {
+  return ORDER.map((c) => ({ key: c as string, label: CATEGORY_LABELS[c], icon: ICONS[c] }));
+}
+
+/** Android 文件夹菜单：全部 + 降序真实夹（聚合夹剔除）；counts 需已按数量降序 */
+export function buildBucketMenu(counts: { bucket: string; count: number }[]): MenuEntry[] {
+  const total = counts.reduce((s, c) => s + c.count, 0);
+  return [
+    { key: ALL_BUCKET, label: '照片', icon: 'images' },
+    ...filterAggregateBuckets(counts, total).map((c) => ({ key: c.bucket, label: c.bucket, icon: 'folder-outline' as const })),
+  ];
+}
+
+export interface MenuEntry {
+  key: string;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}
+
 interface Props {
   visible: boolean;
-  current: Category;
-  onSelect: (c: Category) => void;
+  items: MenuEntry[];
+  currentKey: string;
+  onSelectKey: (key: string) => void;
   onGroupSize: () => void;
   onClose: () => void;
 }
 
-export function CategoryMenu({ visible, current, onSelect, onGroupSize, onClose }: Props) {
+export function CategoryMenu({ visible, items, currentKey, onSelectKey, onGroupSize, onClose }: Props) {
+  const { height } = useWindowDimensions();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <BlurView intensity={40} tint="dark" style={styles.panel}>
-          {ORDER.map((c) => (
-            <TouchableOpacity key={c} style={styles.row} onPress={() => onSelect(c)}>
-              <View style={styles.checkCol}>
-                {current === c && <Text style={styles.check}>✓</Text>}
-              </View>
-              <Ionicons name={ICONS[c]} size={20} color="#fff" />
-              <Text style={styles.label}>{CATEGORY_LABELS[c]}</Text>
-            </TouchableOpacity>
-          ))}
+        <BlurView intensity={40} tint="dark" style={[styles.panel, { maxHeight: height * 0.6 }]}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {items.map((it) => (
+              <TouchableOpacity key={it.key} style={styles.row} onPress={() => onSelectKey(it.key)}>
+                <View style={styles.checkCol}>
+                  {currentKey === it.key && <Text style={styles.check}>✓</Text>}
+                </View>
+                <Ionicons name={it.icon} size={20} color="#fff" />
+                <Text style={styles.label} numberOfLines={1}>{it.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
           <View style={styles.divider} />
           <TouchableOpacity style={styles.row} onPress={onGroupSize}>
             <View style={styles.checkCol} />
@@ -73,6 +97,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 12, gap: 12 },
   checkCol: { width: 14 },
   check: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  label: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  label: { color: '#fff', fontSize: 17, fontWeight: '600', flex: 1 },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.18)', marginVertical: 6, marginHorizontal: 14 },
 });

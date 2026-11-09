@@ -190,7 +190,7 @@ export default function PhotoInfoScreen() {
           style={styles.roundBtn}
           onPress={() => {
             if (Platform.OS === 'ios') void Linking.openURL('photos-redirect://');
-            else ToastAndroid.show('Android 暂不支持跳转相册', ToastAndroid.SHORT);
+            else if (id) void Linking.openURL(id).catch(() => ToastAndroid.show('未找到可打开的相册', ToastAndroid.SHORT));
           }}
         >
           <Ionicons name="images-outline" size={22} color="#fff" />

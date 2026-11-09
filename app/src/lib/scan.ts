@@ -7,6 +7,7 @@ import {
   requestPermissionsAsync,
   type AssetMetadata,
 } from 'expo-media-library';
+import { Platform } from 'react-native';
 import { upsertMedia, type MediaRow } from '../db/repo';
 import { classifyAsset, type AssetMetaLite } from './classify';
 
@@ -73,6 +74,29 @@ export interface ImportResult {
 }
 
 /**
+ * Android：MediaStore 文件夹（bucket_display_name）→ assetId 映射。
+ * 单夹异常跳过不中断整扫；iOS 不调用（恒空 Map → bucket null）。
+ */
+export async function collectAndroidBuckets(): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  try {
+    const albums = await Album.getAll();
+    for (const a of albums) {
+      try {
+        const title = await a.getTitle();
+        const assets = await new Query().album(a).eq(AssetField.MEDIA_TYPE, MediaType.IMAGE).exeForMetadata();
+        for (const m of assets) if (!map.has(m.id)) map.set(m.id, title);
+      } catch {
+        // 单夹失败跳过
+      }
+    }
+  } catch {
+    // 文件夹枚举不可用 → 全部无 bucket，菜单只剩"全部"
+  }
+  return map;
+}
+
+/**
  * 增量导入：一次拉全量轻量元数据（image+video），分批 upsert 并回报进度。
  * upsert 保留已读时间戳（Task 2 语义），重复调用安全。
  */
@@ -82,6 +106,7 @@ export async function startImport(onProgress: (done: number, total: number) => v
   const videos = await new Query().eq(AssetField.MEDIA_TYPE, MediaType.VIDEO).exeForMetadata();
   const all = [...images, ...videos];
   const total = all.length;
+  const bucketMap = Platform.OS === 'android' ? await collectAndroidBuckets() : new Map<string, string>();
 
   let imported = 0;
   let skipped = 0;
@@ -102,6 +127,7 @@ export async function startImport(onProgress: (done: number, total: number) => v
         width: m.width ?? 0,
         height: m.height ?? 0,
         creationDate: resolveCreationTime(m.creationTime, m.modificationTime),
+        bucket: bucketMap.get(m.id) ?? null,
         favorite: m.isFavorite,
         lastReviewedDate: null,
         lastLocallyReviewedDate: null,

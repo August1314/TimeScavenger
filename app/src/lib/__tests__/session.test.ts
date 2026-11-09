@@ -36,6 +36,17 @@ describe('nextGroup', () => {
     await setSetting('videosPerGroup', '7');
     expect((await nextGroup('video')).items).toHaveLength(7);
   });
+
+  it('bucket 透传：只出该文件夹；不传/ALL = 旧行为', async () => {
+    await upsertMedia([
+      { ...row('a', 'photo'), bucket: 'Camera' },
+      { ...row('b', 'photo'), bucket: 'Camera' },
+      { ...row('c', 'photo'), bucket: 'WeiXin' },
+    ]);
+    expect((await nextGroup('photo', 'Camera')).items.map((r) => r.localIdentifier).sort()).toEqual(['a', 'b']);
+    expect((await nextGroup('photo', 'all')).items).toHaveLength(3);
+    expect((await nextGroup('photo')).items).toHaveLength(3);
+  });
 });
 
 describe('markSeen', () => {

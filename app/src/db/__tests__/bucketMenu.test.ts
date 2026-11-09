@@ -1,0 +1,139 @@
+import {
+  configureDbForTesting,
+  initDb,
+  upsertMedia,
+  markReviewed,
+  fetchUnreviewedRandom,
+  countUnreviewed,
+  fetchBucketCounts,
+  filterAggregateBuckets,
+  setPending,
+  __testingDb,
+  ALL_BUCKET,
+  type MediaRow,
+} from '../repo';
+import { buildBucketMenu } from '../../components/CategoryMenu';
+import { fakeDb } from '../../testlib/fakeDb';
+
+function row(id: string, mediaType: MediaRow['mediaType'], extra?: Partial<MediaRow>): MediaRow {
+  return {
+    localIdentifier: id, cloudIdentifier: null, mediaType,
+    width: 100, height: 200, creationDate: 1700000000000, favorite: false,
+    lastReviewedDate: null, lastLocallyReviewedDate: null, ...extra,
+  };
+}
+
+beforeEach(async () => {
+  configureDbForTesting(fakeDb());
+  await initDb();
+});
+
+describe('bucket-filter queries', () => {
+  beforeEach(async () => {
+    await upsertMedia([
+      row('c1', 'photo', { bucket: 'Camera' }),
+      row('c2', 'long', { bucket: 'Camera' }),
+      row('w1', 'photo', { bucket: 'WeiXin' }),
+      row('v1', 'video', { bucket: 'Camera' }),
+      row('n1', 'photo'),
+    ]);
+  });
+
+  it('无 bucket = 旧行为：photo 类含 long、排除 video', async () => {
+    const ids = (await fetchUnreviewedRandom('photo', 10)).map((r) => r.localIdentifier).sort();
+    expect(ids).toEqual(['c1', 'c2', 'n1', 'w1']);
+  });
+
+  it('bucket 过滤只返回该夹', async () => {
+    const ids = (await fetchUnreviewedRandom('photo', 10, 'Camera')).map((r) => r.localIdentifier).sort();
+    expect(ids).toEqual(['c1', 'c2']);
+  });
+
+  it("bucket='all'/null/undefined = 不加条件", async () => {
+    expect((await fetchUnreviewedRandom('photo', 10, ALL_BUCKET)).length).toBe(4);
+    expect((await fetchUnreviewedRandom('photo', 10, null)).length).toBe(4);
+  });
+
+  it('countUnreviewed 与 feed 同口径（长图计入）', async () => {
+    expect(await countUnreviewed('photo')).toBe(4);
+    expect(await countUnreviewed('photo', 'Camera')).toBe(2);
+  });
+
+  it('upsertMedia 冲突更新 bucket 且不清已读', async () => {
+    await upsertMedia([row('c1', 'photo', { bucket: 'Camera' })]);
+    await markReviewed(['c1'], new Date(1800000000000));
+    // 重扫前给行设置非默认的本地浏览/待删除时间戳（Review Focus #4：重扫不得覆盖）
+    await __testingDb().runAsync(
+      'UPDATE media SET lastLocallyReviewedDate = ? WHERE localIdentifier = ?',
+      1750000000000, 'c1',
+    );
+    await setPending(['c1'], 1760000000000);
+    await upsertMedia([row('c1', 'photo', { bucket: 'WeiXin' })]);
+    const inWeiXin = await fetchUnreviewedRandom('photo', 10, 'WeiXin');
+    expect(inWeiXin.find((x) => x.localIdentifier === 'c1')).toBeUndefined();
+    expect(await countUnreviewed('photo', 'Camera')).toBe(1);
+    const kept = await __testingDb().getAllAsync<{
+      lastReviewedDate: number; lastLocallyReviewedDate: number; pendingDeletedAt: number;
+    }>('SELECT lastReviewedDate, lastLocallyReviewedDate, pendingDeletedAt FROM media WHERE localIdentifier = ?', 'c1');
+    expect(kept).toEqual([
+      { lastReviewedDate: 1800000000000, lastLocallyReviewedDate: 1750000000000, pendingDeletedAt: 1760000000000 },
+    ]);
+  });
+
+  it('upsert 冲突时 NULL bucket 保留旧值（COALESCE 防采集整体失败清空）', async () => {
+    await upsertMedia([row('c1', 'photo', { bucket: 'WeiXin' })]);
+    await upsertMedia([row('c1', 'photo')]); // 采集失败 → bucket null
+    const rows = await __testingDb().getAllAsync<{ bucket: string | null }>(
+      'SELECT bucket FROM media WHERE localIdentifier = ?', 'c1',
+    );
+    expect(rows).toEqual([{ bucket: 'WeiXin' }]);
+  });
+});
+
+describe('fetchBucketCounts', () => {
+  it('按 STILL_TYPES 过滤、排除 NULL bucket、降序', async () => {
+    await upsertMedia([
+      row('a', 'photo', { bucket: 'Camera' }),
+      row('b', 'long', { bucket: 'Camera' }),
+      row('c', 'photo', { bucket: 'WeiXin' }),
+      row('d', 'video', { bucket: 'Camera' }),
+      row('e', 'photo'),
+    ]);
+    expect(await fetchBucketCounts()).toEqual([
+      { bucket: 'Camera', count: 2 },
+      { bucket: 'WeiXin', count: 1 },
+    ]);
+  });
+});
+
+describe('filterAggregateBuckets', () => {
+  it('剔除占比>0.8', () => {
+    expect(filterAggregateBuckets([{ bucket: 'Camera', count: 90 }], 100)).toEqual([]);
+  });
+  it('剔除聚合名（中文/英文）', () => {
+    expect(filterAggregateBuckets([{ bucket: '所有照片', count: 10 }, { bucket: 'All Photos', count: 5 }], 100)).toEqual([]);
+    expect(filterAggregateBuckets([{ bucket: '最近添加', count: 5 }], 100)).toEqual([]);
+  });
+  it('保留正常夹', () => {
+    expect(filterAggregateBuckets([{ bucket: 'Camera', count: 35 }, { bucket: 'WeiXin', count: 10 }], 100))
+      .toEqual([{ bucket: 'Camera', count: 35 }, { bucket: 'WeiXin', count: 10 }]);
+  });
+  it('totalImages=0 返回 []', () => {
+    expect(filterAggregateBuckets([{ bucket: 'Camera', count: 1 }], 0)).toEqual([]);
+  });
+});
+
+describe('buildBucketMenu', () => {
+  it('首项=全部(哨兵 ALL_BUCKET)，其后按数量降序文件夹，聚合夹被剔除', () => {
+    const items = buildBucketMenu([
+      { bucket: 'Camera', count: 100 },
+      { bucket: '所有照片', count: 5 },
+      { bucket: 'WeiXin', count: 40 },
+    ]);
+    expect(items.map((i) => i.key)).toEqual([ALL_BUCKET, 'Camera', 'WeiXin']);
+    expect(items[0].label).toBe('照片');
+  });
+  it('空库只剩全部', () => {
+    expect(buildBucketMenu([]).map((i) => i.key)).toEqual([ALL_BUCKET]);
+  });
+});
