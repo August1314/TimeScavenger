@@ -26,11 +26,12 @@ export default function SpikeScreen() {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>拾光 · 设备验证</Text>
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={{ maxHeight: '18%' }}>
         {log.map((l, i) => (
           <Text key={i} style={styles.line}>{l}</Text>
         ))}
       </ScrollView>
+      <ScrollView style={{ flex: 1 }}>
       <Btn label="1. 权限 + 建库 + 导入" onPress={() => run(async () => {
         const perm = await ensurePhotoPermission();
         say(`权限: ${perm}`);
@@ -95,6 +96,28 @@ export default function SpikeScreen() {
           .map((v: { id: string; filename?: string; mediaSubtypes?: string[] }) => `${v.id} ${v.filename} [${(v.mediaSubtypes ?? []).join('|')}]`);
         say(`视频总数=${vids.length} 同stem匹配=${hits.length ? hits.join(' ; ') : '无'}`);
       })} busy={busy} />
+      <Btn label="7. bucket 采集诊断" onPress={() => run(async () => {
+        const ML = require('expo-media-library');
+        const { collectAndroidBuckets } = require('../lib/scan');
+        const { fetchBucketCounts, __testingDb } = require('../db/repo');
+        try {
+          const page = await ML.getAssetsAsync({ mediaType: 'photo', first: 3 });
+          const n0 = page.edges[0]?.node;
+          say(`legacy page: edges=${page.edges.length} has_next=${page.has_next}`);
+          say(`node keys: ${Object.keys(n0 ?? {}).join(',')}`);
+          say(`node.file=${String(n0?.file)} filename=${n0?.filename} uri=${String(n0?.uri).slice(0, 60)}`);
+        } catch (e: any) {
+          say(`legacy getAssetsAsync ❌ ${String(e?.message ?? e).slice(0, 150)}`);
+        }
+        const map = await collectAndroidBuckets();
+        say(`collectAndroidBuckets size=${map.size} 样例=${[...map.entries()].slice(0, 2).map(([k, v]) => `${v}`).join(',')}`);
+        const db = await __testingDb();
+        const c1 = await db.getAllAsync('SELECT COUNT(*) AS c FROM media WHERE bucket IS NOT NULL');
+        const c2 = await db.getAllAsync('SELECT COUNT(*) AS c FROM media');
+        say(`DB: bucket非空=${c1[0]?.c} / 总行=${c2[0]?.c}`);
+        const counts = await fetchBucketCounts();
+        say(`fetchBucketCounts 条数=${counts.length} top=${counts.slice(0, 3).map((x: { bucket: string; count: number }) => `${x.bucket}:${x.count}`).join(',')}`);
+      })} busy={busy} />
       <Btn label="6. 配对MOV候选路径探测" onPress={() => run(async () => {
         const { Asset } = require('expo-media-library');
         const { File } = require('expo-file-system');
@@ -124,6 +147,7 @@ export default function SpikeScreen() {
           } catch (e) { say(`❌ ${c} ${String(e).slice(0, 60)}`); }
         }
       })} busy={busy} />
+      </ScrollView>
     </View>
   );
 }

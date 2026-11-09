@@ -74,24 +74,36 @@ export interface ImportResult {
 }
 
 /**
- * Android：MediaStore 文件夹（bucket_display_name）→ assetId 映射。
- * 单夹异常跳过不中断整扫；iOS 不调用（恒空 Map → bucket null）。
+ * Android：assetId → 文件夹名映射。
+ * 不用 Album.getAll（其底层查 content://media/external/files，ColorOS 实测
+ * 抛 UnsupportedOperationException 致枚举恒空）——改走 legacy getAssetsAsync，
+ * 从 asset.file 绝对路径取末段目录名（与 MediaStore bucket_display_name 一致，
+ * 如 /storage/emulated/0/DCIM/Camera/x.jpg → "Camera"）。
+ * iOS 不调用（恒空 Map → bucket null）。
  */
 export async function collectAndroidBuckets(): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   try {
-    const albums = await Album.getAll();
-    for (const a of albums) {
-      try {
-        const title = await a.getTitle();
-        const assets = await new Query().album(a).eq(AssetField.MEDIA_TYPE, MediaType.IMAGE).exeForMetadata();
-        for (const m of assets) if (!map.has(m.id)) map.set(m.id, title);
-      } catch {
-        // 单夹失败跳过
+    const ML = require('expo-media-library');
+    let after: string | undefined;
+    let hasNext = true;
+    while (hasNext) {
+      const page = await ML.getAssetsAsync({
+        mediaType: ML.MediaType?.photo ?? 'photo',
+        first: 1000,
+        ...(after ? { after } : {}),
+      });
+      for (const edge of page.edges) {
+        const node = edge.node;
+        const parts = String(node.file ?? '').split('/');
+        const folder = parts[parts.length - 2] ?? '';
+        if (folder && node.id) map.set(node.id, folder);
       }
+      after = page.page_info?.end_cursor;
+      hasNext = Boolean(page.has_next);
     }
   } catch {
-    // 文件夹枚举不可用 → 全部无 bucket，菜单只剩"全部"
+    // 采集不可用 → 全部无 bucket，菜单只剩"全部"（COALESCE 保住旧值）
   }
   return map;
 }
