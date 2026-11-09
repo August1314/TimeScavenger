@@ -10,6 +10,7 @@ import {
   ALL_BUCKET,
   type MediaRow,
 } from '../repo';
+import { buildBucketMenu } from '../../components/CategoryMenu';
 import { fakeDb } from '../../testlib/fakeDb';
 
 function row(id: string, mediaType: MediaRow['mediaType'], extra?: Partial<MediaRow>): MediaRow {
@@ -96,5 +97,20 @@ describe('filterAggregateBuckets', () => {
   });
   it('totalImages=0 返回 []', () => {
     expect(filterAggregateBuckets([{ bucket: 'Camera', count: 1 }], 0)).toEqual([]);
+  });
+});
+
+describe('buildBucketMenu', () => {
+  it('首项=全部(哨兵 ALL_BUCKET)，其后按数量降序文件夹，聚合夹被剔除', () => {
+    const items = buildBucketMenu([
+      { bucket: 'Camera', count: 100 },
+      { bucket: '所有照片', count: 5 },
+      { bucket: 'WeiXin', count: 40 },
+    ]);
+    expect(items.map((i) => i.key)).toEqual([ALL_BUCKET, 'Camera', 'WeiXin']);
+    expect(items[0].label).toBe('照片');
+  });
+  it('空库只剩全部', () => {
+    expect(buildBucketMenu([]).map((i) => i.key)).toEqual([ALL_BUCKET]);
   });
 });

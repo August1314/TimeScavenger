@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { GradientBackground } from '../../../theme/GradientBackground';
 import { C } from '../../../theme/colors';
-import { ALL_BUCKET, countUnreviewed, fetchUnreviewedRandom, setSetting, type Category, type MediaRow } from '../../../db/repo';
-import { CategoryMenu, CATEGORY_LABELS } from '../../../components/CategoryMenu';
+import { ALL_BUCKET, countUnreviewed, fetchUnreviewedRandom, fetchBucketCounts, setSetting, type Category, type MediaRow } from '../../../db/repo';
+import { CategoryMenu, CATEGORY_LABELS, buildBucketMenu, buildCategoryMenu, type MenuEntry } from '../../../components/CategoryMenu';
 import { GroupSizeSheet } from '../../../components/GroupSizeSheet';
 import { groupSizeLabel } from '../../../lib/session';
 import { pendingQueue } from '../../../lib/deletion';
@@ -24,8 +24,11 @@ export default function PhotosHome() {
   const [pendingN, setPendingN] = useState(0);
   const [preview, setPreview] = useState<MediaRow[]>([]);
   const [category, setCategory] = useState<Category>('photo');
-  // Android 文件夹分类（Task 4 菜单接线）；iOS 恒 ALL_BUCKET = 旧行为
+  // Android 文件夹分类；iOS 恒 ALL_BUCKET = 旧行为
   const [bucket, setBucket] = useState<string>(ALL_BUCKET);
+  const [bucketItems, setBucketItems] = useState<MenuEntry[]>(() =>
+    Platform.OS === 'android' ? [{ key: ALL_BUCKET, label: '照片', icon: 'images' }] : buildCategoryMenu(),
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
 
@@ -33,12 +36,14 @@ export default function PhotosHome() {
     useCallback(() => {
       let alive = true;
       (async () => {
-        const [count, label, prev, pn] = await Promise.all([
+        const [count, label, prev, pn, counts] = await Promise.all([
           countUnreviewed(category, bucket),
           groupSizeLabel(category),
           fetchUnreviewedRandom(category, 3, bucket),
           pendingQueue.count(),
+          Platform.OS === 'android' ? fetchBucketCounts() : Promise.resolve([]),
         ]);
+        if (Platform.OS === 'android' && alive) setBucketItems(buildBucketMenu(counts));
         if (!alive) return;
         setN(count);
         setSize(label);
@@ -78,7 +83,9 @@ export default function PhotosHome() {
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.capsule} onPress={() => setMenuOpen(true)}>
           <Text style={styles.chev}>⌄</Text>
-          <Text style={styles.capsuleText}>{CATEGORY_LABELS[category]}</Text>
+          <Text style={styles.capsuleText}>
+            {Platform.OS === 'android' ? (bucket === ALL_BUCKET ? '照片' : bucket) : CATEGORY_LABELS[category]}
+          </Text>
           <View style={styles.badge}><Text style={styles.badgeText}>{size}</Text></View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.binBtn} onPress={openBin}>
@@ -142,9 +149,15 @@ export default function PhotosHome() {
 
       <CategoryMenu
         visible={menuOpen}
-        current={category}
-        onSelect={(c) => {
-          setCategory(c);
+        items={bucketItems}
+        currentKey={Platform.OS === 'android' ? bucket : category}
+        onSelectKey={(key) => {
+          if (Platform.OS === 'android') {
+            setBucket(key);
+            setCategory('photo');
+          } else {
+            setCategory(key as Category);
+          }
           setMenuOpen(false);
         }}
         onGroupSize={() => {
