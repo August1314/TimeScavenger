@@ -18,6 +18,10 @@ export function hapticLight(): void {
   if (enabled) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 }
 
+export function hapticMedium(): void {
+  if (enabled) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+}
+
 export function hapticSelect(): void {
   if (enabled) void Haptics.selectionAsync();
 }

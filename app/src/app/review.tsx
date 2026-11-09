@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Alert, Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
+import { Alert, Platform, Text, View, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { GradientBackground } from '../theme/GradientBackground';
@@ -14,7 +14,7 @@ import { getLiveSource, type LiveSource } from '../lib/live';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
 import { getSetting } from '../db/repo';
-import { setHapticsEnabled, hapticSuccess, hapticLight, hapticSelect } from '../lib/haptics';
+import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticMedium, hapticLight, hapticSelect } from '../lib/haptics';
 import type { Category, MediaRow } from '../db/repo';
 
 export default function ReviewScreen() {
@@ -102,7 +102,8 @@ export default function ReviewScreen() {
           await pendingQueue.push(row);
           await markSeen(row);
         }
-        hapticLight(); // 用户裁决：删除触感与滑动切换一致，不用 warning 重震
+        // 用户裁决：iOS 保持 warning 原触感不变；Android warning 过重，改 Medium
+        Platform.OS === 'ios' ? hapticWarn() : hapticMedium();
         setHintVisible(false);
         showToast('已加入待删除 · 点 ↩ 撤回');
         break;
