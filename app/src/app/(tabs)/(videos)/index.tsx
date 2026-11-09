@@ -15,7 +15,7 @@ import { pendingQueue } from '../../../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../../../lib/assets';
 import { placeParts } from '../../../lib/place';
 import { formatTime } from '../../../lib/time';
-import { hapticWarn, hapticSuccess, hapticSelect } from '../../../lib/haptics';
+import { hapticWarn, hapticSuccess, hapticSelect, hapticLight } from '../../../lib/haptics';
 import type { MediaRow } from '../../../db/repo';
 
 export default function VideosHome() {
@@ -213,7 +213,7 @@ export default function VideosHome() {
     await pendingQueue.push(cur);
     await markSeen(cur);
     setLastDeleted(cur);
-    hapticWarn();
+    hapticLight(); // 用户裁决：删除触感与滑动切换一致，不用 warning 重震
     showToast('已加入待删除 · 回收站确认');
     // 列表不删行保持下标稳定；定格前进由用户滑动完成
   };

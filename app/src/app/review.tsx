@@ -14,7 +14,7 @@ import { getLiveSource, type LiveSource } from '../lib/live';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
 import { getSetting } from '../db/repo';
-import { setHapticsEnabled, hapticWarn, hapticSuccess, hapticLight, hapticSelect } from '../lib/haptics';
+import { setHapticsEnabled, hapticSuccess, hapticLight, hapticSelect } from '../lib/haptics';
 import type { Category, MediaRow } from '../db/repo';
 
 export default function ReviewScreen() {
@@ -102,7 +102,7 @@ export default function ReviewScreen() {
           await pendingQueue.push(row);
           await markSeen(row);
         }
-        hapticWarn();
+        hapticLight(); // 用户裁决：删除触感与滑动切换一致，不用 warning 重震
         setHintVisible(false);
         showToast('已加入待删除 · 点 ↩ 撤回');
         break;
