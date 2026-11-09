@@ -15,6 +15,7 @@ import { getLiveSource, type LiveSource } from '../lib/live';
 import { getAssetLocation } from '../lib/assets';
 import { placeParts } from '../lib/place';
 import { hapticSelect, hapticSuccess, hapticWarn } from '../lib/haptics';
+import { shareAssetAndroid } from '../lib/share';
 import type { MediaRow } from '../db/repo';
 
 export default function DayPreviewScreen() {
@@ -66,9 +67,8 @@ export default function DayPreviewScreen() {
       if (Platform.OS === 'ios') {
         const uri = await new Asset(id ?? '').getUri();
         if (uri) await Share.share({ url: uri });
-      } else if (id) {
-        // Android localIdentifier 即 content:// URI，可直接分享
-        await Share.share({ url: id });
+      } else if (id && row) {
+        await shareAssetAndroid(id, row.mediaType === 'video' ? 'video' : 'image');
       }
     } catch {
       // 用户取消
