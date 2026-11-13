@@ -10,6 +10,7 @@ import { createDeck, deckReducer, type DeckAction, type DeckState } from '../lib
 import { nextGroup, markSeen } from '../lib/session';
 import { pendingQueue } from '../lib/deletion';
 import { setFavoriteSafe, getAssetLocation } from '../lib/assets';
+import { shareAssetAndroid } from '../lib/share';
 import { getLiveSource, type LiveSource } from '../lib/live';
 import { placeName } from '../lib/place';
 import { formatTime } from '../lib/time';
@@ -199,9 +200,18 @@ export default function ReviewScreen() {
         <RoundBtn
           light
           icon="share-outline"
-          onPress={() =>
-            Share.share({ message: '像刷短视频一样刷自己的照片 —— 拾光' }).catch(() => {})
-          }
+          onPress={() => {
+            const id = deck.items[deck.index]?.id;
+            if (!id) return;
+            // Android：分享当前卡照片本体（与 day-preview 分享一致）；iOS 推广文案分享不动
+            if (Platform.OS === 'android') {
+              void shareAssetAndroid(id, currentRow?.mediaType === 'video' ? 'video' : 'image').catch(
+                () => showToast('分享失败，请重试')
+              );
+            } else {
+              Share.share({ message: '像刷短视频一样刷自己的照片 —— 拾光' }).catch(() => {});
+            }
+          }}
         />
       </View>
 
@@ -295,7 +305,7 @@ export default function ReviewScreen() {
             <Text style={styles.timeText} numberOfLines={1}>
               {currentRow ? formatTime(currentRow.creationDate, timeFormat) : '未知时间'}
             </Text>
-            {place ? <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">{place}</Text> : null}
+            {place ? <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="middle">{place}</Text> : null}
           </View>
           <TouchableOpacity
             style={styles.infoBtn}
@@ -337,7 +347,7 @@ const styles = StyleSheet.create({
     borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5,
   },
   liveBadgeText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  placeText: { color: C.textDim, fontSize: 13 },
+  placeText: { color: C.textDim, fontSize: 13, flexShrink: 1 },
   feedbackRow: { minHeight: 34, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
   hint: { color: 'rgba(255,255,255,0.4)', fontSize: 13 },
   toast: { backgroundColor: 'rgba(30,30,40,0.85)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 8 },
@@ -349,16 +359,20 @@ const styles = StyleSheet.create({
   roundBtn: {
     width: 56, height: 56, borderRadius: 28, backgroundColor: C.capsuleDark,
     alignItems: 'center', justifyContent: 'center',
+    // 长地址曾把两侧圆钮挤出屏幕（RN flexShrink 默认 0，胶囊不收缩）：钮固定尺寸禁缩
+    flexShrink: 0,
   },
   roundBtnLight: { backgroundColor: C.capsuleLight },
   timeCapsule: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: C.capsuleDark,
     borderRadius: 26, paddingHorizontal: 20, paddingVertical: 10, gap: 12,
+    flexShrink: 1,
   },
   timeText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   infoBtn: {
     width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.14)',
     alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
   },
   infoGlyph: { color: C.textDim, fontSize: 13, fontWeight: '700', fontStyle: 'italic' },
   doneTitle: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28 },
