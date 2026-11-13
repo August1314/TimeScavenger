@@ -73,6 +73,10 @@ export default function ReviewScreen() {
     deckRef.current = deck;
   }, [deck]);
 
+  // 被拒 swipe（如第一张右滑）时卡片已飞出但 index/card.id 不变，
+  // bump 该计数让 CardStack 把卡片弹回（否则空白卡死，真机 bug）
+  const [resetTick, setResetTick] = useState(0);
+
   const dispatch = (e: Parameters<typeof deckReducer>[1]) => {
     const prev = deckRef.current;
     if (!prev) return;
@@ -80,6 +84,7 @@ export default function ReviewScreen() {
     deckRef.current = state;
     setDeck(state);
     if (action) void run(action);
+    if (e.type === 'swipe' && state === prev) setResetTick((t) => t + 1);
   };
 
   // 一组刷完 → 有待删除项则自动进入确认页（原 app 闭环）
@@ -228,6 +233,7 @@ export default function ReviewScreen() {
             testID="review_card"
             cards={deck.items}
             index={deck.index}
+            resetSignal={resetTick}
             live={currentRow?.mediaType === 'live'}
             liveSource={liveSrc && currentId && liveSrc.id === currentId ? liveSrc.src : null}
             badge={

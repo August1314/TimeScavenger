@@ -21,6 +21,8 @@ interface CardData {
 interface Props {
   cards: CardData[];
   index: number;
+  /** 被拒 swipe（如第一张右滑）时由父级 bump：卡片已飞出但 card.id 不变，据此弹回 */
+  resetSignal?: number;
   badge?: React.ReactNode;
   live?: boolean;
   liveSource?: LiveSource | null;
@@ -35,8 +37,9 @@ const SWIPE_UP_THRESHOLD = -110;
 const SWIPE_DOWN_THRESHOLD = 110;
 const SWIPE_SIDE_THRESHOLD = 90;
 
-function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: {
+function TopCard({ card, resetSignal, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd }: {
   card: CardData;
+  resetSignal?: number;
   badge?: React.ReactNode;
   live?: boolean;
   liveSource?: LiveSource | null;
@@ -55,6 +58,15 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
   useEffect(() => {
     x.value = 0; y.value = 0; scale.value = 1; gone.value = 0;
   }, [card.id, x, y, scale, gone]);
+
+  // 被拒 swipe 的弹回：卡片已飞出但 card.id 未变（如第一张右滑），
+  // 复位 effect 不触发 → 靠 resetSignal 把卡片 spring 回中央并恢复不透明
+  useEffect(() => {
+    if (x.value === 0 && y.value === 0 && gone.value === 0) return;
+    x.value = withSpring(0, { damping: 16, stiffness: 160 });
+    y.value = withSpring(0, { damping: 16, stiffness: 160 });
+    gone.value = 0;
+  }, [resetSignal]);
 
   const style = useAnimatedStyle(() => ({
     transform: [
@@ -159,13 +171,13 @@ function TopCard({ card, badge, live, liveSource, onSwipe, onDoubleTap, onPinchO
   );
 }
 
-export function CardStack({ cards, index, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd, testID }: Props & { testID?: string }) {
+export function CardStack({ cards, index, resetSignal, badge, live, liveSource, onSwipe, onDoubleTap, onPinchOut, onLongPress, onLiveEnd, testID }: Props & { testID?: string }) {
   const top = cards[index];
   // 浏览页为单张全出血卡（无后层卡边）
   return (
     <View style={styles.stack} pointerEvents="box-none" testID={testID}>
       {top && (
-        <TopCard card={top} badge={badge} live={live} liveSource={liveSource} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} onLiveEnd={onLiveEnd} />
+        <TopCard card={top} resetSignal={resetSignal} badge={badge} live={live} liveSource={liveSource} onSwipe={onSwipe} onDoubleTap={onDoubleTap} onPinchOut={onPinchOut} onLongPress={onLongPress} onLiveEnd={onLiveEnd} />
       )}
     </View>
   );

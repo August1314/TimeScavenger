@@ -33,6 +33,13 @@ describe('deckMachine', () => {
     expect(r2.action).toEqual({ kind: 'seen', id: 'A' }); // 重复 seen 幂等
   });
 
+  it('swipe right on first card is rejected with identical state (真机卡死回归)', () => {
+    const s = idle();
+    const r = deckReducer(s, { type: 'swipe', dir: 'right' });
+    expect(r.state).toBe(s); // 同一引用 → UI 层据此弹回卡片
+    expect(r.action).toBeNull();
+  });
+
   it('animating state rejects new swipes (Review Focus #4)', () => {
     const animating: DeckState = { ...idle(), status: 'animating' };
     const { state, action } = deckReducer(animating, { type: 'swipe', dir: 'up' });

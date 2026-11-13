@@ -79,6 +79,10 @@ export function deckReducer(
           return { state: advance(s), action: { kind: 'seen', id: c.id } };
         case 'right': {
           const back = Math.max(0, s.index - 1);
+          // 第一张不可再回退：拒绝该 swipe（状态原样返回），UI 层据此弹回卡片。
+          // 若照常返回新对象，index/card.id 不变会让 CardStack 的复位 effect 不触发，
+          // 卡片飞出屏外永不回来（真机 bug：第一张右滑卡死）。
+          if (back === s.index) return { state: s, action: null };
           const b = s.items[back];
           return { state: { ...s, index: back, done: false }, action: b ? { kind: 'seen', id: b.id } : null };
         }
